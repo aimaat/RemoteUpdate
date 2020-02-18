@@ -131,9 +131,11 @@ namespace RemoteUpdate
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Mail"]); }
                 CreateCheckbox("CheckboxMail_" + ii, 490, 30 * (ii + 1), tmpBool);
                 // Credentials Button creation
-                CreateButton("ButtonCredentials_" + ii, "Credentials", 70, 530, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(GetCredentials));
+                CreateButton("ButtonCredentials_" + ii, "Credentials", 70, 530, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(GetCredentials), System.Windows.Visibility.Visible);
                 // Start Button creation
-                CreateButton("ButtonStart_" + ii, "Start", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click));
+                CreateButton("ButtonStart_" + ii, "Start", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
+                // Time Button creation
+                CreateButton("ButtonTime_" + ii, "12:12:12", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
                 // Enabled Checkbox creation
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Enabled"]); }
                 CreateCheckbox("CheckboxEnabled_" + ii, 710, 30 * (ii + 1), tmpBool);
@@ -326,7 +328,7 @@ namespace RemoteUpdate
             CheckBox1.Unchecked += CheckBoxChangedServer;
             GridMainWindow.Children.Add(CheckBox1);
         }
-        private void CreateButton(string btnname, string btntext, int btnwidth, int btnmarginleft, int rtmargintop, RoutedEventHandler btnevent)
+        private void CreateButton(string btnname, string btntext, int btnwidth, int btnmarginleft, int rtmargintop, RoutedEventHandler btnevent, System.Windows.Visibility btnvisibility)
         {
             Button Button1 = new Button()
             {
@@ -335,7 +337,8 @@ namespace RemoteUpdate
                 Content = btntext,
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 VerticalAlignment = System.Windows.VerticalAlignment.Top,
-                Margin = new Thickness(btnmarginleft, rtmargintop, 0, 0)
+                Margin = new Thickness(btnmarginleft, rtmargintop, 0, 0),
+                Visibility = btnvisibility
             };
             Button1.Click += btnevent;
             GridMainWindow.Children.Add(Button1);
@@ -396,9 +399,11 @@ namespace RemoteUpdate
                 // Mail Checkbox creation
                 CreateCheckbox("CheckboxMail_" + list.Count(), 490, 30 * (list.Count() + 1), false);
                 // Credentials Button creation
-                CreateButton("ButtonCredentials_" + list.Count(), "Credentials", 70, 530, 30 * ((list.Count() + 1) - 1) + 29, new RoutedEventHandler(GetCredentials));
+                CreateButton("ButtonCredentials_" + list.Count(), "Credentials", 70, 530, 30 * ((list.Count() + 1) - 1) + 29, new RoutedEventHandler(GetCredentials), System.Windows.Visibility.Visible);
                 // Start Button creation
-                CreateButton("ButtonStart_" + list.Count(), "Start", 70, 620, 30 * ((list.Count() + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click));
+                CreateButton("ButtonStart_" + list.Count(), "Start", 70, 620, 30 * ((list.Count() + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
+                // Time Button creation
+                CreateButton("ButtonTime_" + list.Count(), "12:12:12", 70, 620, 30 * ((list.Count() + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
                 // Enabled Checkbox creation
                 CreateCheckbox("CheckboxEnabled_" + list.Count(), 710, 30 * (list.Count() + 1), false);
                 if ((list.Count() + 1) % 2 == 0)
@@ -599,10 +604,20 @@ namespace RemoteUpdate
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
             int line = Int32.Parse((sender as Button).Name.Split('_')[1]);
-            StartUpdate(line);
+            OpenPowerShell(line);
+        }
+        private void ButtonTime_Click(object sender, RoutedEventArgs e)
+        {
+            int line = Int32.Parse((sender as Button).Name.Split('_')[1]);
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
         }
         private void OpenPowerShell(int line)
         {
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString())).FirstOrDefault().Content = DateTime.Now.ToString("HH:mm:ss");
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
+
             ProcessStartInfo startInfo = new ProcessStartInfo(@"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe");
             startInfo.UseShellExecute = false;
             startInfo.EnvironmentVariables.Add("RedirectStandardOutput", "true");
@@ -652,7 +667,7 @@ namespace RemoteUpdate
                 if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString()).FirstOrDefault().IsChecked) {
                     if (TableRuntime.Rows[ii]["Servername"].ToString() != "" && TableRuntime.Rows[ii]["IP"].ToString() != "")
                     {
-                        StartUpdate(ii);
+                        OpenPowerShell(ii);
                     }
                 }
             }
@@ -674,6 +689,11 @@ namespace RemoteUpdate
         {
             RemoteUpdateNet.About ShowAbout = new RemoteUpdateNet.About(TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
             ShowAbout.ShowDialog();
+        }
+
+        private void ButtonStart_0_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            MessageBox.Show("TEST");
         }
     }
 }
