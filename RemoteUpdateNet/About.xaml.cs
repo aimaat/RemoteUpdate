@@ -20,9 +20,11 @@ namespace RemoteUpdateNet
     /// </summary>
     public partial class About : Window
     {
-        public About()
+        string strVirtualAccountName = "VirtualAccount";
+        public About(string strVATmp)
         {
             InitializeComponent();
+            strVirtualAccountName = strVATmp;
             LabelVersion.Content = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
         }
         private void ButtonDonate_Click(object sender, RoutedEventArgs e)
@@ -46,8 +48,8 @@ namespace RemoteUpdateNet
             using (StreamWriter sw = File.CreateText(fileName))
             {
                 sw.WriteLine("Install-Module PSWindowsUpdate -Force");
-                sw.WriteLine(@"New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\VirtualAccount.pssc");
-                sw.WriteLine(@"Register-PSSessionConfiguration -Name 'VirtualAccount' -Path .\VirtualAccount.pssc -Force");
+                sw.WriteLine(@"New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\" + strVirtualAccountName + ".pssc");
+                sw.WriteLine(@"Register-PSSessionConfiguration -Name '" + strVirtualAccountName + "' -Path .\\" + strVirtualAccountName + ".pssc -Force");
             }
             Process.Start(fileName);
         }

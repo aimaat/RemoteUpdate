@@ -94,7 +94,9 @@ namespace RemoteUpdate
                 TableSettings.Columns.Add("SMTPPort");
                 TableSettings.Columns.Add("MailFrom");
                 TableSettings.Columns.Add("MailTo");
+                TableSettings.Columns.Add("PSVirtualAccountName");
                 TableSettings.Rows.Add(TableSettings.NewRow());
+                TableSettings.Rows[0]["PSVirtualAccountName"] = "VirtualAccount";
             }
             // Create BackgroundWorker Uptime for Line 0
             CreateBackgroundWorkerUptime(0);
@@ -616,10 +618,10 @@ namespace RemoteUpdate
             { 
                 startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + TableRuntime.Rows[line]["Password"].ToString() + "' -Force;";
                 startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + TableRuntime.Rows[line]["Username"].ToString() + "',$pass;";
-                startInfo.Arguments += "$session = New-PSSession -Credential $Cred -ConfigurationName 'VirtualAccount' -ComputerName " + TableRuntime.Rows[line]["Servername"].ToString() + ";";
+                startInfo.Arguments += "$session = New-PSSession -Credential $Cred -ConfigurationName '" + TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + TableRuntime.Rows[line]["Servername"].ToString() + ";";
             } else
             {
-                startInfo.Arguments += "$session = New-PSSession -ConfigurationName 'VirtualAccount' -ComputerName " + TableRuntime.Rows[line]["Servername"].ToString() + ";";
+                startInfo.Arguments += "$session = New-PSSession -ConfigurationName '" + TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + TableRuntime.Rows[line]["Servername"].ToString() + ";";
             }
             string WUArguments = "";
             if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + line.ToString()).FirstOrDefault().IsChecked)
@@ -657,7 +659,7 @@ namespace RemoteUpdate
         }
         private void ButtonSettings_Click(object sender, RoutedEventArgs e)
         {
-            RemoteUpdateNet.Settings ShowSettings = new RemoteUpdateNet.Settings(TableSettings.Rows[0]["SMTPServer"].ToString(), TableSettings.Rows[0]["SMTPPort"].ToString(), TableSettings.Rows[0]["MailFrom"].ToString(), TableSettings.Rows[0]["MailTo"].ToString());
+            RemoteUpdateNet.Settings ShowSettings = new RemoteUpdateNet.Settings(TableSettings.Rows[0]["SMTPServer"].ToString(), TableSettings.Rows[0]["SMTPPort"].ToString(), TableSettings.Rows[0]["MailFrom"].ToString(), TableSettings.Rows[0]["MailTo"].ToString(), TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
             bool? result = ShowSettings.ShowDialog();
             if((bool)result)
             {
@@ -665,11 +667,12 @@ namespace RemoteUpdate
                 TableSettings.Rows[0]["SMTPPort"] = ShowSettings.TextboxSMTPPort.Text;
                 TableSettings.Rows[0]["MailFrom"] = ShowSettings.TextboxMailFrom.Text;
                 TableSettings.Rows[0]["MailTo"] = ShowSettings.TextboxMailTo.Text;
+                TableSettings.Rows[0]["PSVirtualAccountName"] = ShowSettings.TextboxVirtualAccount.Text;
             }
         }
         private void ButtonAbout_Click(object sender, RoutedEventArgs e)
         {
-            RemoteUpdateNet.About ShowAbout = new RemoteUpdateNet.About();
+            RemoteUpdateNet.About ShowAbout = new RemoteUpdateNet.About(TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
             ShowAbout.ShowDialog();
         }
     }
