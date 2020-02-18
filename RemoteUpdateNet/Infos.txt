@@ -1,0 +1,52 @@
+﻿winrm set winrm/config/client @{TrustedHosts="*"}
+Notwendig für Uptime Check in nicht Domain Umgebungen
+
+
+
+Invoke-Command orion { Get-WindowsUpdate } -Credential "AD\daaima"
+
+
+
+
+
+
+$Computers = "MAIL001","HERAKLES"
+$credential = Get-Credential
+foreach($Computer in $Computers) {
+    $script = "Invoke-Command -ComputerName $Computer {Get-WindowsUpdate | ft}"
+    $commandLine = "-noexit $script"
+
+    Start-Process powershell.exe -Credential $credential -ArgumentList $commandline
+}
+
+
+Enter-PSSession -Credential(Get-Credential) -ComputerName MAIL001
+
+
+
+
+
+
+https://docs.microsoft.com/en-us/powershell/scripting/learn/remoting/jea/session-configurations?view=powershell-7
+
+
+    Local Virtual Account
+
+    If the roles supported by this JEA endpoint are all used to manage the local machine, and a local administrator account is sufficient to run the commands succesfully, you should configure JEA to use a local virtual account. Virtual accounts are temporary accounts that are unique to a specific user and only last for the duration of their PowerShell session. On a member server or workstation, virtual accounts belong to the local computer's Administrators group, and have access to most system resources. On an Active Directory Domain Controller, virtual accounts belong to the domain's Domain Admins group.
+
+
+Quickfix¹:
+
+(1.) Create a new unrestricted (and persistent!) session configuration on ComputerB (remote server):
+
+New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\VirtualAccount.pssc
+# Note this will restart the WinRM service:
+Register-PSSessionConfiguration -Name 'VirtualAccount' [-ShowSecurityDescriptorUI] -Path .\VirtualAccount.pssc -Force
+# Check the Permission property:
+Get-PSSessionConfiguration -Name 'VirtualAccount'
+# Those users will have full unrestricted access to the system!
+
+(2.) From ComputerA (local client) connect to our unrestricted session configuration on ComputerB:
+
+New-PSSession -ComputerName 'ComputerB' -ConfigurationName 'VirtualAccount' | Enter-PSSession
+[ComputerB]: new-object -com "Microsoft.Update.Downloader" # Yay!

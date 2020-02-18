@@ -1,0 +1,32 @@
+﻿<Window x:Class="RemoteUpdateNet.About"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RemoteUpdateNet"
+        mc:Ignorable="d"
+        Title="About" Height="173" Width="300" Background="#FFCDC8C8" ResizeMode="CanMinimize">
+    <Grid>
+
+        <Label Content="Remote Update by aima" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="148" Height="26"/>
+        <Label x:Name="LabelVersion" Content="1.1.1.1" HorizontalAlignment="Left" Margin="10,27,0,0" VerticalAlignment="Top"  Width="148" Height="26"/>
+        <Button Content="Create Powershell script for client requirements" Margin="10,0,10,10" Height="20" VerticalAlignment="Bottom" Click="ButtonCreate_Click"/>
+
+        <Label Width="102" HorizontalAlignment="Right" Margin="0,10,6,97">
+            <Hyperlink NavigateUri= "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=6JQTFNSEJZD9J&amp;amp;source=url" RequestNavigate="Hyperlink_RequestNavigate" TextDecorations="">
+                <Image HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="92" Source="Donate.gif"/>
+            </Hyperlink>
+        </Label>
+
+        <Label Width="92" HorizontalAlignment="Right" Margin="0,51,192,62">
+            <Hyperlink    NavigateUri= "https://aima.at" RequestNavigate="Hyperlink_RequestNavigate">
+                <TextBlock Text="https://aima.at" />
+            </Hyperlink>
+        </Label>
+        <Label Margin="10,73,192,44">
+            <Hyperlink NavigateUri="mailto:info@aima.at">
+                <TextBlock Text="info@aima.at" />
+            </Hyperlink>
+        </Label>
+    </Grid>
+</Window>
