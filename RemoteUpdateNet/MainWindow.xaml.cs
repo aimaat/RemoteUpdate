@@ -95,6 +95,7 @@ namespace RemoteUpdate
                 TableSettings.Columns.Add("MailFrom");
                 TableSettings.Columns.Add("MailTo");
                 TableSettings.Columns.Add("PSVirtualAccountName");
+                TableSettings.Columns.Add("PSWUCommands");
                 TableSettings.Rows.Add(TableSettings.NewRow());
                 TableSettings.Rows[0]["PSVirtualAccountName"] = "VirtualAccount";
             }
@@ -658,7 +659,7 @@ namespace RemoteUpdate
                     WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + TableSettings.Rows[0]["SMTPServer"].ToString() + "'; Port = " + TableSettings.Rows[0]["SMTPPort"].ToString() + "; From = '" + TableSettings.Rows[0]["MailFrom"].ToString() + "'; To = '" + TableSettings.Rows[0]["MailTo"].ToString() + "' }";
                 }
             }
-            startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + "}";
+            startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + TableSettings.Rows[0]["SMTPServer"].ToString() + "}";
             Process.Start(startInfo);
         }
         private void ButtonStartAll_Click(object sender, RoutedEventArgs e)
@@ -674,7 +675,7 @@ namespace RemoteUpdate
         }
         private void ButtonSettings_Click(object sender, RoutedEventArgs e)
         {
-            RemoteUpdateNet.Settings ShowSettings = new RemoteUpdateNet.Settings(TableSettings.Rows[0]["SMTPServer"].ToString(), TableSettings.Rows[0]["SMTPPort"].ToString(), TableSettings.Rows[0]["MailFrom"].ToString(), TableSettings.Rows[0]["MailTo"].ToString(), TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
+            RemoteUpdateNet.Settings ShowSettings = new RemoteUpdateNet.Settings(TableSettings.Rows[0]["SMTPServer"].ToString(), TableSettings.Rows[0]["SMTPPort"].ToString(), TableSettings.Rows[0]["MailFrom"].ToString(), TableSettings.Rows[0]["MailTo"].ToString(), TableSettings.Rows[0]["PSVirtualAccountName"].ToString(), TableSettings.Rows[0]["PSWUCommands"].ToString());
             bool? result = ShowSettings.ShowDialog();
             if((bool)result)
             {
@@ -683,6 +684,7 @@ namespace RemoteUpdate
                 TableSettings.Rows[0]["MailFrom"] = ShowSettings.TextboxMailFrom.Text;
                 TableSettings.Rows[0]["MailTo"] = ShowSettings.TextboxMailTo.Text;
                 TableSettings.Rows[0]["PSVirtualAccountName"] = ShowSettings.TextboxVirtualAccount.Text;
+                TableSettings.Rows[0]["PSWUCommands"] = ShowSettings.TextboxPSWUCommands.Text;
             }
         }
         private void ButtonAbout_Click(object sender, RoutedEventArgs e)

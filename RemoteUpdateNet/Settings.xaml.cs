@@ -18,7 +18,7 @@ namespace RemoteUpdateNet
     /// </summary>
     public partial class Settings : Window
     {
-        public Settings(string strSMTPServer, string strSMTPPort, string strMailFrom, string strMailTo, string strVirtualAccount)
+        public Settings(string strSMTPServer, string strSMTPPort, string strMailFrom, string strMailTo, string strVirtualAccount, string strPSWUCommands)
         {
             InitializeComponent();
             if(strSMTPPort != "")
@@ -29,6 +29,7 @@ namespace RemoteUpdateNet
             TextboxMailFrom.Text = strMailFrom;
             TextboxMailTo.Text = strMailTo;
             TextboxVirtualAccount.Text = strVirtualAccount;
+            TextboxPSWUCommands.Text = strPSWUCommands;
         }
 
         private void ButtonOk(object sender, RoutedEventArgs e)
