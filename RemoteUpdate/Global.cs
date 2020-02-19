@@ -9,6 +9,5 @@ namespace RemoteUpdate
     {
         public static System.Data.DataTable TableSettings = new System.Data.DataTable("Settings");
         public static System.Data.DataTable TableRuntime = new System.Data.DataTable("Runtime");
-        public static string Teststring = "TEST";
     }
 }

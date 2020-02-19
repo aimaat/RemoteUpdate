@@ -18,25 +18,21 @@ namespace RemoteUpdate
     /// </summary>
     public partial class Credentials : Window
     {
-        string strLabelID;
-        Grid MainGrid;
-        public Credentials(object sender, string tmpUserName, string tmpPassword)
+        int iLabelID;
+        public Credentials(int iTmpID)
         {
             InitializeComponent();
-            this.
-            MainGrid = ((FrameworkElement)sender).Parent as Grid;
-            strLabelID = (sender as Button).Name.Split('_')[1];
-            if (tmpPassword != "") {
-                PasswordBoxPassword.Password = tmpPassword;
+            iLabelID = iTmpID;
+            if (Global.TableRuntime.Rows[iLabelID]["Password"].ToString() != "") {
+                PasswordBoxPassword.Password = Global.TableRuntime.Rows[iLabelID]["Password"].ToString();
             }
-            if (tmpUserName != "")
+            if (Global.TableRuntime.Rows[iLabelID]["Username"].ToString() != "")
             {
-                TextboxUsername.Text = tmpUserName;
+                TextboxUsername.Text = Global.TableRuntime.Rows[iLabelID]["Username"].ToString();
             }
         }
         private void ButtonCancel(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
             this.Close();
         }
         private void UsernameGotFocus(object sender, RoutedEventArgs e)
@@ -51,7 +47,14 @@ namespace RemoteUpdate
         }
         private void ButtonOk(object sender, RoutedEventArgs e)
         {
-            DialogResult = true;
+            if (TextboxUsername.Text != "Username")
+            {
+                Global.TableRuntime.Rows[iLabelID]["Username"] = TextboxUsername.Text.ToString();
+            }
+            if (PasswordBoxPassword.Password != "ABC")
+            {
+                Global.TableRuntime.Rows[iLabelID]["Password"] = PasswordBoxPassword.Password.ToString();
+            }
             this.Close();
         }
     }

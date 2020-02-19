@@ -533,26 +533,11 @@ namespace RemoteUpdate
         }
         private void GetCredentials(object sender, RoutedEventArgs e)
         {
-            var ParentGrid = ((FrameworkElement)sender).Parent as Grid;
-            string strLabelID = (sender as Button).Name.Split('_')[1];
-            string tmpUsername = Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Username"].ToString();
-            string tmpPassword = Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Password"].ToString();
-            string tmpServer = Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Servername"].ToString().ToUpper();
-
-            RemoteUpdate.Credentials AskCred = new RemoteUpdate.Credentials(sender, tmpUsername, tmpPassword);
+            int iLabelID = Int32.Parse((sender as Button).Name.Split('_')[1]);
+            string tmpServer = Global.TableRuntime.Rows[iLabelID]["Servername"].ToString().ToUpper();
+            Credentials AskCred = new Credentials(iLabelID);
             AskCred.Title = tmpServer + " Credentials";
-            bool? result = AskCred.ShowDialog();
-            if(result == true)
-            {
-                if (AskCred.TextboxUsername.Text != "Username")
-                {
-                    Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Username"] = AskCred.TextboxUsername.Text;
-                }
-                if (AskCred.PasswordBoxPassword.Password != "ABC")
-                {
-                    Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Password"] = AskCred.PasswordBoxPassword.Password;
-                }
-            }
+            AskCred.ShowDialog();
         }
         public static string Encrypt(string clearText)
         {
