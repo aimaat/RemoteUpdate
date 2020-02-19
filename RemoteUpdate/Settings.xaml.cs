@@ -18,28 +18,31 @@ namespace RemoteUpdate
     /// </summary>
     public partial class Settings : Window
     {
-        public Settings(string strSMTPServer, string strSMTPPort, string strMailFrom, string strMailTo, string strVirtualAccount, string strPSWUCommands)
+        public Settings()
         {
             InitializeComponent();
-            if(strSMTPPort != "")
+            if(Global.TableSettings.Rows[0]["SMTPPort"].ToString() != "")
             {
-                TextboxSMTPPort.Text = strSMTPPort;
+                TextboxSMTPPort.Text = Global.TableSettings.Rows[0]["SMTPPort"].ToString();
             }
-            TextboxSMTPServer.Text = strSMTPServer;
-            TextboxMailFrom.Text = strMailFrom;
-            TextboxMailTo.Text = strMailTo;
-            TextboxVirtualAccount.Text = strVirtualAccount;
-            TextboxPSWUCommands.Text = strPSWUCommands;
+            TextboxSMTPServer.Text = Global.TableSettings.Rows[0]["SMTPServer"].ToString(); ;
+            TextboxMailFrom.Text = Global.TableSettings.Rows[0]["MailFrom"].ToString();
+            TextboxMailTo.Text = Global.TableSettings.Rows[0]["MailTo"].ToString();
+            TextboxVirtualAccount.Text = Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString();
+            TextboxPSWUCommands.Text = Global.TableSettings.Rows[0]["PSWUCommands"].ToString();
         }
-
         private void ButtonOk(object sender, RoutedEventArgs e)
         {
-            DialogResult = true;
+            Global.TableSettings.Rows[0]["SMTPPort"] = TextboxSMTPPort.Text;
+            Global.TableSettings.Rows[0]["SMTPServer"] = TextboxSMTPServer.Text;
+            Global.TableSettings.Rows[0]["MailFrom"] = TextboxMailFrom.Text;
+            Global.TableSettings.Rows[0]["MailTo"] = TextboxMailTo.Text;
+            Global.TableSettings.Rows[0]["PSVirtualAccountName"] = TextboxVirtualAccount.Text;
+            Global.TableSettings.Rows[0]["PSWUCommands"] = TextboxPSWUCommands.Text;
             this.Close();
         }
         private void ButtonCancel(object sender, RoutedEventArgs e)
         {
-            DialogResult = false;
             this.Close();
         }
     }

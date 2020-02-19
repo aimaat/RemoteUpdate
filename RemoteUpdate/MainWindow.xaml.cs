@@ -675,17 +675,8 @@ namespace RemoteUpdate
         }
         private void ButtonSettings_Click(object sender, RoutedEventArgs e)
         {
-            RemoteUpdate.Settings ShowSettings = new RemoteUpdate.Settings(Global.TableSettings.Rows[0]["SMTPServer"].ToString(), Global.TableSettings.Rows[0]["SMTPPort"].ToString(), Global.TableSettings.Rows[0]["MailFrom"].ToString(), Global.TableSettings.Rows[0]["MailTo"].ToString(), Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString(), Global.TableSettings.Rows[0]["PSWUCommands"].ToString());
-            bool? result = ShowSettings.ShowDialog();
-            if((bool)result)
-            {
-                Global.TableSettings.Rows[0]["SMTPServer"] = ShowSettings.TextboxSMTPServer.Text;
-                Global.TableSettings.Rows[0]["SMTPPort"] = ShowSettings.TextboxSMTPPort.Text;
-                Global.TableSettings.Rows[0]["MailFrom"] = ShowSettings.TextboxMailFrom.Text;
-                Global.TableSettings.Rows[0]["MailTo"] = ShowSettings.TextboxMailTo.Text;
-                Global.TableSettings.Rows[0]["PSVirtualAccountName"] = ShowSettings.TextboxVirtualAccount.Text;
-                Global.TableSettings.Rows[0]["PSWUCommands"] = ShowSettings.TextboxPSWUCommands.Text;
-            }
+            RemoteUpdate.Settings ShowSettings = new RemoteUpdate.Settings();
+            ShowSettings.ShowDialog();
         }
         private void ButtonAbout_Click(object sender, RoutedEventArgs e)
         {
