@@ -31,19 +31,19 @@ namespace RemoteUpdate
         // Timer for Grid Update
         public DispatcherTimer TimerUpdateGrid = new DispatcherTimer();
         // Table for Runtime Values like Servername, IP, etc.
-        public System.Data.DataTable TableRuntime = new System.Data.DataTable("RuntimeValues");
+        //public System.Data.DataTable TableRuntime = new System.Data.DataTable("RuntimeValues");
         // Table for Settings
-        public System.Data.DataTable TableSettings = new System.Data.DataTable("Settings");
+        //public System.Data.DataTable Global.TableSettings = new System.Data.DataTable("Settings");
         public MainWindow()
         {
             InitializeComponent();
-            // TableRuntime Columns Creation
-            TableRuntime.Columns.Add("Servername");
-            TableRuntime.Columns.Add("IP");
-            TableRuntime.Columns.Add("Username");
-            TableRuntime.Columns.Add("Password");
-            TableRuntime.Columns.Add("Ping");
-            TableRuntime.Columns.Add("Uptime");
+            // Global.TableRuntime Columns Creation
+            Global.TableRuntime.Columns.Add("Servername");
+            Global.TableRuntime.Columns.Add("IP");
+            Global.TableRuntime.Columns.Add("Username");
+            Global.TableRuntime.Columns.Add("Password");
+            Global.TableRuntime.Columns.Add("Ping");
+            Global.TableRuntime.Columns.Add("Uptime");
 
             // Get Grid to add more Controls
             GridMainWindow = this.Content as Grid;
@@ -66,38 +66,38 @@ namespace RemoteUpdate
                 this.CheckboxGUI_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["GUI"]);
                 this.CheckboxMail_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Mail"]);
                 this.CheckboxEnabled_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Enabled"]);
-                // Create first DataRow in TableRuntime
-                System.Data.DataRow dtrow = TableRuntime.NewRow();
+                // Create first DataRow in Global.TableRuntime
+                System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 dtrow["Servername"] = LoadTable.Rows[0]["Server"].ToString();
                 dtrow["IP"] = GetIPfromHostname(LoadTable.Rows[0]["Server"].ToString());
                 dtrow["Username"] = LoadTable.Rows[0]["Username"].ToString();
                 dtrow["Password"] = Decrypt(LoadTable.Rows[0]["Password"].ToString());
                 dtrow["Ping"] = "";
                 dtrow["Uptime"] = "";
-                TableRuntime.Rows.Add(dtrow);
+                Global.TableRuntime.Rows.Add(dtrow);
             } catch
             {
                 // If no XML could be read, set the Servernumber to 0
                 ServerNumber = 0;
                 // Create Empty Data Row
-                TableRuntime.Rows.Add(TableRuntime.NewRow());
+                Global.TableRuntime.Rows.Add(Global.TableRuntime.NewRow());
             }
             try
             {
                 // Load Schema and Data from XML RemoteUpdateSettings.xml
-                TableSettings.ReadXmlSchema(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
-                TableSettings.ReadXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
+                Global.TableSettings.ReadXmlSchema(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
+                Global.TableSettings.ReadXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
 
             } catch
             {
-                TableSettings.Columns.Add("SMTPServer");
-                TableSettings.Columns.Add("SMTPPort");
-                TableSettings.Columns.Add("MailFrom");
-                TableSettings.Columns.Add("MailTo");
-                TableSettings.Columns.Add("PSVirtualAccountName");
-                TableSettings.Columns.Add("PSWUCommands");
-                TableSettings.Rows.Add(TableSettings.NewRow());
-                TableSettings.Rows[0]["PSVirtualAccountName"] = "VirtualAccount";
+                Global.TableSettings.Columns.Add("SMTPServer");
+                Global.TableSettings.Columns.Add("SMTPPort");
+                Global.TableSettings.Columns.Add("MailFrom");
+                Global.TableSettings.Columns.Add("MailTo");
+                Global.TableSettings.Columns.Add("PSVirtualAccountName");
+                Global.TableSettings.Columns.Add("PSWUCommands");
+                Global.TableSettings.Rows.Add(Global.TableSettings.NewRow());
+                Global.TableSettings.Rows[0]["PSVirtualAccountName"] = "VirtualAccount";
             }
             // Create BackgroundWorker Uptime for Line 0
             CreateBackgroundWorkerUptime(0);
@@ -150,7 +150,7 @@ namespace RemoteUpdate
                 CreateBackgroundWorkerUptime(ii);
                 // Create BackgroundWorker Ping for Line ii
                 CreateBackgroundWorkerPing(ii);
-                System.Data.DataRow dtrow = TableRuntime.NewRow();
+                System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 if (ii < LoadTable.Rows.Count)
                 {
                     dtrow["Servername"] = LoadTable.Rows[ii]["Server"].ToString();
@@ -160,7 +160,7 @@ namespace RemoteUpdate
                     dtrow["Ping"] = "";
                     dtrow["Uptime"] = "";
                 }
-                TableRuntime.Rows.Add(dtrow);
+                Global.TableRuntime.Rows.Add(dtrow);
 
                 // Timer Creation for Interface Update
                 TimerUpdateGrid.Interval = TimeSpan.FromSeconds(5);
@@ -172,29 +172,29 @@ namespace RemoteUpdate
         private void TimerUpdateGrid_Tick(object sender, EventArgs e)
         {
 
-            for (int ii = 0; ii < TableRuntime.Rows.Count; ii++)
+            for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
             {
-                if (TableRuntime.Rows[ii]["Servername"].ToString() == "")
+                if (Global.TableRuntime.Rows[ii]["Servername"].ToString() == "")
                 {
                     GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(255, 255, 255)); // #FFFFFF
                     GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = "";
                     continue;
                 }
-                if (TableRuntime.Rows[ii]["IP"].ToString() == "")
+                if (Global.TableRuntime.Rows[ii]["IP"].ToString() == "")
                 {
                     GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(218, 97, 230)); // 
                     GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = "no IP";
                     continue;
                 }
-                if (TableRuntime.Rows[ii]["Ping"].ToString() == "true")
+                if (Global.TableRuntime.Rows[ii]["Ping"].ToString() == "true")
                 {
                     GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(121, 255, 164)); // #FF79FFA4
-                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = TableRuntime.Rows[ii]["Uptime"].ToString();
+                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = Global.TableRuntime.Rows[ii]["Uptime"].ToString();
                 }
                 else
                 {
                     GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(240, 139, 139)); // #FFF08B8B
-                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = TableRuntime.Rows[ii]["Uptime"].ToString();
+                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = Global.TableRuntime.Rows[ii]["Uptime"].ToString();
                 }
             }
         }
@@ -277,13 +277,13 @@ namespace RemoteUpdate
                 dtrow["Reboot"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + ii).FirstOrDefault().IsChecked;
                 dtrow["GUI"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + ii).FirstOrDefault().IsChecked;
                 dtrow["Mail"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + ii).FirstOrDefault().IsChecked;
-                dtrow["Username"] = TableRuntime.Rows[ii]["Username"].ToString();
-                dtrow["Password"] = Encrypt(TableRuntime.Rows[ii]["Password"].ToString());
+                dtrow["Username"] = Global.TableRuntime.Rows[ii]["Username"].ToString();
+                dtrow["Password"] = Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString());
                 dtrow["Enabled"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked;
                 SaveTable.Rows.Add(dtrow);
             }
             SaveTable.WriteXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", System.Data.XmlWriteMode.WriteSchema);
-            TableSettings.WriteXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml", System.Data.XmlWriteMode.WriteSchema);
+            Global.TableSettings.WriteXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml", System.Data.XmlWriteMode.WriteSchema);
         }
         private void CreateTextbox(string tbname, string tbtext, int tbheight, int tbwidth, int tbmarginleft, int tbmargintop)
         {
@@ -368,8 +368,8 @@ namespace RemoteUpdate
         private void TextboxLostFocus(object sender, RoutedEventArgs e)
         {
             int line = Int32.Parse((sender as TextBox).Name.Split('_')[1]);
-            TableRuntime.Rows[line]["IP"] = GetIPfromHostname((sender as TextBox).Text);
-            TableRuntime.Rows[line]["Servername"] = (sender as TextBox).Text;
+            Global.TableRuntime.Rows[line]["IP"] = GetIPfromHostname((sender as TextBox).Text);
+            Global.TableRuntime.Rows[line]["Servername"] = (sender as TextBox).Text;
             CreateNewLine(sender, e);
         }
         /// <summary>
@@ -422,12 +422,12 @@ namespace RemoteUpdate
                     Application.Current.MainWindow.Height = 130 + list.Count() * 30;
                 }
 
-                System.Data.DataRow dtrow = TableRuntime.NewRow();
+                System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 dtrow["Servername"] = "";
                 dtrow["IP"] = "";
                 dtrow["Username"] = "";
                 dtrow["Password"] = "";
-                TableRuntime.Rows.Add(dtrow);
+                Global.TableRuntime.Rows.Add(dtrow);
 
             }
         }
@@ -475,7 +475,7 @@ namespace RemoteUpdate
         }
         public void Uptime_Tick(object sender, EventArgs e, int line)
         {
-            if(TableRuntime.Rows[line]["IP"].ToString() == "") { return; }
+            if(Global.TableRuntime.Rows[line]["IP"].ToString() == "") { return; }
             TimeSpan tstmp = new TimeSpan();
             var ParentGrid = GridMainWindow;
             var sessionState = InitialSessionState.CreateDefault();
@@ -483,14 +483,14 @@ namespace RemoteUpdate
             {
                 psRunspace.Open();
                 Pipeline pipeline = psRunspace.CreatePipeline();
-                if (TableRuntime.Rows[line]["Username"].ToString() != "" && TableRuntime.Rows[line]["Username"].ToString() != "")
+                if (Global.TableRuntime.Rows[line]["Username"].ToString() != "" && Global.TableRuntime.Rows[line]["Username"].ToString() != "")
                 {
-                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
-                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
-                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + TableRuntime.Rows[line]["Servername"].ToString() + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + Global.TableRuntime.Rows[line]["Servername"].ToString() + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
                 } else
                 {
-                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + TableRuntime.Rows[line]["Servername"].ToString() + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + Global.TableRuntime.Rows[line]["Servername"].ToString() + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
                 }
 
                 var exResults = pipeline.Invoke();
@@ -498,46 +498,46 @@ namespace RemoteUpdate
                 if (exResults.Count != 0)
                 {
                     tstmp = TimeSpan.Parse(exResults[0].BaseObject.ToString());
-                    TableRuntime.Rows[line]["Uptime"] = tstmp.Days + "d " + tstmp.Hours + "h " + tstmp.Minutes + "m";
+                    Global.TableRuntime.Rows[line]["Uptime"] = tstmp.Days + "d " + tstmp.Hours + "h " + tstmp.Minutes + "m";
                 }
                 else
                 {
-                    TableRuntime.Rows[line]["Uptime"] = "no connection";
+                    Global.TableRuntime.Rows[line]["Uptime"] = "no connection";
                 }
                 psRunspace.Close();
             }
         }
         public void Ping_Tick(object sender, EventArgs e, int line)
         {
-            if (TableRuntime.Rows[line]["IP"].ToString() == "" && TableRuntime.Rows[line]["Servername"].ToString() == "")
+            if (Global.TableRuntime.Rows[line]["IP"].ToString() == "" && Global.TableRuntime.Rows[line]["Servername"].ToString() == "")
             {
                 return;
             }
-            if (TableRuntime.Rows[line]["IP"].ToString() == "") {
-                TableRuntime.Rows[line]["Ping"] = "noIP";
+            if (Global.TableRuntime.Rows[line]["IP"].ToString() == "") {
+                Global.TableRuntime.Rows[line]["Ping"] = "noIP";
                 return;
             }
             Ping pingSender = new Ping();
             PingOptions options = new PingOptions();
             options.DontFragment = true;
             byte[] buffer = Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            PingReply reply = pingSender.Send(TableRuntime.Rows[line]["IP"].ToString(), 1000, buffer, options);
+            PingReply reply = pingSender.Send(Global.TableRuntime.Rows[line]["IP"].ToString(), 1000, buffer, options);
             if (reply.Status == IPStatus.Success)
             {
-                TableRuntime.Rows[line]["Ping"] = "true";
+                Global.TableRuntime.Rows[line]["Ping"] = "true";
             }
             else
             {
-                TableRuntime.Rows[line]["Ping"] = "false";
+                Global.TableRuntime.Rows[line]["Ping"] = "false";
             }
         }
         private void GetCredentials(object sender, RoutedEventArgs e)
         {
             var ParentGrid = ((FrameworkElement)sender).Parent as Grid;
             string strLabelID = (sender as Button).Name.Split('_')[1];
-            string tmpUsername = TableRuntime.Rows[Int32.Parse(strLabelID)]["Username"].ToString();
-            string tmpPassword = TableRuntime.Rows[Int32.Parse(strLabelID)]["Password"].ToString();
-            string tmpServer = TableRuntime.Rows[Int32.Parse(strLabelID)]["Servername"].ToString().ToUpper();
+            string tmpUsername = Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Username"].ToString();
+            string tmpPassword = Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Password"].ToString();
+            string tmpServer = Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Servername"].ToString().ToUpper();
 
             RemoteUpdate.Credentials AskCred = new RemoteUpdate.Credentials(sender, tmpUsername, tmpPassword);
             AskCred.Title = tmpServer + " Credentials";
@@ -546,11 +546,11 @@ namespace RemoteUpdate
             {
                 if (AskCred.TextboxUsername.Text != "Username")
                 {
-                    TableRuntime.Rows[Int32.Parse(strLabelID)]["Username"] = AskCred.TextboxUsername.Text;
+                    Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Username"] = AskCred.TextboxUsername.Text;
                 }
                 if (AskCred.PasswordBoxPassword.Password != "ABC")
                 {
-                    TableRuntime.Rows[Int32.Parse(strLabelID)]["Password"] = AskCred.PasswordBoxPassword.Password;
+                    Global.TableRuntime.Rows[Int32.Parse(strLabelID)]["Password"] = AskCred.PasswordBoxPassword.Password;
                 }
             }
         }
@@ -629,15 +629,15 @@ namespace RemoteUpdate
             startInfo.Arguments = "-noexit ";
             // https://devblogs.microsoft.com/scripting/how-can-i-expand-the-width-of-the-windows-powershell-console/
             startInfo.Arguments += "$pshost = get-host; $pswindow = $pshost.ui.rawui; $newsize = $pswindow.buffersize; $newsize.height = 10; $newsize.width = 120; $pswindow.windowsize = $newsize;";
-            startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + TableRuntime.Rows[line]["Servername"].ToString().ToUpper() + "';";
-            if (TableRuntime.Rows[line]["Username"].ToString() != "" && TableRuntime.Rows[line]["Password"].ToString() != "") 
+            startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper() + "';";
+            if (Global.TableRuntime.Rows[line]["Username"].ToString() != "" && Global.TableRuntime.Rows[line]["Password"].ToString() != "") 
             { 
-                startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + TableRuntime.Rows[line]["Password"].ToString() + "' -Force;";
-                startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + TableRuntime.Rows[line]["Username"].ToString() + "',$pass;";
-                startInfo.Arguments += "$session = New-PSSession -Credential $Cred -ConfigurationName '" + TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + TableRuntime.Rows[line]["Servername"].ToString() + ";";
+                startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;";
+                startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;";
+                startInfo.Arguments += "$session = New-PSSession -Credential $Cred -ConfigurationName '" + Global.TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ";";
             } else
             {
-                startInfo.Arguments += "$session = New-PSSession -ConfigurationName '" + TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + TableRuntime.Rows[line]["Servername"].ToString() + ";";
+                startInfo.Arguments += "$session = New-PSSession -ConfigurationName '" + Global.TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ";";
             }
             string WUArguments = "";
             if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + line.ToString()).FirstOrDefault().IsChecked)
@@ -654,19 +654,19 @@ namespace RemoteUpdate
             }
             if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString()).FirstOrDefault().IsChecked)
             {
-                if((TableSettings.Rows[0]["SMTPServer"].ToString() != "") && (TableSettings.Rows[0]["SMTPPort"].ToString() != "") && (TableSettings.Rows[0]["MailFrom"].ToString() != "") && (TableSettings.Rows[0]["MailTo"].ToString() != ""))
+                if((Global.TableSettings.Rows[0]["SMTPServer"].ToString() != "") && (Global.TableSettings.Rows[0]["SMTPPort"].ToString() != "") && (Global.TableSettings.Rows[0]["MailFrom"].ToString() != "") && (Global.TableSettings.Rows[0]["MailTo"].ToString() != ""))
                 {
-                    WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + TableSettings.Rows[0]["SMTPServer"].ToString() + "'; Port = " + TableSettings.Rows[0]["SMTPPort"].ToString() + "; From = '" + TableSettings.Rows[0]["MailFrom"].ToString() + "'; To = '" + TableSettings.Rows[0]["MailTo"].ToString() + "' }";
+                    WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + Global.TableSettings.Rows[0]["SMTPServer"].ToString() + "'; Port = " + Global.TableSettings.Rows[0]["SMTPPort"].ToString() + "; From = '" + Global.TableSettings.Rows[0]["MailFrom"].ToString() + "'; To = '" + Global.TableSettings.Rows[0]["MailTo"].ToString() + "' }";
                 }
             }
-            startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
+            startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
             Process.Start(startInfo);
         }
         private void ButtonStartAll_Click(object sender, RoutedEventArgs e)
         {
-            for (int ii = 0; ii < TableRuntime.Rows.Count; ii++) {
+            for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++) {
                 if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString()).FirstOrDefault().IsChecked) {
-                    if (TableRuntime.Rows[ii]["Servername"].ToString() != "" && TableRuntime.Rows[ii]["IP"].ToString() != "")
+                    if (Global.TableRuntime.Rows[ii]["Servername"].ToString() != "" && Global.TableRuntime.Rows[ii]["IP"].ToString() != "")
                     {
                         OpenPowerShell(ii);
                     }
@@ -675,21 +675,21 @@ namespace RemoteUpdate
         }
         private void ButtonSettings_Click(object sender, RoutedEventArgs e)
         {
-            RemoteUpdate.Settings ShowSettings = new RemoteUpdate.Settings(TableSettings.Rows[0]["SMTPServer"].ToString(), TableSettings.Rows[0]["SMTPPort"].ToString(), TableSettings.Rows[0]["MailFrom"].ToString(), TableSettings.Rows[0]["MailTo"].ToString(), TableSettings.Rows[0]["PSVirtualAccountName"].ToString(), TableSettings.Rows[0]["PSWUCommands"].ToString());
+            RemoteUpdate.Settings ShowSettings = new RemoteUpdate.Settings(Global.TableSettings.Rows[0]["SMTPServer"].ToString(), Global.TableSettings.Rows[0]["SMTPPort"].ToString(), Global.TableSettings.Rows[0]["MailFrom"].ToString(), Global.TableSettings.Rows[0]["MailTo"].ToString(), Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString(), Global.TableSettings.Rows[0]["PSWUCommands"].ToString());
             bool? result = ShowSettings.ShowDialog();
             if((bool)result)
             {
-                TableSettings.Rows[0]["SMTPServer"] = ShowSettings.TextboxSMTPServer.Text;
-                TableSettings.Rows[0]["SMTPPort"] = ShowSettings.TextboxSMTPPort.Text;
-                TableSettings.Rows[0]["MailFrom"] = ShowSettings.TextboxMailFrom.Text;
-                TableSettings.Rows[0]["MailTo"] = ShowSettings.TextboxMailTo.Text;
-                TableSettings.Rows[0]["PSVirtualAccountName"] = ShowSettings.TextboxVirtualAccount.Text;
-                TableSettings.Rows[0]["PSWUCommands"] = ShowSettings.TextboxPSWUCommands.Text;
+                Global.TableSettings.Rows[0]["SMTPServer"] = ShowSettings.TextboxSMTPServer.Text;
+                Global.TableSettings.Rows[0]["SMTPPort"] = ShowSettings.TextboxSMTPPort.Text;
+                Global.TableSettings.Rows[0]["MailFrom"] = ShowSettings.TextboxMailFrom.Text;
+                Global.TableSettings.Rows[0]["MailTo"] = ShowSettings.TextboxMailTo.Text;
+                Global.TableSettings.Rows[0]["PSVirtualAccountName"] = ShowSettings.TextboxVirtualAccount.Text;
+                Global.TableSettings.Rows[0]["PSWUCommands"] = ShowSettings.TextboxPSWUCommands.Text;
             }
         }
         private void ButtonAbout_Click(object sender, RoutedEventArgs e)
         {
-            RemoteUpdate.About ShowAbout = new RemoteUpdate.About(TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
+            RemoteUpdate.About ShowAbout = new RemoteUpdate.About(Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
             ShowAbout.ShowDialog();
         }
 
