@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteUpdateNet", "RemoteUpdateNet\RemoteUpdateNet.csproj", "{4F495525-DC49-4D90-9335-7A823AD59C6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteUpdate", "RemoteUpdate\RemoteUpdate.csproj", "{4F495525-DC49-4D90-9335-7A823AD59C6A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

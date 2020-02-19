@@ -8,11 +8,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RemoteUpdate")]
-[assembly: AssemblyDescription("Remote Update Windows Server via PSWindowsUpdate")]
+[assembly: AssemblyDescription("Remote Update Windows Server with PSWindowsUpdate Powershell Module")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Markus Aigner")]
 [assembly: AssemblyProduct("RemoteUpdate")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCopyright("Copyright © 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.0.1")]
-[assembly: AssemblyFileVersion("0.1.0.1")]
+[assembly: AssemblyVersion("0.1.0.2")]
+[assembly: AssemblyFileVersion("0.1.0.2")]
