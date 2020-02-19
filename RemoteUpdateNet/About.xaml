@@ -1,9 +1,9 @@
-﻿<Window x:Class="RemoteUpdateNet.About"
+﻿<Window x:Class="RemoteUpdate.About"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:RemoteUpdateNet"
+        xmlns:local="clr-namespace:RemoteUpdate"
         mc:Ignorable="d"
         Title="About" Height="173" Width="300" Background="#FFCDC8C8" ResizeMode="CanMinimize">
     <Grid>

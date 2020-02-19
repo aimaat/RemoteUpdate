@@ -539,7 +539,7 @@ namespace RemoteUpdate
             string tmpPassword = TableRuntime.Rows[Int32.Parse(strLabelID)]["Password"].ToString();
             string tmpServer = TableRuntime.Rows[Int32.Parse(strLabelID)]["Servername"].ToString().ToUpper();
 
-            RemoteUpdateNet.Credentials AskCred = new RemoteUpdateNet.Credentials(sender, tmpUsername, tmpPassword);
+            RemoteUpdate.Credentials AskCred = new RemoteUpdate.Credentials(sender, tmpUsername, tmpPassword);
             AskCred.Title = tmpServer + " Credentials";
             bool? result = AskCred.ShowDialog();
             if(result == true)
@@ -659,7 +659,7 @@ namespace RemoteUpdate
                     WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + TableSettings.Rows[0]["SMTPServer"].ToString() + "'; Port = " + TableSettings.Rows[0]["SMTPPort"].ToString() + "; From = '" + TableSettings.Rows[0]["MailFrom"].ToString() + "'; To = '" + TableSettings.Rows[0]["MailTo"].ToString() + "' }";
                 }
             }
-            startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + TableSettings.Rows[0]["SMTPServer"].ToString() + "}";
+            startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
             Process.Start(startInfo);
         }
         private void ButtonStartAll_Click(object sender, RoutedEventArgs e)
@@ -675,7 +675,7 @@ namespace RemoteUpdate
         }
         private void ButtonSettings_Click(object sender, RoutedEventArgs e)
         {
-            RemoteUpdateNet.Settings ShowSettings = new RemoteUpdateNet.Settings(TableSettings.Rows[0]["SMTPServer"].ToString(), TableSettings.Rows[0]["SMTPPort"].ToString(), TableSettings.Rows[0]["MailFrom"].ToString(), TableSettings.Rows[0]["MailTo"].ToString(), TableSettings.Rows[0]["PSVirtualAccountName"].ToString(), TableSettings.Rows[0]["PSWUCommands"].ToString());
+            RemoteUpdate.Settings ShowSettings = new RemoteUpdate.Settings(TableSettings.Rows[0]["SMTPServer"].ToString(), TableSettings.Rows[0]["SMTPPort"].ToString(), TableSettings.Rows[0]["MailFrom"].ToString(), TableSettings.Rows[0]["MailTo"].ToString(), TableSettings.Rows[0]["PSVirtualAccountName"].ToString(), TableSettings.Rows[0]["PSWUCommands"].ToString());
             bool? result = ShowSettings.ShowDialog();
             if((bool)result)
             {
@@ -689,7 +689,7 @@ namespace RemoteUpdate
         }
         private void ButtonAbout_Click(object sender, RoutedEventArgs e)
         {
-            RemoteUpdateNet.About ShowAbout = new RemoteUpdateNet.About(TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
+            RemoteUpdate.About ShowAbout = new RemoteUpdate.About(TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
             ShowAbout.ShowDialog();
         }
 

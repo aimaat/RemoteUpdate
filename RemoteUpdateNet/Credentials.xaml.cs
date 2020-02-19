@@ -11,7 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace RemoteUpdateNet
+namespace RemoteUpdate
 {
     /// <summary>
     /// Interaction logic for Credentials.xaml
