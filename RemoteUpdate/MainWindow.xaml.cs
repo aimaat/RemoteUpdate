@@ -71,7 +71,7 @@ namespace RemoteUpdate
                 dtrow["Servername"] = LoadTable.Rows[0]["Server"].ToString();
                 dtrow["IP"] = GetIPfromHostname(LoadTable.Rows[0]["Server"].ToString());
                 dtrow["Username"] = LoadTable.Rows[0]["Username"].ToString();
-                dtrow["Password"] = Decrypt(LoadTable.Rows[0]["Password"].ToString());
+                dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[0]["Password"].ToString());
                 dtrow["Ping"] = "";
                 dtrow["Uptime"] = "";
                 Global.TableRuntime.Rows.Add(dtrow);
@@ -156,7 +156,7 @@ namespace RemoteUpdate
                     dtrow["Servername"] = LoadTable.Rows[ii]["Server"].ToString();
                     dtrow["IP"] = GetIPfromHostname(LoadTable.Rows[ii]["Server"].ToString());
                     dtrow["Username"] = LoadTable.Rows[ii]["Username"].ToString();
-                    dtrow["Password"] = Decrypt(LoadTable.Rows[ii]["Password"].ToString());
+                    dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[ii]["Password"].ToString());
                     dtrow["Ping"] = "";
                     dtrow["Uptime"] = "";
                 }
@@ -278,7 +278,7 @@ namespace RemoteUpdate
                 dtrow["GUI"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + ii).FirstOrDefault().IsChecked;
                 dtrow["Mail"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + ii).FirstOrDefault().IsChecked;
                 dtrow["Username"] = Global.TableRuntime.Rows[ii]["Username"].ToString();
-                dtrow["Password"] = Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString());
+                dtrow["Password"] = Tasks.Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString());
                 dtrow["Enabled"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked;
                 SaveTable.Rows.Add(dtrow);
             }
@@ -538,50 +538,6 @@ namespace RemoteUpdate
             Credentials AskCred = new Credentials(iLabelID);
             AskCred.Title = tmpServer + " Credentials";
             AskCred.ShowDialog();
-        }
-        public static string Encrypt(string clearText)
-        {
-            if(clearText == "") { return clearText; }
-            string EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
-            byte[] clearBytes = Encoding.Unicode.GetBytes(clearText);
-            using (Aes encryptor = Aes.Create())
-            {
-                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-                encryptor.Key = pdb.GetBytes(32);
-                encryptor.IV = pdb.GetBytes(16);
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
-                    {
-                        cs.Write(clearBytes, 0, clearBytes.Length);
-                        cs.Close();
-                    }
-                    clearText = Convert.ToBase64String(ms.ToArray());
-                }
-            }
-            return clearText;
-        }
-        public static string Decrypt(string cipherText)
-        {
-            string EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
-            cipherText = cipherText.Replace(" ", "+");
-            byte[] cipherBytes = Convert.FromBase64String(cipherText);
-            using (Aes encryptor = Aes.Create())
-            {
-                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-                encryptor.Key = pdb.GetBytes(32);
-                encryptor.IV = pdb.GetBytes(16);
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
-                    {
-                        cs.Write(cipherBytes, 0, cipherBytes.Length);
-                        cs.Close();
-                    }
-                    cipherText = Encoding.Unicode.GetString(ms.ToArray());
-                }
-            }
-            return cipherText;
         }
         public void StartUpdate(int line)
         {
