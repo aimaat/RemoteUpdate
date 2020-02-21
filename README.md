@@ -25,14 +25,15 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 * * Do you want to see the Powershell GUI or just let it work in the background (currently not working)
 * * Do you want to get an email report
 * Set your credentials. If you are in a domain and your user has admin rights you don't need this.
+* Save your settings for next month (2 xml files will be created in the same directory, one for the servers and one for the general settings)
 * Press Start
 
 If you have a high amount of servers and want to start all at the same time, enable them with the last checkbox and press "Start All"
 
 # FAQ
-* How can i contact you? via <a href="mailto:info@aima.at?subject=RemoteUpdate">Mail</a> or via <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
+* Are the credentials i saved safe? I tried my best but can not guarantee for anything. The credentials are encrypted and should only be readable on the host and from the user who created the save. So you should be safe except someone knows your host dns name and your Windows SID.
+* Is it safe to use in a productive environment? Please decide for yourself after you tested it in in your lab
 * But why? Because i can or tried at least
 * Can you code? Not really but i did my best
-* Is it safe to use in a productive environment? Please decide for yourself after you tested it in in your lab
-* Do you want feedback or feature requests? I would highly appreciate it and i'm going to try my best
-
+* Do you want feedback or feature requests? I would highly appreciate it and i'm going to try my best to develop it further
+* How can i contact you? via <a href="mailto:info@aima.at?subject=RemoteUpdate">Mail</a> or via <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
