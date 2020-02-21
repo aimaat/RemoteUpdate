@@ -29,7 +29,7 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 * Press Start
 
 If you have a high amount of servers and want to start all at the same time, enable them with the last checkbox and press "Start All"<br>
-For each server you selected or clicked start a powershell windows will open and ask you which updates should be installed or show you the progress of the installation directly (if you checked AcceptAll)
+For each server you selected or clicked start a powershell window will open and ask you which updates should be installed or show you the progress of the installation directly (if you checked AcceptAll)
 
 # FAQ
 * Are the credentials i saved safe? I tried my best but can not guarantee for anything. The credentials are encrypted and should only be readable on the host and from the user who created the save. So you should be safe except someone knows your host dns name and your Windows SID.
