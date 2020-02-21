@@ -23,18 +23,10 @@ namespace RemoteUpdate
     /// 
     public partial class MainWindow : Window
     {
-        // BackgroundWorker List for Uptime Checks
-        public List<BackgroundWorker> ListBackgroundWorkerUptime = new List<BackgroundWorker>();
-        // BackgroundWorker List for Ping Checks
-        public List<BackgroundWorker> ListBackgroundWorkerPing = new List<BackgroundWorker>();
         // MainWindow Grid
         public Grid GridMainWindow;
         // Timer for Grid Update
         public DispatcherTimer TimerUpdateGrid = new DispatcherTimer();
-        // Table for Runtime Values like Servername, IP, etc.
-        //public System.Data.DataTable TableRuntime = new System.Data.DataTable("RuntimeValues");
-        // Table for Settings
-        //public System.Data.DataTable Global.TableSettings = new System.Data.DataTable("Settings");
         public MainWindow()
         {
             InitializeComponent();
@@ -101,9 +93,9 @@ namespace RemoteUpdate
                 Global.TableSettings.Rows[0]["PSVirtualAccountName"] = "VirtualAccount";
             }
             // Create BackgroundWorker Uptime for Line 0
-            CreateBackgroundWorkerUptime(0);
+            Worker.CreateBackgroundWorkerUptime(0);
             // Create BackgroundWorker Ping for Line 1
-            CreateBackgroundWorkerPing(0);
+            Worker.CreateBackgroundWorkerPing(0);
             // Change Height of Main Window when more than 10 Servers are in the List
             if (ServerNumber > 2) { Application.Current.MainWindow.Height = 130 + ServerNumber * 30; }
             // Add Controls for each Server loaded
@@ -148,9 +140,9 @@ namespace RemoteUpdate
                     CreateRectangle("BackgroundRectangle_" + ii, 30, double.NaN, 0, 24 + 30 * ii, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
                 }
                 // Create BackgroundWorker Uptime for Line ii
-                CreateBackgroundWorkerUptime(ii);
+                Worker.CreateBackgroundWorkerUptime(ii);
                 // Create BackgroundWorker Ping for Line ii
-                CreateBackgroundWorkerPing(ii);
+                Worker.CreateBackgroundWorkerPing(ii);
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 if (ii < LoadTable.Rows.Count)
                 {
@@ -413,11 +405,10 @@ namespace RemoteUpdate
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + list.Count(), 30, double.NaN, 0, 24 + 30 * list.Count(), new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
                 }
-                //CreateTimerPing(list.Count());
                 // Create BackgroundWorker Uptime for Line list.Count()
-                CreateBackgroundWorkerUptime(list.Count());
+                Worker.CreateBackgroundWorkerUptime(list.Count());
                 // Create BackgroundWorker Ping for Line list.Count()
-                CreateBackgroundWorkerPing(list.Count());
+                Worker.CreateBackgroundWorkerPing(list.Count());
                 if (list.Count() >= 3)
                 {
                     Application.Current.MainWindow.Height = 130 + list.Count() * 30;
@@ -432,112 +423,6 @@ namespace RemoteUpdate
 
             }
         }
-        /// <summary>
-        /// Create a new BackgroundWorker for Uptime of the host xyz
-        /// </summary>
-        /// <param name="trline"></param>
-        private void CreateBackgroundWorkerUptime(int line)
-        {
-            BackgroundWorker BgWUptimeTmp = new BackgroundWorker();
-            BgWUptimeTmp.DoWork += new DoWorkEventHandler((sender, e) => { BackgroundWorkerUptime(sender, e, line); });
-            BgWUptimeTmp.RunWorkerAsync();
-            ListBackgroundWorkerUptime.Add(BgWUptimeTmp);
-
-        }
-        /// <summary>
-        /// Create a new BackgroundWorker for Ping of the host xyz
-        /// </summary>
-        /// <param name="trline"></param>
-        private void CreateBackgroundWorkerPing(int line)
-        {
-            BackgroundWorker BgWUptimeTmp = new BackgroundWorker();
-            BgWUptimeTmp.DoWork += new DoWorkEventHandler((sender, e) => { BackgroundWorkerPing(sender, e, line); });
-            BgWUptimeTmp.RunWorkerAsync();
-            ListBackgroundWorkerPing.Add(BgWUptimeTmp);
-
-        }
-        private void BackgroundWorkerUptime(object sender, EventArgs e, int line)
-        {
-            System.Threading.Thread.Sleep(10 * 1000);
-            while (true)
-            {
-                Worker.Uptime_Tick(line);
-                //Uptime_Tick(sender, e, line);
-                System.Threading.Thread.Sleep(30 * 1000);  // Wait 30 seconds
-            }
-        }
-        private void BackgroundWorkerPing(object sender, EventArgs e, int line)
-        {
-            System.Threading.Thread.Sleep(1 * 1000);
-            while (true)
-            {
-                Worker.Ping_Tick(line);
-                //Ping_Tick(sender, e, line);
-                System.Threading.Thread.Sleep(5 * 1000);  // Wait 30 seconds
-            }
-        }
-        /*
-        public void Uptime_Tick(object sender, EventArgs e, int line)
-        {
-            if(Global.TableRuntime.Rows[line]["IP"].ToString() == "") { return; }
-            TimeSpan tstmp = new TimeSpan();
-            var ParentGrid = GridMainWindow;
-            var sessionState = InitialSessionState.CreateDefault();
-            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
-            {
-                psRunspace.Open();
-                Pipeline pipeline = psRunspace.CreatePipeline();
-                if (Global.TableRuntime.Rows[line]["Username"].ToString() != "" && Global.TableRuntime.Rows[line]["Username"].ToString() != "")
-                {
-                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
-                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
-                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + Global.TableRuntime.Rows[line]["Servername"].ToString() + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
-                } else
-                {
-                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + Global.TableRuntime.Rows[line]["Servername"].ToString() + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
-                }
-
-                var exResults = pipeline.Invoke();
-                
-                if (exResults.Count != 0)
-                {
-                    tstmp = TimeSpan.Parse(exResults[0].BaseObject.ToString());
-                    Global.TableRuntime.Rows[line]["Uptime"] = tstmp.Days + "d " + tstmp.Hours + "h " + tstmp.Minutes + "m";
-                }
-                else
-                {
-                    Global.TableRuntime.Rows[line]["Uptime"] = "no connection";
-                }
-                psRunspace.Close();
-            }
-        }
-        */
-        /*
-        public void Ping_Tick(object sender, EventArgs e, int line)
-        {
-            if (Global.TableRuntime.Rows[line]["IP"].ToString() == "" && Global.TableRuntime.Rows[line]["Servername"].ToString() == "")
-            {
-                return;
-            }
-            if (Global.TableRuntime.Rows[line]["IP"].ToString() == "") {
-                Global.TableRuntime.Rows[line]["Ping"] = "noIP";
-                return;
-            }
-            Ping pingSender = new Ping();
-            PingOptions options = new PingOptions();
-            options.DontFragment = true;
-            byte[] buffer = Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            PingReply reply = pingSender.Send(Global.TableRuntime.Rows[line]["IP"].ToString(), 1000, buffer, options);
-            if (reply.Status == IPStatus.Success)
-            {
-                Global.TableRuntime.Rows[line]["Ping"] = "true";
-            }
-            else
-            {
-                Global.TableRuntime.Rows[line]["Ping"] = "false";
-            }
-        }
-        */
         private void GetCredentials(object sender, RoutedEventArgs e)
         {
             int iLabelID = Int32.Parse((sender as Button).Name.Split('_')[1]);
@@ -546,7 +431,7 @@ namespace RemoteUpdate
             AskCred.Title = tmpServer + " Credentials";
             AskCred.ShowDialog();
         }
-        public void StartUpdate(int line)
+        private void StartUpdate(int line)
         {
             if (Tasks.CheckPSConnection(line))
             {
