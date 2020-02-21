@@ -98,7 +98,8 @@ namespace RemoteUpdate
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
-                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + tmpServername + "' { Install-Module PSWindowsUpdate -Force };");
+                    //pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + tmpServername + "' { Install-Module PSWindowsUpdate -Force };");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + tmpServername + "' { if (!(Get-Module -ListAvailable -Name PSWindowsUpdate)) { Install-Module PSWindowsUpdate -Force } };");
                     pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + tmpServername + "' { New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\\" + tmpPSVirtualAccountName + ".pssc };");
                     pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + tmpServername + "' { Register-PSSessionConfiguration -Name '" + tmpPSVirtualAccountName + "' -Path .\\" + tmpPSVirtualAccountName + ".pssc -Force }");
                 }
