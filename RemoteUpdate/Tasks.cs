@@ -6,6 +6,7 @@ using System.Linq;
 using System.Management.Automation.Runspaces;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows.Controls;
 
 namespace RemoteUpdate
 {
@@ -124,6 +125,56 @@ namespace RemoteUpdate
                     return false;
                 }
             }
+        }
+        public static void OpenPowerShell(int line, Grid GridMainWindow)
+        {
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString())).FirstOrDefault().Content = DateTime.Now.ToString("HH:mm:ss");
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
+
+            ProcessStartInfo startInfo = new ProcessStartInfo(@"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe");
+            startInfo.UseShellExecute = false;
+            startInfo.EnvironmentVariables.Add("RedirectStandardOutput", "true");
+            startInfo.EnvironmentVariables.Add("RedirectStandardError", "true");
+            startInfo.EnvironmentVariables.Add("UseShellExecute", "false");
+            startInfo.EnvironmentVariables.Add("CreateNoWindow", "true");
+
+            startInfo.Arguments = "-noexit ";
+            // https://devblogs.microsoft.com/scripting/how-can-i-expand-the-width-of-the-windows-powershell-console/
+            startInfo.Arguments += "$pshost = get-host; $pswindow = $pshost.ui.rawui; $newsize = $pswindow.buffersize; $newsize.height = 10; $newsize.width = 120; $pswindow.windowsize = $newsize;";
+            startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper() + "';";
+            if (Global.TableRuntime.Rows[line]["Username"].ToString() != "" && Global.TableRuntime.Rows[line]["Password"].ToString() != "")
+            {
+                startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;";
+                startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;";
+                startInfo.Arguments += "$session = New-PSSession -Credential $Cred -ConfigurationName '" + Global.TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ";";
+            }
+            else
+            {
+                startInfo.Arguments += "$session = New-PSSession -ConfigurationName '" + Global.TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ";";
+            }
+            string WUArguments = "";
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + line.ToString()).FirstOrDefault().IsChecked)
+            {
+                WUArguments += "-AcceptAll ";
+            }
+            if (!(bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + line.ToString()).FirstOrDefault().IsChecked)
+            {
+                WUArguments += "-NotCategory Drivers ";
+            }
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString()).FirstOrDefault().IsChecked)
+            {
+                WUArguments += "-AutoReboot ";
+            }
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString()).FirstOrDefault().IsChecked)
+            {
+                if ((Global.TableSettings.Rows[0]["SMTPServer"].ToString() != "") && (Global.TableSettings.Rows[0]["SMTPPort"].ToString() != "") && (Global.TableSettings.Rows[0]["MailFrom"].ToString() != "") && (Global.TableSettings.Rows[0]["MailTo"].ToString() != ""))
+                {
+                    WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + Global.TableSettings.Rows[0]["SMTPServer"].ToString() + "'; Port = " + Global.TableSettings.Rows[0]["SMTPPort"].ToString() + "; From = '" + Global.TableSettings.Rows[0]["MailFrom"].ToString() + "'; To = '" + Global.TableSettings.Rows[0]["MailTo"].ToString() + "' }";
+                }
+            }
+            startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
+            Process.Start(startInfo);
         }
     }
 }
