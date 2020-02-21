@@ -60,7 +60,7 @@ namespace RemoteUpdate
                 // Create first DataRow in Global.TableRuntime
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 dtrow["Servername"] = LoadTable.Rows[0]["Server"].ToString();
-                dtrow["IP"] = GetIPfromHostname(LoadTable.Rows[0]["Server"].ToString());
+                dtrow["IP"] = Tasks.GetIPfromHostname(LoadTable.Rows[0]["Server"].ToString());
                 dtrow["Username"] = LoadTable.Rows[0]["Username"].ToString();
                 dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[0]["Password"].ToString());
                 dtrow["Ping"] = "";
@@ -142,7 +142,7 @@ namespace RemoteUpdate
                 if (ii < LoadTable.Rows.Count)
                 {
                     dtrow["Servername"] = LoadTable.Rows[ii]["Server"].ToString();
-                    dtrow["IP"] = GetIPfromHostname(LoadTable.Rows[ii]["Server"].ToString());
+                    dtrow["IP"] = Tasks.GetIPfromHostname(LoadTable.Rows[ii]["Server"].ToString());
                     dtrow["Username"] = LoadTable.Rows[ii]["Username"].ToString();
                     dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[ii]["Password"].ToString());
                     dtrow["Ping"] = "";
@@ -195,6 +195,7 @@ namespace RemoteUpdate
                 list.Unchecked += CheckBoxChanged;
             }
         }
+        /*
         private string GetIPfromHostname(string Servername)
         {
             if (Servername == "") { return ""; }
@@ -207,6 +208,7 @@ namespace RemoteUpdate
                 return "";
             }
         }
+        */
         private void SaveSettings(object sender, EventArgs e)
         {
             System.Data.DataTable SaveTable = new System.Data.DataTable("RemoteUpdateServer");
@@ -324,7 +326,7 @@ namespace RemoteUpdate
         private void TextboxLostFocus(object sender, RoutedEventArgs e)
         {
             int line = Int32.Parse((sender as TextBox).Name.Split('_')[1]);
-            Global.TableRuntime.Rows[line]["IP"] = GetIPfromHostname((sender as TextBox).Text);
+            Global.TableRuntime.Rows[line]["IP"] = Tasks.GetIPfromHostname((sender as TextBox).Text);
             Global.TableRuntime.Rows[line]["Servername"] = (sender as TextBox).Text;
             CreateNewLine(sender, e);
         }

@@ -175,5 +175,17 @@ namespace RemoteUpdate
             startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
             Process.Start(startInfo);
         }
+        public static string GetIPfromHostname(string Servername)
+        {
+            if (Servername == "") { return ""; }
+            try
+            {
+                return System.Net.Dns.GetHostAddresses(Servername).First().ToString();
+            }
+            catch
+            {
+                return "";
+            }
+        }
     }
 }
