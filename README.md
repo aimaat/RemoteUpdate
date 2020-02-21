@@ -28,3 +28,7 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 * Press Start
 
 If you have a high amount of servers and want to start all at the same time, enable them with the last checkbox and press "Start All"
+
+# FAQ
+* How can i contact you?
+via <a href="mailto:info@aima.at">Mail</a> or via <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
