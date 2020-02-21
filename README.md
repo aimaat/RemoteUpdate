@@ -1,3 +1,2 @@
-RemoteUpdate uses the Powershell Module PSWindowsUpdate to deploy Windows Updates on Remote Hosts without Scheduled Jobs.
+RemoteUpdate uses the [Powershell Module PSWindowsUpdate](https://www.powershellgallery.com/packages/PSWindowsUpdate/2.1.1.2) to deploy Windows Updates on Remote Hosts without the need of scheduled jobs (like described [here](http://woshub.com/pswindowsupdate-module/))
 
-This is highly unprofessional work and in alpha (but works already), so please be aware that there can be unforeseen problems.
