@@ -31,4 +31,4 @@ If you have a high amount of servers and want to start all at the same time, ena
 
 # FAQ
 * How can i contact you?
-via <a href="mailto:info@aima.at">Mail</a> or via <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
+via <a href="mailto:info@aima.at?subject=RemoteUpdate">Mail</a> or via <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
