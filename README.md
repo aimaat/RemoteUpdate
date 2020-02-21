@@ -9,7 +9,7 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 
 # Requirements:
 * Windows Server 2012 or newer
-* Powershell 5
+* Powershell
 * .net Framework 4.5
 * ICMP Echo allowed on the remote hosts
 * Default Firewall Rule "Windows Remote Management (HTTP-In)" enabled on the remote hosts
