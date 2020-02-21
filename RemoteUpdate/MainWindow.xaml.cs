@@ -461,7 +461,8 @@ namespace RemoteUpdate
             System.Threading.Thread.Sleep(10 * 1000);
             while (true)
             {
-                Uptime_Tick(sender, e, line);
+                Worker.Uptime_Tick(line);
+                //Uptime_Tick(sender, e, line);
                 System.Threading.Thread.Sleep(30 * 1000);  // Wait 30 seconds
             }
         }
@@ -470,10 +471,12 @@ namespace RemoteUpdate
             System.Threading.Thread.Sleep(1 * 1000);
             while (true)
             {
-                Ping_Tick(sender, e, line);
+                Worker.Ping_Tick(line);
+                //Ping_Tick(sender, e, line);
                 System.Threading.Thread.Sleep(5 * 1000);  // Wait 30 seconds
             }
         }
+        /*
         public void Uptime_Tick(object sender, EventArgs e, int line)
         {
             if(Global.TableRuntime.Rows[line]["IP"].ToString() == "") { return; }
@@ -508,6 +511,8 @@ namespace RemoteUpdate
                 psRunspace.Close();
             }
         }
+        */
+        /*
         public void Ping_Tick(object sender, EventArgs e, int line)
         {
             if (Global.TableRuntime.Rows[line]["IP"].ToString() == "" && Global.TableRuntime.Rows[line]["Servername"].ToString() == "")
@@ -532,6 +537,7 @@ namespace RemoteUpdate
                 Global.TableRuntime.Rows[line]["Ping"] = "false";
             }
         }
+        */
         private void GetCredentials(object sender, RoutedEventArgs e)
         {
             int iLabelID = Int32.Parse((sender as Button).Name.Split('_')[1]);
