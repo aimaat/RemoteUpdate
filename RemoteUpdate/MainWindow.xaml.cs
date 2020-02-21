@@ -25,8 +25,6 @@ namespace RemoteUpdate
     {
         // MainWindow Grid
         public Grid GridMainWindow;
-        // Timer for Grid Update
-        public DispatcherTimer TimerUpdateGrid = new DispatcherTimer();
         public MainWindow()
         {
             InitializeComponent();
@@ -156,42 +154,11 @@ namespace RemoteUpdate
                 Global.TableRuntime.Rows.Add(dtrow);
 
                 // Timer Creation for Interface Update
-                TimerUpdateGrid.Interval = TimeSpan.FromSeconds(5);
-                TimerUpdateGrid.Tick += (sender, e) => { TimerUpdateGrid_Tick(sender, e); };
-                TimerUpdateGrid.Start();
+                Global.TimerUpdateGrid.Interval = TimeSpan.FromSeconds(5);
+                Global.TimerUpdateGrid.Tick += (sender, e) => { Worker.TimerUpdateGrid_Tick(GridMainWindow); };
+                Global.TimerUpdateGrid.Start();
             }
         }
-
-        private void TimerUpdateGrid_Tick(object sender, EventArgs e)
-        {
-
-            for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
-            {
-                if (Global.TableRuntime.Rows[ii]["Servername"].ToString() == "")
-                {
-                    GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(255, 255, 255)); // #FFFFFF
-                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = "";
-                    continue;
-                }
-                if (Global.TableRuntime.Rows[ii]["IP"].ToString() == "")
-                {
-                    GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(218, 97, 230)); // 
-                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = "no IP";
-                    continue;
-                }
-                if (Global.TableRuntime.Rows[ii]["Ping"].ToString() == "true")
-                {
-                    GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(121, 255, 164)); // #FF79FFA4
-                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = Global.TableRuntime.Rows[ii]["Uptime"].ToString();
-                }
-                else
-                {
-                    GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(240, 139, 139)); // #FFF08B8B
-                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = Global.TableRuntime.Rows[ii]["Uptime"].ToString();
-                }
-            }
-        }
-
         /// <summary>
         /// Function to change all Checkboxes IsChecked Status in the same name range
         /// </summary>
