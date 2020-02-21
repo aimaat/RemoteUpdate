@@ -1,4 +1,4 @@
-RemoteUpdate uses the [Powershell Module PSWindowsUpdate](https://www.powershellgallery.com/packages/PSWindowsUpdate) to install Windows Updates on Remote Hosts without the need of scheduled jobs (like described [here](http://woshub.com/pswindowsupdate-module/))
+RemoteUpdate uses the Powershell Module <a href="https://www.powershellgallery.com/packages/PSWindowsUpdate" target="_blank">PSWindowsUpdate</a> to install Windows Updates on Remote Hosts without the need of scheduled jobs (like described <a href="http://woshub.com/pswindowsupdate-module/">here</a>)
 
 <p align="center">
   <img alt="RemoteUpdate in action" src="https://raw.githubusercontent.com/aimaat/RemoteUpdate/master/RemoteUpdate.png">
@@ -30,5 +30,9 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 If you have a high amount of servers and want to start all at the same time, enable them with the last checkbox and press "Start All"
 
 # FAQ
-* How can i contact you?
-via <a href="mailto:info@aima.at?subject=RemoteUpdate">Mail</a> or via <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
+* How can i contact you? via <a href="mailto:info@aima.at?subject=RemoteUpdate">Mail</a> or via <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
+* But why? Because i can or tried at least
+* Can you code? Not really but i did my best
+* Is it safe to use in a productive environment? Please decide for yourself after you tested it in in your lab
+* Do you want feedback or feature requests? I would highly appreciate it and i'm going to try my best
+
