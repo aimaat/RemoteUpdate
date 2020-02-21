@@ -36,6 +36,7 @@ namespace RemoteUpdate
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
         }
+        /*
         private void ButtonCreate_Click(object sender, RoutedEventArgs e)
         {
             string fileName = System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateClientScript.ps1";
@@ -53,5 +54,6 @@ namespace RemoteUpdate
             }
             Process.Start(fileName);
         }
+        */
     }
 }

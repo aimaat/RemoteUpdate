@@ -10,9 +10,9 @@
 
         <Label Content="Remote Update by aima" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="148" Height="26"/>
         <Label x:Name="LabelVersion" Content="1.1.1.1" HorizontalAlignment="Left" Margin="10,27,0,0" VerticalAlignment="Top"  Width="148" Height="26"/>
-        <Button Content="Create Powershell script for client requirements" Margin="10,0,10,10" Height="20" VerticalAlignment="Bottom" Click="ButtonCreate_Click"/>
+        <!--<Button Content="Create Powershell script for client requirements" Margin="10,0,10,10" Height="20" VerticalAlignment="Bottom" Click="ButtonCreate_Click"/>-->
 
-        <Label Width="102" HorizontalAlignment="Right" Margin="0,10,6,97">
+        <Label Width="102" HorizontalAlignment="Right" Margin="0,101,6,6">
             <Hyperlink NavigateUri= "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=6JQTFNSEJZD9J&amp;amp;source=url" RequestNavigate="Hyperlink_RequestNavigate" TextDecorations="">
                 <Image HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="92" Source="Donate.gif"/>
             </Hyperlink>
