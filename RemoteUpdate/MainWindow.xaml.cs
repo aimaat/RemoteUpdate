@@ -13,6 +13,7 @@ using System.IO;
 using System.Management.Automation.Runspaces;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
 
 namespace RemoteUpdate
 {
@@ -541,12 +542,27 @@ namespace RemoteUpdate
         }
         public void StartUpdate(int line)
         {
-            OpenPowerShell(line);
+            if (Tasks.CheckPSConnection(line))
+            {
+                OpenPowerShell(line);
+            }
+            else
+            {
+                if (Tasks.CreatePSVirtualAccount(line))
+                {
+                    OpenPowerShell(line);
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem(delegate { MessageBox.Show("Can't create the Powershell Virtual Account on server " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ".\nPlease check your credentials or firewall settings."); });
+                    //MessageBox.Show("Can't create the Powershell Virtual Account on server " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ".\nPlease check your credentials or firewall settings.");
+                }
+            }
         }
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
             int line = Int32.Parse((sender as Button).Name.Split('_')[1]);
-            OpenPowerShell(line);
+            StartUpdate(line);
         }
         private void ButtonTime_Click(object sender, RoutedEventArgs e)
         {
@@ -609,7 +625,7 @@ namespace RemoteUpdate
                 if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString()).FirstOrDefault().IsChecked) {
                     if (Global.TableRuntime.Rows[ii]["Servername"].ToString() != "" && Global.TableRuntime.Rows[ii]["IP"].ToString() != "")
                     {
-                        OpenPowerShell(ii);
+                        StartUpdate(ii);
                     }
                 }
             }
