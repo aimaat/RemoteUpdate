@@ -19,8 +19,8 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 # How To:
 * Add the DNS Name of the server you want to update
 * Choose between the options:
-* * Do you want the accept all available updates or choose by hand which one should be installed
-* * Do You want driver updates installed
+* * Do you want to accept all available updates or choose by hand which one should be installed
+* * Do You want driver updates installed/shown
 * * Do you want an automatic reboot after the installation
 * * Do you want to see the Powershell GUI or just let it work in the background (currently not working)
 * * Do you want to get an email report
