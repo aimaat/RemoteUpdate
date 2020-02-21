@@ -195,20 +195,6 @@ namespace RemoteUpdate
                 list.Unchecked += CheckBoxChanged;
             }
         }
-        /*
-        private string GetIPfromHostname(string Servername)
-        {
-            if (Servername == "") { return ""; }
-            try
-            {
-                return System.Net.Dns.GetHostAddresses(Servername).First().ToString();
-            }
-            catch
-            {
-                return "";
-            }
-        }
-        */
         private void SaveSettings(object sender, EventArgs e)
         {
             System.Data.DataTable SaveTable = new System.Data.DataTable("RemoteUpdateServer");
