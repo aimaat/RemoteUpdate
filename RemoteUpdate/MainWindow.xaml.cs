@@ -35,7 +35,6 @@ namespace RemoteUpdate
             Global.TableRuntime.Columns.Add("Password");
             Global.TableRuntime.Columns.Add("Ping");
             Global.TableRuntime.Columns.Add("Uptime");
-
             // Get Grid to add more Controls
             GridMainWindow = this.Content as Grid;
             // Initialize Datatable for XML Load
@@ -116,7 +115,7 @@ namespace RemoteUpdate
                 CreateCheckbox("CheckboxReboot_" + ii, 370, 30 * (ii + 1), tmpBool);
                 // GUI Checkbox creation
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["GUI"]); }
-                CreateCheckbox("CheckboxGUI_" + ii, 430, 30 * (ii + 1), true);
+                CreateCheckbox("CheckboxGUI_" + ii, 430, 30 * (ii + 1), false);
                 // Mail Checkbox creation
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Mail"]); }
                 CreateCheckbox("CheckboxMail_" + ii, 490, 30 * (ii + 1), tmpBool);
@@ -162,8 +161,7 @@ namespace RemoteUpdate
         /// <param name="e"></param>
         private void CheckBoxChanged(object sender, RoutedEventArgs e)
         {
-            var ParentGrid = ((FrameworkElement)sender).Parent as Grid;
-            var list = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name.Contains((sender as CheckBox).Name + "_")).ToArray();
+            var list = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Contains((sender as CheckBox).Name + "_")).ToArray();
             if (((CheckBox)sender).IsChecked == true)
             {
                 for (int ii = 0; ii < list.Count(); ii++)
@@ -186,8 +184,7 @@ namespace RemoteUpdate
         /// <param name="e"></param>
         private void CheckBoxChangedServer(object sender, RoutedEventArgs e)
         {
-            var ParentGrid = ((FrameworkElement)sender).Parent as Grid;
-            var list = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == (sender as CheckBox).Name.Split('_')[0]).FirstOrDefault();
+            var list = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == (sender as CheckBox).Name.Split('_')[0]).FirstOrDefault();
             if (list.IsChecked == true)
             {
                 list.Unchecked -= CheckBoxChanged;
@@ -207,23 +204,22 @@ namespace RemoteUpdate
             SaveTable.Columns.Add("Username");
             SaveTable.Columns.Add("Password");
             SaveTable.Columns.Add("Enabled");
-            Grid ParentGrid = ((FrameworkElement)sender).Parent as Grid;
-            var tblist = ParentGrid.Children.OfType<TextBox>().Where(tb => tb.Name.Contains("TextBoxServer_"));
+            var tblist = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name.Contains("TextBoxServer_"));
             for (int ii = 0; ii < tblist.Count(); ii++)
             {
-                string tmpServername = ParentGrid.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Text;
+                string tmpServername = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Text;
                 if (tmpServername == "") { continue; }
 
                 System.Data.DataRow dtrow = SaveTable.NewRow();
                 dtrow["Server"] = tmpServername;
-                dtrow["Accept"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + ii).FirstOrDefault().IsChecked;
-                dtrow["Drivers"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + ii).FirstOrDefault().IsChecked;
-                dtrow["Reboot"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + ii).FirstOrDefault().IsChecked;
-                dtrow["GUI"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + ii).FirstOrDefault().IsChecked;
-                dtrow["Mail"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + ii).FirstOrDefault().IsChecked;
+                dtrow["Accept"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + ii).FirstOrDefault().IsChecked;
+                dtrow["Drivers"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + ii).FirstOrDefault().IsChecked;
+                dtrow["Reboot"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + ii).FirstOrDefault().IsChecked;
+                dtrow["GUI"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + ii).FirstOrDefault().IsChecked;
+                dtrow["Mail"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + ii).FirstOrDefault().IsChecked;
                 dtrow["Username"] = Global.TableRuntime.Rows[ii]["Username"].ToString();
                 dtrow["Password"] = Tasks.Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString());
-                dtrow["Enabled"] = ParentGrid.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked;
+                dtrow["Enabled"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked;
                 SaveTable.Rows.Add(dtrow);
             }
             SaveTable.WriteXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", System.Data.XmlWriteMode.WriteSchema);
@@ -325,8 +321,7 @@ namespace RemoteUpdate
         {
             TextBox tborigin = sender as TextBox;
             if (tborigin.Text == "") { return; }
-            var ParentGrid = ((FrameworkElement)sender).Parent as Grid;
-            var list = ParentGrid.Children.OfType<TextBox>().Where(tb => tb.Name.Contains((sender as TextBox).Name.Split('_')[0])).ToArray();
+            var list = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name.Contains((sender as TextBox).Name.Split('_')[0])).ToArray();
             // Compare the sender and the last element if the Textbox Name is the same
             if (tborigin.Name.ToString() == list[list.Count() - 1].Name.ToString()) {
                 // Textbox Servername creation
@@ -340,7 +335,7 @@ namespace RemoteUpdate
                 // Reboot Checkbox creation
                 CreateCheckbox("CheckboxReboot_" + list.Count(), 370, 30 * (list.Count() + 1), false);
                 // GUI Checkbox creation
-                CreateCheckbox("CheckboxGUI_" + list.Count(), 430, 30 * (list.Count() + 1), true);
+                CreateCheckbox("CheckboxGUI_" + list.Count(), 430, 30 * (list.Count() + 1), false);
                 // Mail Checkbox creation
                 CreateCheckbox("CheckboxMail_" + list.Count(), 490, 30 * (list.Count() + 1), false);
                 // Credentials Button creation

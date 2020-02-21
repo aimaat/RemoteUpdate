@@ -23,7 +23,7 @@
         <CheckBox x:Name="CheckboxAccept_0" Content="" HorizontalAlignment="Left" Margin="250,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
         <CheckBox x:Name="CheckboxDrivers_0" Content="" HorizontalAlignment="Left" Margin="310,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
         <CheckBox x:Name="CheckboxReboot_0" Content="" HorizontalAlignment="Left" Margin="370,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
-        <CheckBox x:Name="CheckboxGUI_0" Content="" HorizontalAlignment="Left" Margin="430,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer" IsChecked="true"/>
+        <CheckBox x:Name="CheckboxGUI_0" Content="" HorizontalAlignment="Left" Margin="430,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer" />
         <CheckBox x:Name="CheckboxMail_0" Content="" HorizontalAlignment="Left" Margin="490,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
         <Button x:Name="ButtonCredentials_0" Content="Credentials" HorizontalAlignment="Left" Margin="530,29,0,0" VerticalAlignment="Top" Width="70" Click="GetCredentials"/>
         <Button x:Name="ButtonStart_0" Content="Start" HorizontalAlignment="Left" Margin="620,29,0,0" VerticalAlignment="Top" Width="70" Click="ButtonStart_Click"/>
@@ -36,7 +36,7 @@
         <CheckBox x:Name="CheckboxAccept" Content="" HorizontalAlignment="Left" Margin="250,0,0,17" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
         <CheckBox x:Name="CheckboxDrivers" Content="" HorizontalAlignment="Left" Margin="310,0,0,17" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
         <CheckBox x:Name="CheckboxReboot" Content="" HorizontalAlignment="Left" Margin="370,0,0,17" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
-        <CheckBox x:Name="CheckboxGUI" Content="" HorizontalAlignment="Left" Margin="430,0,0,17" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5" IsChecked="true"/>
+        <CheckBox x:Name="CheckboxGUI" Content="" HorizontalAlignment="Left" Margin="430,0,0,17" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5" />
         <CheckBox x:Name="CheckboxMail" Content="" HorizontalAlignment="Left" Margin="490,0,0,17" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
         <Button x:Name="ButtonStart" Content="Start All" HorizontalAlignment="Left" Margin="620,0,0,15" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="ButtonStartAll_Click"/>
         <CheckBox x:Name="CheckboxEnabled" Content="" HorizontalAlignment="Left" Margin="710,0,0,17" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
