@@ -11,6 +11,11 @@ namespace RemoteUpdate
 {
     class Worker
     {
+        public static void CreateBackgroundWorker(int line)
+        {
+            CreateBackgroundWorkerUptime(line);
+            CreateBackgroundWorkerPing(line);
+        }
         /// <summary>
         /// Create a new BackgroundWorker for Uptime of the host xyz
         /// </summary>

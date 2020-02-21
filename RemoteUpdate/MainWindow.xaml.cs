@@ -42,9 +42,9 @@ namespace RemoteUpdate
             System.Data.DataTable LoadTable = new System.Data.DataTable();
             // Initialize Servernumber
             int ServerNumber;
+            // Load Schema and Data from XML RemoteUpdateServer.xml
             try
             {
-                // Load Schema and Data from XML RemoteUpdateServer.xml
                 LoadTable.ReadXmlSchema(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
                 LoadTable.ReadXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
                 // Set Servernumber according to Rows from XML
@@ -73,9 +73,9 @@ namespace RemoteUpdate
                 // Create Empty Data Row
                 Global.TableRuntime.Rows.Add(Global.TableRuntime.NewRow());
             }
+            // Load Schema and Data from XML RemoteUpdateSettings.xml
             try
             {
-                // Load Schema and Data from XML RemoteUpdateSettings.xml
                 Global.TableSettings.ReadXmlSchema(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
                 Global.TableSettings.ReadXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
 
@@ -90,10 +90,8 @@ namespace RemoteUpdate
                 Global.TableSettings.Rows.Add(Global.TableSettings.NewRow());
                 Global.TableSettings.Rows[0]["PSVirtualAccountName"] = "VirtualAccount";
             }
-            // Create BackgroundWorker Uptime for Line 0
-            Worker.CreateBackgroundWorkerUptime(0);
-            // Create BackgroundWorker Ping for Line 1
-            Worker.CreateBackgroundWorkerPing(0);
+            // Create BackgroundWorker (Ping and Uptime)
+            Worker.CreateBackgroundWorker(0);
             // Change Height of Main Window when more than 10 Servers are in the List
             if (ServerNumber > 2) { Application.Current.MainWindow.Height = 130 + ServerNumber * 30; }
             // Add Controls for each Server loaded
@@ -137,10 +135,9 @@ namespace RemoteUpdate
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + ii, 30, double.NaN, 0, 24 + 30 * ii, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
                 }
-                // Create BackgroundWorker Uptime for Line ii
-                Worker.CreateBackgroundWorkerUptime(ii);
-                // Create BackgroundWorker Ping for Line ii
-                Worker.CreateBackgroundWorkerPing(ii);
+                // Create BackgroundWorker (Ping and Uptime)
+                Worker.CreateBackgroundWorker(ii);
+                // Create new Row in TableRuntime
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 if (ii < LoadTable.Rows.Count)
                 {
@@ -152,8 +149,7 @@ namespace RemoteUpdate
                     dtrow["Uptime"] = "";
                 }
                 Global.TableRuntime.Rows.Add(dtrow);
-
-                // Timer Creation for Interface Update
+                // Timer Creation for Interface Updates
                 Global.TimerUpdateGrid.Interval = TimeSpan.FromSeconds(5);
                 Global.TimerUpdateGrid.Tick += (sender, e) => { Worker.TimerUpdateGrid_Tick(GridMainWindow); };
                 Global.TimerUpdateGrid.Start();
@@ -372,10 +368,8 @@ namespace RemoteUpdate
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + list.Count(), 30, double.NaN, 0, 24 + 30 * list.Count(), new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
                 }
-                // Create BackgroundWorker Uptime for Line list.Count()
-                Worker.CreateBackgroundWorkerUptime(list.Count());
-                // Create BackgroundWorker Ping for Line list.Count()
-                Worker.CreateBackgroundWorkerPing(list.Count());
+                // Create BackgroundWorker (Ping and Uptime)
+                Worker.CreateBackgroundWorker(list.Count());
                 if (list.Count() >= 3)
                 {
                     Application.Current.MainWindow.Height = 130 + list.Count() * 30;
