@@ -34,6 +34,8 @@ For each server you selected or clicked start a powershell window will open and 
 # FAQ
 * Are the credentials i saved safe? I tried my best but can not guarantee for anything. The credentials are encrypted and should only be readable on the host and from the user who created the save. So you should be safe except someone knows your host dns name and your Windows SID.
 * Is it safe to use in a productive environment? Please decide for yourself after you tested it in in your lab
+* What do the colors mean? Green = Host pingable; Red = Not pingable; Violet = No IP found for the DNS Record;
+* Why won't it work with IPs? Cause in the default settings Remote Powershell won't accept IPs, therefore you would have to activate Remote Powershell via HTTPS (Port 5986 instead of Port 5985) and i would have to do some work for this, which i haven't till today.
 * But why? Because i can or tried at least
 * Can you code? Not really but i did my best
 * Do you want feedback or feature requests? I would highly appreciate it and i'm going to try my best to develop it further
