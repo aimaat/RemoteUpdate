@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Management.Automation.Runspaces;
 using System.Net.NetworkInformation;
@@ -99,8 +100,7 @@ namespace RemoteUpdate
                     {
                         Global.TableRuntime.Rows[line]["Uptime"] = "no connection";
                     }
-                } catch { return; }
-            psRunspace.Close();
+                } catch { }
             }
         }
         public static void BackgroundWorkerUptime(int line)

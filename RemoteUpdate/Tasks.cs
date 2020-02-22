@@ -26,7 +26,6 @@ namespace RemoteUpdate
                     using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
                     {
                         cs.Write(clearBytes, 0, clearBytes.Length);
-                        cs.Close();
                     }
                     clearText = Convert.ToBase64String(ms.ToArray());
                 }
@@ -48,7 +47,6 @@ namespace RemoteUpdate
                     using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
                     {
                         cs.Write(cipherBytes, 0, cipherBytes.Length);
-                        cs.Close();
                     }
                     cipherText = Encoding.Unicode.GetString(ms.ToArray());
                 }
@@ -58,6 +56,7 @@ namespace RemoteUpdate
         public static bool CheckPSConnection(int line)
         {
             var sessionState = InitialSessionState.CreateDefault();
+            bool returnValue;
             using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
             {
                 psRunspace.Open();
@@ -76,19 +75,17 @@ namespace RemoteUpdate
                     var exResults = pipeline.Invoke();
                     if(pipeline.HadErrors == false)
                     {
-                        psRunspace.Close();
-                        return true;
+                        returnValue = true;
                     } else
                     {
-                        psRunspace.Close();
-                        return false;
+                        returnValue = false;
                     }
                 } catch
                 {
-                    psRunspace.Close();
-                    return false;
+                    returnValue = false;
                 }
             }
+            return returnValue;
         }
         public static bool CreatePSVirtualAccount(int line)
         {
