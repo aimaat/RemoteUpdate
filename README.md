@@ -40,7 +40,3 @@ For each server you selected or clicked start a powershell window will open and 
 * Can you code? Not really but i did my best
 * Do you want feedback or feature requests? I would highly appreciate it and i'm going to try my best to develop it further
 * How can i contact you? via <a href="mailto:info@aima.at?subject=RemoteUpdate">Mail</a> or via <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
-
-<section class="page-header">
-        <a href="https://github.com/aimaat/RemoteUpdate/releases/latest/download/RemoteUpdate.exe" class="btn">Download RemoteUpdate</a>
-</section>
