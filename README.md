@@ -22,7 +22,7 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 * * Do you want to accept all available updates or choose by hand which one should be installed
 * * Do You want driver updates installed/shown
 * * Do you want an automatic reboot after the installation
-* * Do you want to see the Powershell GUI or just let it work in the background (currently not working)
+* * Do you want to see the Powershell GUI or just let it work in the background
 * * Do you want to get an email report
 * Set your credentials. If you are in a domain and your user has admin rights you don't need this.
 * Save your settings for next month (2 xml files will be created in the same directory, one for the servers and one for the general settings)
