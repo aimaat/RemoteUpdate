@@ -22,7 +22,7 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 * * Do you want to accept all available updates or choose by hand which one should be installed
 * * Do You want driver updates installed/shown
 * * Do you want an automatic reboot after the installation
-* * Do you want to see the Powershell GUI or just let it work in the background (currently not working)
+* * Do you want to see the Powershell GUI or just let it work in the background
 * * Do you want to get an email report
 * Set your credentials. If you are in a domain and your user has admin rights you don't need this.
 * Save your settings for next month (2 xml files will be created in the same directory, one for the servers and one for the general settings)
@@ -39,4 +39,4 @@ For each server you selected or clicked start a powershell window will open and 
 * But why? Because i can or tried at least
 * Can you code? Not really but i did my best
 * Do you want feedback or feature requests? I would highly appreciate it and i'm going to try my best to develop it further
-* How can i contact you? via <a href="mailto:info@aima.at?subject=RemoteUpdate">Mail</a> or via <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
+* How can i contact you? via <a href="mailto:info@aima.at?subject=RemoteUpdate">Mail</a> or <a href="https://www.linkedin.com/in/markus-aigner-388022104/" target="_blank">LinkedIn</a>
