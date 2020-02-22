@@ -10,7 +10,7 @@ namespace RemoteUpdate
         public Settings()
         {
             InitializeComponent();
-            if(Global.TableSettings.Rows[0]["SMTPPort"].ToString() != "")
+            if(Global.TableSettings.Rows[0]["SMTPPort"].ToString().Length != 0)
             {
                 TextboxSMTPPort.Text = Global.TableSettings.Rows[0]["SMTPPort"].ToString();
             }

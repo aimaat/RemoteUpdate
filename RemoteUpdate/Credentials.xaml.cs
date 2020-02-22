@@ -13,10 +13,10 @@ namespace RemoteUpdate
         {
             InitializeComponent();
             iLabelID = iTmpID;
-            if (Global.TableRuntime.Rows[iLabelID]["Password"].ToString() != "") {
+            if (Global.TableRuntime.Rows[iLabelID]["Password"].ToString().Length != 0) {
                 PasswordBoxPassword.Password = Global.TableRuntime.Rows[iLabelID]["Password"].ToString();
             }
-            if (Global.TableRuntime.Rows[iLabelID]["Username"].ToString() != "")
+            if (Global.TableRuntime.Rows[iLabelID]["Username"].ToString().Length != 0)
             {
                 TextboxUsername.Text = Global.TableRuntime.Rows[iLabelID]["Username"].ToString();
             }
@@ -39,11 +39,11 @@ namespace RemoteUpdate
         {
             if (TextboxUsername.Text != "Username")
             {
-                Global.TableRuntime.Rows[iLabelID]["Username"] = TextboxUsername.Text.ToString();
+                Global.TableRuntime.Rows[iLabelID]["Username"] = TextboxUsername.Text;
             }
             if (PasswordBoxPassword.Password != "ABC")
             {
-                Global.TableRuntime.Rows[iLabelID]["Password"] = PasswordBoxPassword.Password.ToString();
+                Global.TableRuntime.Rows[iLabelID]["Password"] = PasswordBoxPassword.Password;
             }
             this.Close();
         }

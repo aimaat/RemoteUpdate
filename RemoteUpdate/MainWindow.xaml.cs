@@ -35,18 +35,18 @@ namespace RemoteUpdate
             // Load Schema and Data from XML RemoteUpdateServer.xml
             try
             {
-                LoadTable.ReadXmlSchema(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
-                LoadTable.ReadXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
+                LoadTable.ReadXmlSchema(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
+                LoadTable.ReadXml(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
                 // Set Servernumber according to Rows from XML
                 ServerNumber = LoadTable.Rows.Count;
                 // Set Values for first Row
                 this.TextBoxServer_0.Text = LoadTable.Rows[0]["Server"].ToString();
-                this.CheckboxAccept_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Accept"]);
-                this.CheckboxDrivers_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Drivers"]);
-                this.CheckboxReboot_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Reboot"]);
-                this.CheckboxGUI_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["GUI"]);
-                this.CheckboxMail_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Mail"]);
-                this.CheckboxEnabled_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Enabled"]);
+                this.CheckboxAccept_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Accept"], Global.cultures);
+                this.CheckboxDrivers_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Drivers"], Global.cultures);
+                this.CheckboxReboot_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Reboot"], Global.cultures);
+                this.CheckboxGUI_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["GUI"], Global.cultures);
+                this.CheckboxMail_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Mail"], Global.cultures);
+                this.CheckboxEnabled_0.IsChecked = Convert.ToBoolean(LoadTable.Rows[0]["Enabled"], Global.cultures);
                 // Create first DataRow in Global.TableRuntime
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 dtrow["Servername"] = LoadTable.Rows[0]["Server"].ToString();
@@ -69,7 +69,8 @@ namespace RemoteUpdate
                 Global.TableSettings.ReadXmlSchema(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
                 Global.TableSettings.ReadXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
 
-            } catch
+            }
+            catch
             {
                 Global.TableSettings.Columns.Add("SMTPServer");
                 Global.TableSettings.Columns.Add("SMTPPort");
@@ -97,19 +98,19 @@ namespace RemoteUpdate
                 // Uptime Label creation
                 CreateLabel("LabelUptime_" + ii, "", 26, 90, 150, 30 * (ii + 1) - 4, Visibility.Visible);
                 // Accept Checkbox creation
-                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Accept"]); }
+                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Accept"], Global.cultures); }
                 CreateCheckbox("CheckboxAccept_" + ii, 250, 30 * (ii + 1), tmpBool);
                 // Drivers Checkbox creation
-                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Drivers"]); }
+                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Drivers"], Global.cultures); }
                 CreateCheckbox("CheckboxDrivers_" + ii, 310, 30 * (ii + 1), tmpBool);
                 // Reboot Checkbox creation
-                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Reboot"]); }
+                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Reboot"], Global.cultures); }
                 CreateCheckbox("CheckboxReboot_" + ii, 370, 30 * (ii + 1), tmpBool);
                 // GUI Checkbox creation
-                if (ii < ServerNumber) { tmpBoolGUI = Convert.ToBoolean(LoadTable.Rows[ii]["GUI"]); }
+                if (ii < ServerNumber) { tmpBoolGUI = Convert.ToBoolean(LoadTable.Rows[ii]["GUI"], Global.cultures); }
                 CreateCheckbox("CheckboxGUI_" + ii, 430, 30 * (ii + 1), tmpBoolGUI);
                 // Mail Checkbox creation
-                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Mail"]); }
+                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Mail"], Global.cultures); }
                 CreateCheckbox("CheckboxMail_" + ii, 490, 30 * (ii + 1), tmpBool);
                 // Credentials Button creation
                 CreateButton("ButtonCredentials_" + ii, "Credentials", 70, 530, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(GetCredentials), System.Windows.Visibility.Visible);
@@ -118,7 +119,7 @@ namespace RemoteUpdate
                 // Time Button creation
                 CreateButton("ButtonTime_" + ii, "12:12:12", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
                 // Enabled Checkbox creation
-                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Enabled"]); }
+                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Enabled"], Global.cultures); }
                 CreateCheckbox("CheckboxEnabled_" + ii, 710, 30 * (ii + 1), tmpBool);
                 // If Servernumber is Even, create Light Grey Rectangle Background
                 if ((ii + 1) % 2 == 0)
@@ -145,6 +146,7 @@ namespace RemoteUpdate
                 Global.TimerUpdateGrid.Tick += (sender, e) => { Worker.TimerUpdateGrid_Tick(GridMainWindow); };
                 Global.TimerUpdateGrid.Start();
             }
+            LoadTable.Dispose();
         }
         /// <summary>
         /// Function to change all Checkboxes IsChecked Status in the same name range
@@ -156,14 +158,14 @@ namespace RemoteUpdate
             var list = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Contains((sender as CheckBox).Name + "_")).ToArray();
             if (((CheckBox)sender).IsChecked == true)
             {
-                for (int ii = 0; ii < list.Count(); ii++)
+                for (int ii = 0; ii < list.Length; ii++)
                 {
                     list[ii].IsChecked = true;
                 }
             }
             else
             {
-                for (int ii = 0; ii < list.Count(); ii++)
+                for (int ii = 0; ii < list.Length; ii++)
                 {
                     list[ii].IsChecked = false;
                 }
@@ -202,7 +204,7 @@ namespace RemoteUpdate
             for (int ii = 0; ii < tblist.Count(); ii++)
             {
                 string tmpServername = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Text;
-                if (tmpServername == "") { continue; }
+                if (tmpServername.Length == 0) { continue; }
 
                 System.Data.DataRow dtrow = SaveTable.NewRow();
                 dtrow["Server"] = tmpServername;
@@ -218,6 +220,7 @@ namespace RemoteUpdate
             }
             SaveTable.WriteXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", System.Data.XmlWriteMode.WriteSchema);
             Global.TableSettings.WriteXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml", System.Data.XmlWriteMode.WriteSchema);
+            SaveTable.Dispose();
         }
         private void CreateTextbox(string tbname, string tbtext, int tbheight, int tbwidth, int tbmarginleft, int tbmargintop)
         {
@@ -260,7 +263,7 @@ namespace RemoteUpdate
                 VerticalAlignment = System.Windows.VerticalAlignment.Top,
                 Margin = new Thickness(cbmarginleft, cbmargintop, 0, 0),
             };
-            if(cbname.StartsWith("CheckboxAccept_") || cbname.StartsWith("CheckboxGUI_"))
+            if(cbname.StartsWith("CheckboxAccept_", StringComparison.Ordinal) || cbname.StartsWith("CheckboxGUI_", StringComparison.Ordinal))
             {
                 CheckBox1.Checked += CheckboxChangedGUIAccept;
                 CheckBox1.Unchecked += CheckboxChangedGUIAccept;
@@ -308,7 +311,7 @@ namespace RemoteUpdate
         /// <param name="e"></param>
         private void TextboxLostFocus(object sender, RoutedEventArgs e)
         {
-            int line = Int32.Parse((sender as TextBox).Name.Split('_')[1]);
+            int line = Int32.Parse((sender as TextBox).Name.Split('_')[1], Global.cultures);
             Global.TableRuntime.Rows[line]["IP"] = Tasks.GetIPfromHostname((sender as TextBox).Text);
             Global.TableRuntime.Rows[line]["Servername"] = (sender as TextBox).Text;
             CreateNewLine(sender, e);
@@ -321,42 +324,42 @@ namespace RemoteUpdate
         private void CreateNewLine(object sender, RoutedEventArgs e)
         {
             TextBox tborigin = sender as TextBox;
-            if (tborigin.Text == "") { return; }
+            if (tborigin.Text.Length == 0) { return; }
             var list = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name.Contains((sender as TextBox).Name.Split('_')[0])).ToArray();
             // Compare the sender and the last element if the Textbox Name is the same
-            if (tborigin.Name.ToString() == list[list.Count() - 1].Name.ToString()) {
+            if (tborigin.Name == list[list.Length - 1].Name) {
                 // Textbox Servername creation
-                CreateTextbox("TextBoxServer_" + list.Count(), "", 18, 120, 20, 30 * (list.Count() + 1));
+                CreateTextbox("TextBoxServer_" + list.Length, "", 18, 120, 20, 30 * (list.Length + 1));
                 // Uptime Label creation
-                CreateLabel("LabelUptime_" + list.Count(), "", 26, 90, 150, 30 * (list.Count() + 1) - 4, Visibility.Visible);
+                CreateLabel("LabelUptime_" + list.Length, "", 26, 90, 150, 30 * (list.Length + 1) - 4, Visibility.Visible);
                 // Accept Checkbox creation
-                CreateCheckbox("CheckboxAccept_" + list.Count(), 250, 30 * (list.Count() + 1), false);
+                CreateCheckbox("CheckboxAccept_" + list.Length, 250, 30 * (list.Length + 1), false);
                 // Drivers Checkbox creation
-                CreateCheckbox("CheckboxDrivers_" + list.Count(), 310, 30 * (list.Count() + 1), false);
+                CreateCheckbox("CheckboxDrivers_" + list.Length, 310, 30 * (list.Length + 1), false);
                 // Reboot Checkbox creation
-                CreateCheckbox("CheckboxReboot_" + list.Count(), 370, 30 * (list.Count() + 1), false);
+                CreateCheckbox("CheckboxReboot_" + list.Length, 370, 30 * (list.Length + 1), false);
                 // GUI Checkbox creation
-                CreateCheckbox("CheckboxGUI_" + list.Count(), 430, 30 * (list.Count() + 1), true);
+                CreateCheckbox("CheckboxGUI_" + list.Length, 430, 30 * (list.Length + 1), true);
                 // Mail Checkbox creation
-                CreateCheckbox("CheckboxMail_" + list.Count(), 490, 30 * (list.Count() + 1), false);
+                CreateCheckbox("CheckboxMail_" + list.Length, 490, 30 * (list.Length + 1), false);
                 // Credentials Button creation
-                CreateButton("ButtonCredentials_" + list.Count(), "Credentials", 70, 530, 30 * ((list.Count() + 1) - 1) + 29, new RoutedEventHandler(GetCredentials), System.Windows.Visibility.Visible);
+                CreateButton("ButtonCredentials_" + list.Length, "Credentials", 70, 530, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(GetCredentials), System.Windows.Visibility.Visible);
                 // Start Button creation
-                CreateButton("ButtonStart_" + list.Count(), "Start", 70, 620, 30 * ((list.Count() + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
+                CreateButton("ButtonStart_" + list.Length, "Start", 70, 620, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
                 // Time Button creation
-                CreateButton("ButtonTime_" + list.Count(), "12:12:12", 70, 620, 30 * ((list.Count() + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
+                CreateButton("ButtonTime_" + list.Length, "12:12:12", 70, 620, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
                 // Enabled Checkbox creation
-                CreateCheckbox("CheckboxEnabled_" + list.Count(), 710, 30 * (list.Count() + 1), false);
-                if ((list.Count() + 1) % 2 == 0)
+                CreateCheckbox("CheckboxEnabled_" + list.Length, 710, 30 * (list.Length + 1), false);
+                if ((list.Length + 1) % 2 == 0)
                 {
                     // Light Grey Rectangle creation
-                    CreateRectangle("BackgroundRectangle_" + list.Count(), 30, double.NaN, 0, 24 + 30 * list.Count(), new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
+                    CreateRectangle("BackgroundRectangle_" + list.Length, 30, double.NaN, 0, 24 + 30 * list.Length, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
                 }
                 // Create BackgroundWorker (Ping and Uptime)
-                Worker.CreateBackgroundWorker(list.Count());
-                if (list.Count() >= 3)
+                Worker.CreateBackgroundWorker(list.Length);
+                if (list.Length >= 3)
                 {
-                    Application.Current.MainWindow.Height = 130 + list.Count() * 30;
+                    Application.Current.MainWindow.Height = 130 + list.Length * 30;
                 }
 
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
@@ -370,8 +373,8 @@ namespace RemoteUpdate
         }
         private void GetCredentials(object sender, RoutedEventArgs e)
         {
-            int iLabelID = Int32.Parse((sender as Button).Name.Split('_')[1]);
-            string tmpServer = Global.TableRuntime.Rows[iLabelID]["Servername"].ToString().ToUpper();
+            int iLabelID = Int32.Parse((sender as Button).Name.Split('_')[1], Global.cultures);
+            string tmpServer = Global.TableRuntime.Rows[iLabelID]["Servername"].ToString().ToUpper(Global.cultures);
             Credentials AskCred = new Credentials(iLabelID);
             AskCred.Title = tmpServer + " Credentials";
             AskCred.ShowDialog();
@@ -390,27 +393,27 @@ namespace RemoteUpdate
                 }
                 else
                 {
-                    ThreadPool.QueueUserWorkItem(delegate { MessageBox.Show("Can't create the Powershell Virtual Account on server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper() + ".\nPlease check your credentials or firewall settings."); });
+                    ThreadPool.QueueUserWorkItem(delegate { MessageBox.Show("Can't create the Powershell Virtual Account on server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures) + ".\nPlease check your credentials or firewall settings."); });
                     //MessageBox.Show("Can't create the Powershell Virtual Account on server " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ".\nPlease check your credentials or firewall settings.");
                 }
             }
         }
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
-            int line = Int32.Parse((sender as Button).Name.Split('_')[1]);
+            int line = Int32.Parse((sender as Button).Name.Split('_')[1], Global.cultures);
             StartUpdate(line);
         }
         private void ButtonTime_Click(object sender, RoutedEventArgs e)
         {
-            int line = Int32.Parse((sender as Button).Name.Split('_')[1]);
-            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
-            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
+            int line = Int32.Parse((sender as Button).Name.Split('_')[1], Global.cultures);
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
         }
         private void ButtonStartAll_Click(object sender, RoutedEventArgs e)
         {
             for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++) {
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString()).FirstOrDefault().IsChecked) {
-                    if (Global.TableRuntime.Rows[ii]["Servername"].ToString() != "" && Global.TableRuntime.Rows[ii]["IP"].ToString() != "")
+                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString(Global.cultures)).FirstOrDefault().IsChecked) {
+                    if (Global.TableRuntime.Rows[ii]["Servername"].ToString().Length != 0 && Global.TableRuntime.Rows[ii]["IP"].ToString().Length != 0)
                     {
                         StartUpdate(ii);
                     }

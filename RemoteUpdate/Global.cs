@@ -16,5 +16,6 @@ namespace RemoteUpdate
         public static List<BackgroundWorker> ListBackgroundWorkerPing = new List<BackgroundWorker>();
         // Timer for Grid Update
         public static DispatcherTimer TimerUpdateGrid = new DispatcherTimer();
+        public static System.Globalization.CultureInfo cultures = new System.Globalization.CultureInfo("en-US");
     }
 }

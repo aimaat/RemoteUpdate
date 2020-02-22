@@ -44,11 +44,11 @@ namespace RemoteUpdate
 
         public static void Ping_Tick(int line)
         {
-            if (Global.TableRuntime.Rows[line]["IP"].ToString() == "" && Global.TableRuntime.Rows[line]["Servername"].ToString() == "")
+            if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0 && Global.TableRuntime.Rows[line]["Servername"].ToString().Length == 0)
             {
                 return;
             }
-            if (Global.TableRuntime.Rows[line]["IP"].ToString() == "")
+            if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0)
             {
                 Global.TableRuntime.Rows[line]["Ping"] = "noIP";
                 return;
@@ -58,6 +58,7 @@ namespace RemoteUpdate
             options.DontFragment = true;
             byte[] buffer = Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
             PingReply reply = pingSender.Send(Global.TableRuntime.Rows[line]["IP"].ToString(), 1000, buffer, options);
+            pingSender.Dispose();
             try
             {
                 if (reply.Status == IPStatus.Success)
@@ -72,13 +73,13 @@ namespace RemoteUpdate
         }
         public static void Uptime_Tick(int line)
         {
-            if (Global.TableRuntime.Rows[line]["IP"].ToString() == "") { return; }
+            if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0) { return; }
             var sessionState = InitialSessionState.CreateDefault();
             using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
             {
                 psRunspace.Open();
                 Pipeline pipeline = psRunspace.CreatePipeline();
-                if (Global.TableRuntime.Rows[line]["Username"].ToString() != "" && Global.TableRuntime.Rows[line]["Username"].ToString() != "")
+                if (Global.TableRuntime.Rows[line]["Username"].ToString().Length != 0 && Global.TableRuntime.Rows[line]["Username"].ToString().Length != 0)
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
@@ -93,14 +94,14 @@ namespace RemoteUpdate
                 {
                     if (exResults.Count != 0)
                     {
-                        TimeSpan tstmp = TimeSpan.Parse(exResults[0].BaseObject.ToString());
+                        TimeSpan tstmp = TimeSpan.Parse(exResults[0].BaseObject.ToString(), Global.cultures);
                         Global.TableRuntime.Rows[line]["Uptime"] = tstmp.Days + "d " + tstmp.Hours + "h " + tstmp.Minutes + "m";
                     }
                     else
                     {
                         Global.TableRuntime.Rows[line]["Uptime"] = "no connection";
                     }
-                } catch { }
+                } catch { return; }
             }
         }
         public static void BackgroundWorkerUptime(int line)
@@ -128,13 +129,13 @@ namespace RemoteUpdate
             {
                 for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
                 {
-                    if (Global.TableRuntime.Rows[ii]["Servername"].ToString() == "")
+                    if (Global.TableRuntime.Rows[ii]["Servername"].ToString().Length == 0)
                     {
                         GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(255, 255, 255)); // #FFFFFF
                         GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = "";
                         continue;
                     }
-                    if (Global.TableRuntime.Rows[ii]["IP"].ToString() == "")
+                    if (Global.TableRuntime.Rows[ii]["IP"].ToString().Length == 0)
                     {
                         GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(218, 97, 230)); // 
                         GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = "no IP";

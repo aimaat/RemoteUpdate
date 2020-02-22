@@ -13,7 +13,7 @@ namespace RemoteUpdate
     {
         public static string Encrypt(string clearText)
         {
-            if (clearText == "") { return clearText; }
+            if (clearText.Length == 0) { return clearText; }
             string EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
             byte[] clearBytes = Encoding.Unicode.GetBytes(clearText);
             using (Aes encryptor = Aes.Create())
@@ -29,6 +29,7 @@ namespace RemoteUpdate
                     }
                     clearText = Convert.ToBase64String(ms.ToArray());
                 }
+                pdb.Dispose();
             }
             return clearText;
         }
@@ -50,6 +51,7 @@ namespace RemoteUpdate
                     }
                     cipherText = Encoding.Unicode.GetString(ms.ToArray());
                 }
+                pdb.Dispose();
             }
             return cipherText;
         }
@@ -62,7 +64,7 @@ namespace RemoteUpdate
                 psRunspace.Open();
                 Pipeline pipeline = psRunspace.CreatePipeline();
 
-                if (Global.TableRuntime.Rows[line]["Username"].ToString() != "" && Global.TableRuntime.Rows[line]["Password"].ToString() != "")
+                if (Global.TableRuntime.Rows[line]["Username"].ToString().Length != 0 && Global.TableRuntime.Rows[line]["Password"].ToString().Length != 0)
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
@@ -100,7 +102,7 @@ namespace RemoteUpdate
                 psRunspace.Open();
                 Pipeline pipeline = psRunspace.CreatePipeline();
                 string tmpCredentials = "";
-                if (tmpUsername != "" && tmpPassword != "")
+                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
@@ -128,9 +130,9 @@ namespace RemoteUpdate
         }
         public static void OpenPowerShell(int line, Grid GridMainWindow)
         {
-            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
-            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString())).FirstOrDefault().Content = DateTime.Now.ToString("HH:mm:ss");
-            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = DateTime.Now.ToString("HH:mm:ss", Global.cultures);
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
             
 
                 ProcessStartInfo startInfo = new ProcessStartInfo(@"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe");
@@ -139,7 +141,7 @@ namespace RemoteUpdate
                 startInfo.EnvironmentVariables.Add("RedirectStandardError", "true");
                 startInfo.EnvironmentVariables.Add("UseShellExecute", "false");
                 startInfo.EnvironmentVariables.Add("CreateNoWindow", "false");
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString())).FirstOrDefault().IsChecked)
+                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().IsChecked)
                 {
                     startInfo.Arguments = "-noexit ";
                 } else {
@@ -147,8 +149,8 @@ namespace RemoteUpdate
                 }
                 // https://devblogs.microsoft.com/scripting/how-can-i-expand-the-width-of-the-windows-powershell-console/ entfern: $newsize.width = 120; 
                 startInfo.Arguments += "$pshost = get-host; $pswindow = $pshost.ui.rawui; $newsize = $pswindow.buffersize; $newsize.height = 10; $pswindow.windowsize = $newsize;";
-                startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper() + "';";
-                if (Global.TableRuntime.Rows[line]["Username"].ToString() != "" && Global.TableRuntime.Rows[line]["Password"].ToString() != "")
+                startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures) + "';";
+                if (Global.TableRuntime.Rows[line]["Username"].ToString().Length != 0 && Global.TableRuntime.Rows[line]["Password"].ToString().Length != 0)
                 {
                     startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;";
                     startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;";
@@ -159,21 +161,21 @@ namespace RemoteUpdate
                     startInfo.Arguments += "$session = New-PSSession -ConfigurationName '" + Global.TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ";";
                 }
                 string WUArguments = "";
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + line.ToString()).FirstOrDefault().IsChecked)
+                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
                 {
                     WUArguments += "-AcceptAll ";
                 }
-                if (!(bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + line.ToString()).FirstOrDefault().IsChecked)
+                if (!(bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
                 {
                     WUArguments += "-NotCategory Drivers ";
                 }
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString()).FirstOrDefault().IsChecked)
+                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
                 {
                     WUArguments += "-AutoReboot ";
                 }
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString()).FirstOrDefault().IsChecked)
+                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
                 {
-                    if ((Global.TableSettings.Rows[0]["SMTPServer"].ToString() != "") && (Global.TableSettings.Rows[0]["SMTPPort"].ToString() != "") && (Global.TableSettings.Rows[0]["MailFrom"].ToString() != "") && (Global.TableSettings.Rows[0]["MailTo"].ToString() != ""))
+                    if ((Global.TableSettings.Rows[0]["SMTPServer"].ToString().Length != 0) && (Global.TableSettings.Rows[0]["SMTPPort"].ToString().Length != 0) && (Global.TableSettings.Rows[0]["MailFrom"].ToString().Length != 0) && (Global.TableSettings.Rows[0]["MailTo"].ToString().Length != 0))
                     {
                         WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + Global.TableSettings.Rows[0]["SMTPServer"].ToString() + "'; Port = " + Global.TableSettings.Rows[0]["SMTPPort"].ToString() + "; From = '" + Global.TableSettings.Rows[0]["MailFrom"].ToString() + "'; To = '" + Global.TableSettings.Rows[0]["MailTo"].ToString() + "' }";
                     }
@@ -183,7 +185,7 @@ namespace RemoteUpdate
         }
         public static string GetIPfromHostname(string Servername)
         {
-            if (Servername == "") { return ""; }
+            if (Servername.Length == 0) { return ""; }
             try
             {
                 return System.Net.Dns.GetHostAddresses(Servername).First().ToString();
