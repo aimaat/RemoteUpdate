@@ -62,7 +62,15 @@ namespace RemoteUpdate
             {
                 psRunspace.Open();
                 Pipeline pipeline = psRunspace.CreatePipeline();
-                pipeline.Commands.AddScript("New-PSSession -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + " -ConfigurationName VirtualAccount;");
+
+                if (Global.TableRuntime.Rows[line]["Username"].ToString() != "" && Global.TableRuntime.Rows[line]["Password"].ToString() != "")
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
+                    pipeline.Commands.AddScript("New-PSSession -Credential $Cred -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + " -ConfigurationName VirtualAccount;");
+                } else {
+                    pipeline.Commands.AddScript("New-PSSession -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + " -ConfigurationName VirtualAccount;");
+                }
                 try
                 {
                     var exResults = pipeline.Invoke();
@@ -94,21 +102,17 @@ namespace RemoteUpdate
 
                 psRunspace.Open();
                 Pipeline pipeline = psRunspace.CreatePipeline();
+                string tmpCredentials = "";
                 if (tmpUsername != "" && tmpPassword != "")
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
-                    //pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + tmpServername + "' { Install-Module PSWindowsUpdate -Force };");
-                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + tmpServername + "' { if (!(Get-Module -ListAvailable -Name PSWindowsUpdate)) { Install-Module PSWindowsUpdate -Force } };");
-                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + tmpServername + "' { New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\\" + tmpPSVirtualAccountName + ".pssc };");
-                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + tmpServername + "' { Register-PSSessionConfiguration -Name '" + tmpPSVirtualAccountName + "' -Path .\\" + tmpPSVirtualAccountName + ".pssc -Force }");
+                    tmpCredentials = " -Credential $Cred";
                 }
-                else
-                {
-                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + tmpServername + "' { Install-Module PSWindowsUpdate -Force };");
-                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + tmpServername + "' { New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\\" + tmpPSVirtualAccountName + ".pssc };");
-                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + tmpServername + "' { Register-PSSessionConfiguration -Name '" + tmpPSVirtualAccountName + "' -Path .\\" + tmpPSVirtualAccountName + ".pssc -Force }");
-                }
+                pipeline.Commands.AddScript("Invoke-Command" + tmpCredentials + " -ComputerName '" + tmpServername + "' { if(!(Get-PackageProvider | Where { $_.Name -eq 'NuGet' -and $_.Version -lt 2.8.5.201})) { Install-PackageProvider -Name 'Nuget' -Force } };");
+                pipeline.Commands.AddScript("Invoke-Command" + tmpCredentials + " -ComputerName '" + tmpServername + "' { if(!(Get-Module -ListAvailable -Name PSWindowsUpdate)) { Install-Module PSWindowsUpdate -Force } };");
+                pipeline.Commands.AddScript("Invoke-Command" + tmpCredentials + " -ComputerName '" + tmpServername + "' { New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\\" + tmpPSVirtualAccountName + ".pssc };");
+                pipeline.Commands.AddScript("Invoke-Command" + tmpCredentials + " -ComputerName '" + tmpServername + "' { Register-PSSessionConfiguration -Name '" + tmpPSVirtualAccountName + "' -Path .\\" + tmpPSVirtualAccountName + ".pssc -Force }");
                 try
                 {
                     var exResults = pipeline.Invoke();
@@ -131,16 +135,19 @@ namespace RemoteUpdate
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString())).FirstOrDefault().Content = DateTime.Now.ToString("HH:mm:ss");
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString())).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
             
-            if((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString())).FirstOrDefault().IsChecked)
-            {
+
                 ProcessStartInfo startInfo = new ProcessStartInfo(@"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe");
                 startInfo.UseShellExecute = false;
                 startInfo.EnvironmentVariables.Add("RedirectStandardOutput", "true");
                 startInfo.EnvironmentVariables.Add("RedirectStandardError", "true");
                 startInfo.EnvironmentVariables.Add("UseShellExecute", "false");
                 startInfo.EnvironmentVariables.Add("CreateNoWindow", "false");
-
-                startInfo.Arguments = "-noexit ";
+                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString())).FirstOrDefault().IsChecked)
+                {
+                    startInfo.Arguments = "-noexit ";
+                } else {
+                    startInfo.Arguments = "-WindowStyle Hidden ";
+                }
                 // https://devblogs.microsoft.com/scripting/how-can-i-expand-the-width-of-the-windows-powershell-console/ entfern: $newsize.width = 120; 
                 startInfo.Arguments += "$pshost = get-host; $pswindow = $pshost.ui.rawui; $newsize = $pswindow.buffersize; $newsize.height = 10; $pswindow.windowsize = $newsize;";
                 startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper() + "';";
@@ -175,26 +182,7 @@ namespace RemoteUpdate
                     }
                 }
                 startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
-                Process.Start(startInfo);
-            } else
-            {
-                var sessionState = InitialSessionState.CreateDefault();
-                using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
-                {
-                    psRunspace.Open();
-                    Pipeline pipeline = psRunspace.CreatePipeline();
-                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;$session = New-PSSession -Credential $Cred -ConfigurationName 'VirtualAccount' -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ";Invoke-Command $session { Install-WindowsUpdate -Verbose -AcceptAll -NotCategory Drivers -AutoReboot -MicrosoftUpdate}");
-                    try
-                    {
-                        pipeline.Invoke();
-                        psRunspace.Close();
-                    }
-                    catch
-                    {
-                        psRunspace.Close();
-                    }
-                }
-            }
+                Process test = Process.Start(startInfo);
         }
         public static string GetIPfromHostname(string Servername)
         {

@@ -169,9 +169,6 @@
     <Resource Include="RemoteUpdate.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Infos.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Donate.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
