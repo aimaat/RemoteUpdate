@@ -99,6 +99,7 @@ namespace RemoteUpdate
                 // ServerName Textbox creation
                 string tmpText = "";
                 bool tmpBool = false;
+                bool tmpBoolGUI = true;
                 if (ii < ServerNumber) { tmpText = LoadTable.Rows[ii]["Server"].ToString(); }
                 // Textbox Servername creation
                 CreateTextbox("TextBoxServer_" + ii, tmpText, 18, 120, 20, 30 * (ii + 1));
@@ -114,8 +115,8 @@ namespace RemoteUpdate
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Reboot"]); }
                 CreateCheckbox("CheckboxReboot_" + ii, 370, 30 * (ii + 1), tmpBool);
                 // GUI Checkbox creation
-                if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["GUI"]); }
-                CreateCheckbox("CheckboxGUI_" + ii, 430, 30 * (ii + 1), tmpBool);
+                if (ii < ServerNumber) { tmpBoolGUI = Convert.ToBoolean(LoadTable.Rows[ii]["GUI"]); }
+                CreateCheckbox("CheckboxGUI_" + ii, 430, 30 * (ii + 1), tmpBoolGUI);
                 // Mail Checkbox creation
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Mail"]); }
                 CreateCheckbox("CheckboxMail_" + ii, 490, 30 * (ii + 1), tmpBool);
@@ -184,13 +185,15 @@ namespace RemoteUpdate
         /// <param name="e"></param>
         private void CheckBoxChangedServer(object sender, RoutedEventArgs e)
         {
-            var list = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == (sender as CheckBox).Name.Split('_')[0]).FirstOrDefault();
+            string strCheckBoxName = (sender as CheckBox).Name.Split('_')[0];
+            var list = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == strCheckBoxName).FirstOrDefault();
             if (list.IsChecked == true)
             {
                 list.Unchecked -= CheckBoxChanged;
                 list.IsChecked = false;
                 list.Unchecked += CheckBoxChanged;
             }
+            //if()
         }
         private void SaveSettings(object sender, EventArgs e)
         {
@@ -266,7 +269,14 @@ namespace RemoteUpdate
                 VerticalAlignment = System.Windows.VerticalAlignment.Top,
                 Margin = new Thickness(cbmarginleft, cbmargintop, 0, 0),
             };
-            CheckBox1.Unchecked += CheckBoxChangedServer;
+            if(cbname.StartsWith("CheckboxAccept_") || cbname.StartsWith("CheckboxGUI_"))
+            {
+                CheckBox1.Checked += CheckboxChangedGUIAccept;
+                CheckBox1.Unchecked += CheckboxChangedGUIAccept;
+            } else
+            {
+                CheckBox1.Unchecked += CheckBoxChangedServer;
+            }
             GridMainWindow.Children.Add(CheckBox1);
         }
         private void CreateButton(string btnname, string btntext, int btnwidth, int btnmarginleft, int rtmargintop, RoutedEventHandler btnevent, System.Windows.Visibility btnvisibility)
@@ -335,7 +345,7 @@ namespace RemoteUpdate
                 // Reboot Checkbox creation
                 CreateCheckbox("CheckboxReboot_" + list.Count(), 370, 30 * (list.Count() + 1), false);
                 // GUI Checkbox creation
-                CreateCheckbox("CheckboxGUI_" + list.Count(), 430, 30 * (list.Count() + 1), false);
+                CreateCheckbox("CheckboxGUI_" + list.Count(), 430, 30 * (list.Count() + 1), true);
                 // Mail Checkbox creation
                 CreateCheckbox("CheckboxMail_" + list.Count(), 490, 30 * (list.Count() + 1), false);
                 // Credentials Button creation
@@ -425,6 +435,26 @@ namespace RemoteUpdate
         {
             RemoteUpdate.About ShowAbout = new RemoteUpdate.About(Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
             ShowAbout.ShowDialog();
+        }
+
+        private void CheckboxChangedGUIAccept(object sender, RoutedEventArgs e)
+        {
+            string strCheckBoxName = (sender as CheckBox).Name.Split('_')[0];
+            string line = (sender as CheckBox).Name.Split('_')[1];
+            bool bCheckBoxState = (bool)(sender as CheckBox).IsChecked;
+            // If CheckboxAccept and Unchecked
+            if (strCheckBoxName == "CheckboxAccept" && !bCheckBoxState)
+            {
+                GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + line).FirstOrDefault().IsChecked = true;
+                CheckBoxChangedServer(sender, e);
+            }
+            // If CheckboxGUI and Unchecked
+            else if (strCheckBoxName == "CheckboxGUI" && !bCheckBoxState)
+            {
+                GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + line).FirstOrDefault().IsChecked = true;
+                CheckBoxChangedServer(sender, e);
+                // If CheckboxGUI and Checked
+            }
         }
     }
 }

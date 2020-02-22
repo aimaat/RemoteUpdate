@@ -20,10 +20,10 @@
         <TextBox x:Name="TextBoxServer_0" HorizontalAlignment="Left" Margin="20,30,0,0" Text="" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="18" Background="White" LostFocus="TextboxLostFocus"/>
         <Label x:Name="LabelServer_0" Content="" HorizontalAlignment="Left" Margin="20,30,0,0" VerticalAlignment="Top" Height="18" Width="120" Visibility="Hidden"/>
         <Label x:Name="LabelUptime_0" Content="" HorizontalAlignment="Left" Margin="150,27,0,0" VerticalAlignment="Top" Height="26" Width="90"/>
-        <CheckBox x:Name="CheckboxAccept_0" Content="" HorizontalAlignment="Left" Margin="250,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
+        <CheckBox x:Name="CheckboxAccept_0" Content="" HorizontalAlignment="Left" Margin="250,31,0,0" VerticalAlignment="Top" Unchecked="CheckboxChangedGUIAccept" Checked="CheckboxChangedGUIAccept"/>
         <CheckBox x:Name="CheckboxDrivers_0" Content="" HorizontalAlignment="Left" Margin="310,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
         <CheckBox x:Name="CheckboxReboot_0" Content="" HorizontalAlignment="Left" Margin="370,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
-        <CheckBox x:Name="CheckboxGUI_0" Content="" HorizontalAlignment="Left" Margin="430,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer" />
+        <CheckBox x:Name="CheckboxGUI_0" Content="" HorizontalAlignment="Left" Margin="430,31,0,0" VerticalAlignment="Top" Unchecked="CheckboxChangedGUIAccept" Checked="CheckboxChangedGUIAccept" IsChecked="True"/>
         <CheckBox x:Name="CheckboxMail_0" Content="" HorizontalAlignment="Left" Margin="490,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
         <Button x:Name="ButtonCredentials_0" Content="Credentials" HorizontalAlignment="Left" Margin="530,29,0,0" VerticalAlignment="Top" Width="70" Click="GetCredentials"/>
         <Button x:Name="ButtonStart_0" Content="Start" HorizontalAlignment="Left" Margin="620,29,0,0" VerticalAlignment="Top" Width="70" Click="ButtonStart_Click"/>
