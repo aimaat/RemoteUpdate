@@ -115,7 +115,7 @@ namespace RemoteUpdate
                 CreateCheckbox("CheckboxReboot_" + ii, 370, 30 * (ii + 1), tmpBool);
                 // GUI Checkbox creation
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["GUI"]); }
-                CreateCheckbox("CheckboxGUI_" + ii, 430, 30 * (ii + 1), false);
+                CreateCheckbox("CheckboxGUI_" + ii, 430, 30 * (ii + 1), tmpBool);
                 // Mail Checkbox creation
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Mail"]); }
                 CreateCheckbox("CheckboxMail_" + ii, 490, 30 * (ii + 1), tmpBool);
