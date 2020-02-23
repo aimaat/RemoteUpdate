@@ -195,5 +195,14 @@ namespace RemoteUpdate
                 return "";
             }
         }
+        public static void ReadXMLToTable(string xmlFilename, System.Data.DataTable loadTable)
+        {
+            loadTable.ReadXmlSchema(xmlFilename);
+            loadTable.ReadXml(xmlFilename);
+        }
+        public static void WriteTableToXML(System.Data.DataTable saveTable, string xmlFilename)
+        {
+            saveTable.WriteXml(xmlFilename, System.Data.XmlWriteMode.WriteSchema);
+        }
     }
 }

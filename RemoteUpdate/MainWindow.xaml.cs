@@ -35,8 +35,8 @@ namespace RemoteUpdate
             // Load Schema and Data from XML RemoteUpdateServer.xml
             try
             {
-                LoadTable.ReadXmlSchema(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
-                LoadTable.ReadXml(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
+                // Load Servers from XML File
+                Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", LoadTable);
                 // Set Servernumber according to Rows from XML
                 ServerNumber = LoadTable.Rows.Count;
                 // Set Values for first Row
@@ -66,9 +66,8 @@ namespace RemoteUpdate
             // Load Schema and Data from XML RemoteUpdateSettings.xml
             try
             {
-                Global.TableSettings.ReadXmlSchema(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
-                Global.TableSettings.ReadXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
-
+                // Load Settings from XML File
+                Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml", Global.TableSettings);
             }
             catch
             {
@@ -218,8 +217,8 @@ namespace RemoteUpdate
                 dtrow["Enabled"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked;
                 SaveTable.Rows.Add(dtrow);
             }
-            SaveTable.WriteXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", System.Data.XmlWriteMode.WriteSchema);
-            Global.TableSettings.WriteXml(System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml", System.Data.XmlWriteMode.WriteSchema);
+            Tasks.WriteTableToXML(SaveTable, System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
+            Tasks.WriteTableToXML(Global.TableSettings, System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
             SaveTable.Dispose();
         }
         private void CreateTextbox(string tbname, string tbtext, int tbheight, int tbwidth, int tbmarginleft, int tbmargintop)
