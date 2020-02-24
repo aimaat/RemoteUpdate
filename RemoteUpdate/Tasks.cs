@@ -6,6 +6,7 @@ using System.Management.Automation.Runspaces;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Controls;
+using System.Xml;
 
 namespace RemoteUpdate
 {
@@ -195,14 +196,28 @@ namespace RemoteUpdate
                 return "";
             }
         }
-        public static void ReadXMLToTable(string xmlFilename, System.Data.DataTable loadTable)
+        public static bool ReadXMLToTable(string xmlFilename, System.Data.DataTable loadTable)
         {
-            loadTable.ReadXmlSchema(xmlFilename);
-            loadTable.ReadXml(xmlFilename);
+            if(File.Exists(xmlFilename))
+            {
+                try
+                {
+                    loadTable.ReadXmlSchema(xmlFilename);
+                    loadTable.ReadXml(xmlFilename);
+                    return true;
+                }
+                catch (XmlException ee)
+                {
+                    
+                    return false; 
+                }
+            }
+            return false;
         }
-        public static void WriteTableToXML(System.Data.DataTable saveTable, string xmlFilename)
+        public static bool WriteTableToXML(System.Data.DataTable saveTable, string xmlFilename)
         {
             saveTable.WriteXml(xmlFilename, System.Data.XmlWriteMode.WriteSchema);
+            return true;
         }
     }
 }

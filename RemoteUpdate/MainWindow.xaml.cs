@@ -15,7 +15,7 @@ namespace RemoteUpdate
     public partial class MainWindow : Window
     {
         // MainWindow Grid
-        public Grid GridMainWindow;
+        internal Grid GridMainWindow;
         public MainWindow()
         {
             InitializeComponent();
@@ -33,10 +33,8 @@ namespace RemoteUpdate
             // Initialize Servernumber
             int ServerNumber;
             // Load Schema and Data from XML RemoteUpdateServer.xml
-            try
+            if (Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", LoadTable))
             {
-                // Load Servers from XML File
-                Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", LoadTable);
                 // Set Servernumber according to Rows from XML
                 ServerNumber = LoadTable.Rows.Count;
                 // Set Values for first Row
@@ -56,7 +54,8 @@ namespace RemoteUpdate
                 dtrow["Ping"] = "";
                 dtrow["Uptime"] = "";
                 Global.TableRuntime.Rows.Add(dtrow);
-            } catch
+            }
+            else
             {
                 // If no XML could be read, set the Servernumber to 0
                 ServerNumber = 0;
@@ -64,13 +63,8 @@ namespace RemoteUpdate
                 Global.TableRuntime.Rows.Add(Global.TableRuntime.NewRow());
             }
             // Load Schema and Data from XML RemoteUpdateSettings.xml
-            try
-            {
-                // Load Settings from XML File
-                Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml", Global.TableSettings);
-            }
-            catch
-            {
+            if (!Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml", Global.TableSettings)) 
+            { 
                 Global.TableSettings.Columns.Add("SMTPServer");
                 Global.TableSettings.Columns.Add("SMTPPort");
                 Global.TableSettings.Columns.Add("MailFrom");
