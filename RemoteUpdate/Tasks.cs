@@ -219,5 +219,48 @@ namespace RemoteUpdate
             saveTable.WriteXml(xmlFilename, System.Data.XmlWriteMode.WriteSchema);
             return true;
         }
+        public static bool CreateLogFile()
+        {
+            try
+            {
+                // Check Directory if there are write rights
+                System.Security.AccessControl.DirectorySecurity ds = Directory.GetAccessControl(System.AppDomain.CurrentDomain.BaseDirectory);
+                // Create Logfile
+                using (Global.streamLogFile = File.AppendText(Global.strLogFile))
+                {
+                    Global.streamLogFile.WriteLine(System.DateTime.Now.ToString("yyyy.MM.dd_hhmmss", Global.cultures) + Global.stringTab + "INFO" + Global.stringTab + "Logfile created");
+                }
+                // Set Global variable that 
+                Global.bDirectoryWritable = true;
+                return true;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Global.bDirectoryWritable = false;
+                return false;
+            }
+        }
+        public static void WriteLogFile(int iClassification, string strArgument)
+        {
+            if(Global.bDirectoryWritable)
+            {
+                // Create Classification string
+                string strClassification;
+                if(iClassification == 0) {
+                    strClassification = "INFO";
+                } else if(iClassification == 1) {
+                    strClassification = "WARNING";
+                } else if(iClassification == 2) {
+                    strClassification = "ERROR";
+                } else {
+                    strClassification = "UNKNOWN";
+                }
+                // Write Log Entry
+                using (Global.streamLogFile = File.AppendText(Global.strLogFile))
+                {
+                    Global.streamLogFile.WriteLine(System.DateTime.Now.ToString("yyyy.MM.dd_hhmmss", Global.cultures) + Global.stringTab + strClassification + Global.stringTab + strArgument);
+                }
+            }
+        }
     }
 }

@@ -19,6 +19,11 @@ namespace RemoteUpdate
         public MainWindow()
         {
             InitializeComponent();
+            if(!Tasks.CreateLogFile())
+            {
+                this.ButtonSave.IsEnabled = false;
+                MessageBox.Show("Directory is not writable therefore no settings can be saved or log file can be written");
+            }
             // Global.TableRuntime Columns Creation
             Global.TableRuntime.Columns.Add("Servername");
             Global.TableRuntime.Columns.Add("IP");

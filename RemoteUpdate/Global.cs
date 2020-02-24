@@ -18,5 +18,13 @@ namespace RemoteUpdate
         public static DispatcherTimer TimerUpdateGrid = new DispatcherTimer();
         // Culture variable, for future changes to dynamic adaption
         public static System.Globalization.CultureInfo cultures = new System.Globalization.CultureInfo("en-US");
+        // Variable for Logfile Destination
+        public static string strLogFile = System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateLog-" + System.DateTime.Now.ToString("yyyy.MM.dd_hhmmss", cultures) + ".txt";
+        // Bool for Log and Save Write
+        public static bool bDirectoryWritable;
+        // Streamwriter for LogFile
+        public static System.IO.StreamWriter streamLogFile;
+        // Logfile divide character
+        public static string stringTab = System.Convert.ToChar(9).ToString(cultures);
     }
 }
