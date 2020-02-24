@@ -64,27 +64,33 @@ namespace RemoteUpdate
             {
                 psRunspace.Open();
                 Pipeline pipeline = psRunspace.CreatePipeline();
+                string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+                string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+                string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
 
-                if (Global.TableRuntime.Rows[line]["Username"].ToString().Length != 0 && Global.TableRuntime.Rows[line]["Password"].ToString().Length != 0)
+                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
                 {
-                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
-                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
-                    pipeline.Commands.AddScript("New-PSSession -Credential $Cred -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + " -ConfigurationName VirtualAccount;");
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("New-PSSession -Credential $Cred -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount;");
                 } else {
-                    pipeline.Commands.AddScript("New-PSSession -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + " -ConfigurationName VirtualAccount;");
+                    pipeline.Commands.AddScript("New-PSSession -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount;");
                 }
                 try
                 {
                     var exResults = pipeline.Invoke();
-                    if(pipeline.HadErrors == false)
+                    if(!pipeline.HadErrors)
                     {
+                        WriteLogFile(0, "Connection to " + tmpServername.ToUpper(Global.cultures) + " works");
                         returnValue = true;
                     } else
                     {
+                        WriteLogFile(1, "Connection to " + tmpServername.ToUpper(Global.cultures) + " is not working");
                         returnValue = false;
                     }
-                } catch
+                } catch (PSSnapInException ee)
                 {
+                    WriteLogFile(2, "Connection to " + tmpServername.ToUpper(Global.cultures) + " failed: " + ee.Message);
                     returnValue = false;
                 }
             }
@@ -191,8 +197,9 @@ namespace RemoteUpdate
             {
                 return System.Net.Dns.GetHostAddresses(Servername).First().ToString();
             }
-            catch
+            catch (Exception ee)
             {
+                WriteLogFile(1, "Could not get IP for Servername: " + Servername + ": " + ee.Message);
                 return "";
             }
         }
@@ -204,14 +211,16 @@ namespace RemoteUpdate
                 {
                     loadTable.ReadXmlSchema(xmlFilename);
                     loadTable.ReadXml(xmlFilename);
+                    WriteLogFile(0, xmlFilename + " successfully imported");
                     return true;
                 }
                 catch (XmlException ee)
                 {
-                    
-                    return false; 
+                    WriteLogFile(2, xmlFilename + " not imported:" + ee.Message.ToString(Global.cultures)) ;
+                    return false;
                 }
             }
+            WriteLogFile(1, xmlFilename + " not found");
             return false;
         }
         public static bool WriteTableToXML(System.Data.DataTable saveTable, string xmlFilename)
@@ -242,6 +251,12 @@ namespace RemoteUpdate
         }
         public static void WriteLogFile(int iClassification, string strArgument)
         {
+            WriteLogFile(iClassification, strArgument, false);
+        }
+        public static void WriteLogFile(int iClassification, string strArgument, bool bVerbose)
+        {
+            // Return if Global Verbose is false and the LogMessage is indicated as Verbose Log
+            if(!Global.bVerboseLog && bVerbose) { return; }
             if(Global.bDirectoryWritable)
             {
                 // Create Classification string

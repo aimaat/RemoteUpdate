@@ -27,6 +27,7 @@ namespace RemoteUpdate
             BgWUptimeTmp.DoWork += new DoWorkEventHandler((sender, e) => { BackgroundWorkerUptime(line); });
             BgWUptimeTmp.RunWorkerAsync();
             Global.ListBackgroundWorkerUptime.Add(BgWUptimeTmp);
+            Tasks.WriteLogFile(0, "BackgroundWorker Uptime for row " + (line + 1) + " created", true);
 
         }
         /// <summary>
@@ -39,7 +40,7 @@ namespace RemoteUpdate
             BgWUptimeTmp.DoWork += new DoWorkEventHandler((sender, e) => { BackgroundWorkerPing(line); });
             BgWUptimeTmp.RunWorkerAsync();
             Global.ListBackgroundWorkerPing.Add(BgWUptimeTmp);
-
+            Tasks.WriteLogFile(0, "BackgroundWorker Ping for row " + (line + 1) + " created", true);
         }
 
         public static void Ping_Tick(int line)

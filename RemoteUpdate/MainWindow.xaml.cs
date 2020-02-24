@@ -33,6 +33,24 @@ namespace RemoteUpdate
             Global.TableRuntime.Columns.Add("Uptime");
             // Get Grid to add more Controls
             GridMainWindow = this.Content as Grid;
+            // Load Schema and Data from XML RemoteUpdateSettings.xml
+            if (!Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml", Global.TableSettings))
+            {
+                Global.TableSettings.Columns.Add("SMTPServer");
+                Global.TableSettings.Columns.Add("SMTPPort");
+                Global.TableSettings.Columns.Add("MailFrom");
+                Global.TableSettings.Columns.Add("MailTo");
+                Global.TableSettings.Columns.Add("PSVirtualAccountName");
+                Global.TableSettings.Columns.Add("PSWUCommands");
+                Global.TableSettings.Columns.Add("VerboseLog");
+                Global.TableSettings.Rows.Add(Global.TableSettings.NewRow());
+                Global.TableSettings.Rows[0]["PSVirtualAccountName"] = "VirtualAccount";
+            }
+            // Set Verbose Logging if it is true in Settings file
+            if(Global.TableSettings.Rows[0]["VerboseLog"].ToString() == "true")
+            {
+                Global.bVerboseLog = true;
+            }
             // Initialize Datatable for XML Load
             System.Data.DataTable LoadTable = new System.Data.DataTable();
             // Initialize Servernumber
@@ -59,6 +77,7 @@ namespace RemoteUpdate
                 dtrow["Ping"] = "";
                 dtrow["Uptime"] = "";
                 Global.TableRuntime.Rows.Add(dtrow);
+                Tasks.WriteLogFile(0, "Row 1 filled with values", true);
             }
             else
             {
@@ -66,18 +85,7 @@ namespace RemoteUpdate
                 ServerNumber = 0;
                 // Create Empty Data Row
                 Global.TableRuntime.Rows.Add(Global.TableRuntime.NewRow());
-            }
-            // Load Schema and Data from XML RemoteUpdateSettings.xml
-            if (!Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml", Global.TableSettings)) 
-            { 
-                Global.TableSettings.Columns.Add("SMTPServer");
-                Global.TableSettings.Columns.Add("SMTPPort");
-                Global.TableSettings.Columns.Add("MailFrom");
-                Global.TableSettings.Columns.Add("MailTo");
-                Global.TableSettings.Columns.Add("PSVirtualAccountName");
-                Global.TableSettings.Columns.Add("PSWUCommands");
-                Global.TableSettings.Rows.Add(Global.TableSettings.NewRow());
-                Global.TableSettings.Rows[0]["PSVirtualAccountName"] = "VirtualAccount";
+                Tasks.WriteLogFile(0, "Empty row 1 created", true);
             }
             // Create BackgroundWorker (Ping and Uptime)
             Worker.CreateBackgroundWorker(0);
@@ -125,8 +133,6 @@ namespace RemoteUpdate
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + ii, 30, double.NaN, 0, 24 + 30 * ii, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
                 }
-                // Create BackgroundWorker (Ping and Uptime)
-                Worker.CreateBackgroundWorker(ii);
                 // Create new Row in TableRuntime
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 if (ii < LoadTable.Rows.Count)
@@ -139,12 +145,17 @@ namespace RemoteUpdate
                     dtrow["Uptime"] = "";
                 }
                 Global.TableRuntime.Rows.Add(dtrow);
-                // Timer Creation for Interface Updates
-                Global.TimerUpdateGrid.Interval = TimeSpan.FromSeconds(5);
-                Global.TimerUpdateGrid.Tick += (sender, e) => { Worker.TimerUpdateGrid_Tick(GridMainWindow); };
-                Global.TimerUpdateGrid.Start();
+                // Write Verbose Log
+                Tasks.WriteLogFile(0, "Row " + (ii + 1) + " filled with values", true);
+                // Create BackgroundWorker (Ping and Uptime)
+                Worker.CreateBackgroundWorker(ii);
             }
             LoadTable.Dispose();
+            // Timer Creation for Interface Updates
+            Global.TimerUpdateGrid.Interval = TimeSpan.FromSeconds(5);
+            Global.TimerUpdateGrid.Tick += (sender, e) => { Worker.TimerUpdateGrid_Tick(GridMainWindow); };
+            Global.TimerUpdateGrid.Start();
+            Tasks.WriteLogFile(0, "Timer for Grid Update created", true);
         }
         /// <summary>
         /// Function to change all Checkboxes IsChecked Status in the same name range

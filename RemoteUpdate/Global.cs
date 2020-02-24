@@ -26,5 +26,7 @@ namespace RemoteUpdate
         public static System.IO.StreamWriter streamLogFile;
         // Logfile divide character
         public static string stringTab = System.Convert.ToChar(9).ToString(cultures);
+        // Verbose Logging enabled?
+        public static bool bVerboseLog = false;
     }
 }
