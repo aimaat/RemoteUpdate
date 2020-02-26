@@ -28,5 +28,7 @@ namespace RemoteUpdate
         public static string stringTab = System.Convert.ToChar(9).ToString(cultures);
         // Verbose Logging enabled?
         public static bool bVerboseLog = false;
+        // IPHostEntry for localhost to check if servername is localhost
+        public static System.Net.IPHostEntry localHost = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
     }
 }

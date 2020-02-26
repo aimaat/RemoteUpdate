@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management.Automation.Runspaces;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Controls;
@@ -195,13 +196,25 @@ namespace RemoteUpdate
             if (Servername.Length == 0) { return ""; }
             try
             {
-                return System.Net.Dns.GetHostAddresses(Servername).First().ToString();
+
+                IPHostEntry hostEntry = Dns.GetHostEntry(Servername);
+                if (IsLocalHost(hostEntry)) 
+                {
+                    WriteLogFile(0, "Returned IP 127.0.0.1 for " + Servername.ToUpper(Global.cultures) + " (localhost)", true);
+                    return "127.0.0.1"; 
+                }
+                WriteLogFile(0, "Returned IP " + hostEntry.AddressList.FirstOrDefault().ToString() + " for " + Servername.ToUpper(Global.cultures), true); 
+                return hostEntry.AddressList.FirstOrDefault().ToString();
             }
             catch (Exception ee)
             {
                 WriteLogFile(1, "Could not get IP for Servername: " + Servername + ": " + ee.Message);
                 return "";
             }
+        }
+        public static bool IsLocalHost(IPHostEntry ipAddress)
+        {
+            return Global.localHost.AddressList.Any(x => ipAddress.AddressList.Any(y => x.Equals(y)));
         }
         public static bool ReadXMLToTable(string xmlFilename, System.Data.DataTable loadTable)
         {
@@ -226,6 +239,7 @@ namespace RemoteUpdate
         public static bool WriteTableToXML(System.Data.DataTable saveTable, string xmlFilename)
         {
             saveTable.WriteXml(xmlFilename, System.Data.XmlWriteMode.WriteSchema);
+            WriteLogFile(0, xmlFilename + " successfully saved");
             return true;
         }
         public static bool CreateLogFile()

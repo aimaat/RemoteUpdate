@@ -195,7 +195,6 @@ namespace RemoteUpdate
                 list.IsChecked = false;
                 list.Unchecked += CheckBoxChanged;
             }
-            //if()
         }
         private void SaveSettings(object sender, EventArgs e)
         {
