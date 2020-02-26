@@ -73,9 +73,9 @@ namespace RemoteUpdate
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
-                    pipeline.Commands.AddScript("New-PSSession -Credential $Cred -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion };");
                 } else {
-                    pipeline.Commands.AddScript("New-PSSession -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount;");
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion };");
                 }
                 try
                 {
@@ -92,6 +92,206 @@ namespace RemoteUpdate
                 } catch (PSSnapInException ee)
                 {
                     WriteLogFile(2, "Connection to " + tmpServername.ToUpper(Global.cultures) + " failed: " + ee.Message);
+                    returnValue = false;
+                }
+            }
+            return returnValue;
+        }
+        public static bool CreatePSConnectionPrerequisites(int line)
+        {
+            // Check Credentials with a single Connection first
+            if(!CheckPSConnectionPrerequisiteCredentials(line))
+            {
+                return false;
+            }
+            // Check if Package Provider NuGet is installed
+            if(!CheckPSConnectionPrerequisiteProvider(line))
+            {
+                // Install Package Provider NuGet
+                if(!CreatePSConnectionPrerequisiteProvider(line))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool CheckPSConnectionPrerequisiteCredentials(int line)
+        {
+            return true;
+        }
+        public static bool CheckPSConnectionPrerequisiteProvider(int line)
+        {
+            var sessionState = InitialSessionState.CreateDefault();
+            bool returnValue = false;
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+                string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+                string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+                string tmpCommand = "Get-PackageProvider | Where { $_.Name -eq 'NuGet' -and $_.Version.Major -ge 2 -and $_.Version.Minor -ge 8 -and $_.Version.Build -ge 5 -and $_.Version.Revision -ge 201 }";
+
+                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " { " + tmpCommand + " };");
+                }
+                else
+                {
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " { " + tmpCommand + " };");
+                }
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    if (!pipeline.HadErrors)
+                    {
+                        WriteLogFile(0, "Package Provider NuGet is installed on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = true;
+                    }
+                    else
+                    {
+                        WriteLogFile(1, "Package Provider NuGet is not installed on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = false;
+                    }
+                }
+                catch (PSSnapInException ee)
+                {
+                    WriteLogFile(2, "Package Provider NuGet is not installed on " + tmpServername.ToUpper(Global.cultures) + ": " + ee.Message);
+                    returnValue = false;
+                }
+            }
+            return returnValue;
+        }
+        public static bool CreatePSConnectionPrerequisiteProvider(int line)
+        {
+            var sessionState = InitialSessionState.CreateDefault();
+            bool returnValue = false;
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+                string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+                string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+                string tmpCommand = "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force";
+                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " { " + tmpCommand + " };");
+                }
+                else
+                {
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " { " + tmpCommand + " }");
+                }
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    if (!pipeline.HadErrors)
+                    {
+                        WriteLogFile(0, "Package Provider NuGet got installed on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = true;
+                    }
+                    else
+                    {
+                        WriteLogFile(1, "Package Provider NuGet could not be installed on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = false;
+                    }
+                }
+                catch (PSSnapInException ee)
+                {
+                    WriteLogFile(2, "Package Provider NuGet could not be installed on " + tmpServername.ToUpper(Global.cultures) + ": " + ee.Message);
+                    returnValue = false;
+                }
+            }
+            return returnValue;
+        }
+        public static bool CheckPSConnectionPrerequisiteModule(int line)
+        {
+            var sessionState = InitialSessionState.CreateDefault();
+            bool returnValue = false;
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+                string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+                string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+                string tmpCommand = "Get-Module -ListAvailable -Name PSWindowsUpdate  | Where { $_.Version.Major -ge 2 -and $_.Version.Minor -ge 1 -and $_.Version.Build -ge 1 -and $_.Version.Revision -ge 2 }";
+
+                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " { " + tmpCommand + " };");
+                }
+                else
+                {
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " { " + tmpCommand + " };");
+                }
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    if (!pipeline.HadErrors)
+                    {
+                        WriteLogFile(0, "Module PSWindowsUpdate is installed on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = true;
+                    }
+                    else
+                    {
+                        WriteLogFile(1, "Module PSWindowsUpdate is not installed on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = false;
+                    }
+                }
+                catch (PSSnapInException ee)
+                {
+                    WriteLogFile(2, "Module PSWindowsUpdate is not installed on " + tmpServername.ToUpper(Global.cultures) + ": " + ee.Message);
+                    returnValue = false;
+                }
+            }
+            return returnValue;
+        }
+        public static bool CreatePSConnectionPrerequisiteModule(int line)
+        {
+            var sessionState = InitialSessionState.CreateDefault();
+            bool returnValue = false;
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+                string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+                string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+                string tmpCommand = "Install-Module PSWindowsUpdate -MinimumVersion 2.1.1.2 -Force";
+                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " { Get-PackageProvider | Where { " + tmpCommand + " };");
+                }
+                else
+                {
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " { " + tmpCommand + " }");
+                }
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    if (!pipeline.HadErrors)
+                    {
+                        WriteLogFile(0, "Module PSWindowsUpdate got installed on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = true;
+                    }
+                    else
+                    {
+                        WriteLogFile(1, "Module PSWindowsUpdate could not be installed on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = false;
+                    }
+                }
+                catch (PSSnapInException ee)
+                {
+                    WriteLogFile(2, "Module PSWindowsUpdate could not be installed on " + tmpServername.ToUpper(Global.cultures) + ": " + ee.Message);
                     returnValue = false;
                 }
             }
@@ -224,7 +424,7 @@ namespace RemoteUpdate
                 {
                     loadTable.ReadXmlSchema(xmlFilename);
                     loadTable.ReadXml(xmlFilename);
-                    WriteLogFile(0, xmlFilename + " successfully imported");
+                    WriteLogFile(0, xmlFilename + " successfully loaded");
                     return true;
                 }
                 catch (XmlException ee)
