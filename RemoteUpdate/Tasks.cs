@@ -130,7 +130,7 @@ namespace RemoteUpdate
                 string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
                 string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
                 string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
-                string tmpCommand = "Get-PackageProvider | Where { $_.Name -eq 'NuGet' -and $_.Version.Major -ge 2 -and $_.Version.Minor -ge 8 -and $_.Version.Build -ge 5 -and $_.Version.Revision -ge 201 }";
+                string tmpCommand = "Get-PackageProvider | Where {  $_.Name -eq 'NuGet' -and $_.Version -ge [version]("2.8.5.201") }";
 
                 if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
                 {
