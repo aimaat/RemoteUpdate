@@ -395,14 +395,14 @@ namespace RemoteUpdate
             }
             else
             {
-                if (Tasks.CreatePSVirtualAccount(line))
+                string strFailureMessage;
+                if (Tasks.CreatePSConnectionPrerequisites(line, out strFailureMessage))
                 {
                     Tasks.OpenPowerShell(line, GridMainWindow);
                 }
                 else
                 {
                     ThreadPool.QueueUserWorkItem(delegate { MessageBox.Show("Can't create the Powershell Virtual Account on server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures) + ".\nPlease check your credentials or firewall settings."); });
-                    //MessageBox.Show("Can't create the Powershell Virtual Account on server " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ".\nPlease check your credentials or firewall settings.");
                 }
             }
         }

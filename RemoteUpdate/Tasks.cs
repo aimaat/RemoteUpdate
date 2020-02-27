@@ -75,7 +75,7 @@ namespace RemoteUpdate
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
                     pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion };");
                 } else {
-                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion };");
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion | Select-Object PSWindowsUpdate;");
                 }
                 try
                 {
@@ -97,27 +97,89 @@ namespace RemoteUpdate
             }
             return returnValue;
         }
-        public static bool CreatePSConnectionPrerequisites(int line)
+        public static bool CreatePSConnectionPrerequisites(int line, out string strFailureMessage)
         {
             // Check Credentials with a single Connection first
             if(!CheckPSConnectionPrerequisiteCredentials(line))
             {
+                strFailureMessage = "Credentials";
                 return false;
             }
             // Check if Package Provider NuGet is installed
             if(!CheckPSConnectionPrerequisiteProvider(line))
             {
-                // Install Package Provider NuGet
+                // Install Package Provider NuGet if not installed
                 if(!CreatePSConnectionPrerequisiteProvider(line))
                 {
+                    strFailureMessage = "PackageProvider";
                     return false;
                 }
             }
+            // Check if Powershell Module PSWindowsUpdate is installed
+            if (!CheckPSConnectionPrerequisiteModule(line))
+            {
+                // Install Powershell Module PSWindowsUpdate
+                if (!CreatePSConnectionPrerequisiteModule(line))
+                {
+                    strFailureMessage = "PSWindowsUpdate";
+                    return false;
+                }
+            }
+            // Check if Powershell Module PSWindowsUpdate is installed
+            if (!CheckPSConnectionPrerequisiteVirtualAccount(line))
+            {
+                // Install Powershell Module PSWindowsUpdate
+                if (!CreatePSConnectionPrerequisiteVirtualAccount(line))
+                {
+                    strFailureMessage = "VirtualAccount";
+                    return false;
+                }
+            }
+            strFailureMessage = "OK";
             return true;
         }
         public static bool CheckPSConnectionPrerequisiteCredentials(int line)
         {
-            return true;
+            var sessionState = InitialSessionState.CreateDefault();
+            bool returnValue = false;
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+                string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+                string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " { };");
+                }
+                else
+                {
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " { };");
+                }
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    if (!pipeline.HadErrors)
+                    {
+                        WriteLogFile(0, "Credentials respectively access rights are ok for " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = true;
+                    }
+                    else
+                    {
+                        WriteLogFile(1, "Wrong credentials or access rights for " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = false;
+                    }
+                }
+                catch (PSSnapInException ee)
+                {
+                    WriteLogFile(2, "Wrong credentials or access rights for " + tmpServername.ToUpper(Global.cultures) + ": " + ee.Message);
+                    returnValue = false;
+                }
+            }
+            return returnValue;
         }
         public static bool CheckPSConnectionPrerequisiteProvider(int line)
         {
@@ -130,8 +192,7 @@ namespace RemoteUpdate
                 string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
                 string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
                 string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
-                string tmpCommand = "Get-PackageProvider | Where {  $_.Name -eq 'NuGet' -and $_.Version -ge [version]("2.8.5.201") }";
-
+                string tmpCommand = "Get-PackageProvider | Where {  $_.Name -eq 'NuGet' -and $_.Version -ge [version]('2.8.5.201') }";
                 if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
@@ -145,7 +206,7 @@ namespace RemoteUpdate
                 try
                 {
                     var exResults = pipeline.Invoke();
-                    if (!pipeline.HadErrors)
+                    if (exResults.Count > 0)
                     {
                         WriteLogFile(0, "Package Provider NuGet is installed on " + tmpServername.ToUpper(Global.cultures));
                         returnValue = true;
@@ -219,8 +280,7 @@ namespace RemoteUpdate
                 string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
                 string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
                 string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
-                string tmpCommand = "Get-Module -ListAvailable -Name PSWindowsUpdate  | Where { $_.Version.Major -ge 2 -and $_.Version.Minor -ge 1 -and $_.Version.Build -ge 1 -and $_.Version.Revision -ge 2 }";
-
+                string tmpCommand = "Get-Module -ListAvailable -Name PSWindowsUpdate  | Where { $_.Version -ge [version]('2.1.1.2') }";
                 if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
@@ -234,7 +294,7 @@ namespace RemoteUpdate
                 try
                 {
                     var exResults = pipeline.Invoke();
-                    if (!pipeline.HadErrors)
+                    if (exResults.Count > 0)
                     {
                         WriteLogFile(0, "Module PSWindowsUpdate is installed on " + tmpServername.ToUpper(Global.cultures));
                         returnValue = true;
@@ -269,7 +329,7 @@ namespace RemoteUpdate
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
-                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " { Get-PackageProvider | Where { " + tmpCommand + " };");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " { " + tmpCommand + " };");
                 }
                 else
                 {
@@ -280,7 +340,7 @@ namespace RemoteUpdate
                     var exResults = pipeline.Invoke();
                     if (!pipeline.HadErrors)
                     {
-                        WriteLogFile(0, "Module PSWindowsUpdate got installed on " + tmpServername.ToUpper(Global.cultures));
+                        WriteLogFile(0, "Module PSWindowsUpdate got successfully installed on " + tmpServername.ToUpper(Global.cultures));
                         returnValue = true;
                     }
                     else
@@ -297,6 +357,89 @@ namespace RemoteUpdate
             }
             return returnValue;
         }
+        public static bool CheckPSConnectionPrerequisiteVirtualAccount(int line)
+        {
+            var sessionState = InitialSessionState.CreateDefault();
+            bool returnValue = false;
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+                string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+                string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+                string tmpVirtualAccount = Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString();
+                string tmpCommand = "";
+                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " { " + tmpCommand + " };");
+                }
+                else
+                {
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " { " + tmpCommand + " };");
+                }
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    if (exResults.Count > 0)
+                    {
+                        WriteLogFile(0, "Powershell VirtualAccount \"" + tmpVirtualAccount + "\" exists on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = true;
+                    }
+                    else
+                    {
+                        WriteLogFile(1, "Powershell VirtualAccount \"" + tmpVirtualAccount + "\" does not exist on " + tmpServername.ToUpper(Global.cultures));
+                        returnValue = false;
+                    }
+                }
+                catch (PSSnapInException ee)
+                {
+                    WriteLogFile(2, "Powershell VirtualAccount \"" + tmpVirtualAccount + "\" does not exist on " + tmpServername.ToUpper(Global.cultures) + ": " + ee.Message);
+                    returnValue = false;
+                }
+            }
+            return returnValue;
+        }
+        public static bool CreatePSConnectionPrerequisiteVirtualAccount(int line)
+        {
+            var sessionState = InitialSessionState.CreateDefault();
+            bool returnValue = false;
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+                string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+                string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+                string tmpVirtualAccount = Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString();
+                string tmpCommand = "New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\\" + tmpVirtualAccount + ".pssc; Register-PSSessionConfiguration -Name '" + tmpVirtualAccount + "' -Path .\\" + tmpVirtualAccount + ".pssc -Force;";
+                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " { " + tmpCommand + " };");
+                }
+                else
+                {
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " { " + tmpCommand + " }");
+                }
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    WriteLogFile(0, "Powershell VirtualAccount \"" + tmpVirtualAccount + "\" was created on " + tmpServername.ToUpper(Global.cultures));
+                    returnValue = true;
+                }
+                catch (PSSnapInException ee)
+                {
+                    WriteLogFile(2, "Powershell VirtualAccount \"" + tmpVirtualAccount + "\" could not be created on " + tmpServername.ToUpper(Global.cultures) + ": " + ee.Message);
+                    returnValue = false;
+                }
+            }
+            return returnValue;
+        }
+        /*
         public static bool CreatePSVirtualAccount(int line)
         {
             var sessionState = InitialSessionState.CreateDefault();
@@ -336,6 +479,7 @@ namespace RemoteUpdate
                 }
             }
         }
+        */
         public static void OpenPowerShell(int line, Grid GridMainWindow)
         {
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
@@ -390,6 +534,7 @@ namespace RemoteUpdate
                 }
                 startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
                 Process test = Process.Start(startInfo);
+                WriteLogFile(0, "Update startet on Server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures));
         }
         public static string GetIPfromHostname(string Servername)
         {
