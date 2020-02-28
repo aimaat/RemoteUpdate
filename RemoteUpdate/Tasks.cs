@@ -73,9 +73,9 @@ namespace RemoteUpdate
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
-                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion };");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion | Select-Object PSWindowsUpdate };");
                 } else {
-                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion | Select-Object PSWindowsUpdate;");
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion | Select-Object PSWindowsUpdate };");
                 }
                 try
                 {
