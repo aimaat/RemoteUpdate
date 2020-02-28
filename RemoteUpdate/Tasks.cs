@@ -439,47 +439,6 @@ namespace RemoteUpdate
             }
             return returnValue;
         }
-        /*
-        public static bool CreatePSVirtualAccount(int line)
-        {
-            var sessionState = InitialSessionState.CreateDefault();
-            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
-            {
-                string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
-                string tmpPSVirtualAccountName = Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString();
-                string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
-                string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
-
-                psRunspace.Open();
-                Pipeline pipeline = psRunspace.CreatePipeline();
-                string tmpCredentials = "";
-                if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
-                {
-                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
-                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
-                    tmpCredentials = " -Credential $Cred";
-                }
-                pipeline.Commands.AddScript("Invoke-Command" + tmpCredentials + " -ComputerName '" + tmpServername + "' { if(!(Get-PackageProvider | Where { $_.Name -eq 'NuGet' -and $_.Version -lt 2.8.5.201})) { Install-PackageProvider -Name 'Nuget' -Force } };");
-                pipeline.Commands.AddScript("Invoke-Command" + tmpCredentials + " -ComputerName '" + tmpServername + "' { if(!(Get-Module -ListAvailable -Name PSWindowsUpdate)) { Install-Module PSWindowsUpdate -Force } };");
-                pipeline.Commands.AddScript("Invoke-Command" + tmpCredentials + " -ComputerName '" + tmpServername + "' { New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\\" + tmpPSVirtualAccountName + ".pssc };");
-                pipeline.Commands.AddScript("Invoke-Command" + tmpCredentials + " -ComputerName '" + tmpServername + "' { Register-PSSessionConfiguration -Name '" + tmpPSVirtualAccountName + "' -Path .\\" + tmpPSVirtualAccountName + ".pssc -Force }");
-                try
-                {
-                    var exResults = pipeline.Invoke();
-                    if(pipeline.Error.Count > 1)
-                    {
-                        return false;
-                    } else { 
-                        return true;
-                    }
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-        }
-        */
         public static void OpenPowerShell(int line, Grid GridMainWindow)
         {
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
