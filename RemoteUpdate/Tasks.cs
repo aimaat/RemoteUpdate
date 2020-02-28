@@ -5,6 +5,7 @@ using System.Linq;
 using System.Management.Automation.Runspaces;
 using System.Net;
 using System.Security.Cryptography;
+using System.ServiceProcess;
 using System.Text;
 using System.Windows.Controls;
 using System.Xml;
@@ -592,6 +593,25 @@ namespace RemoteUpdate
                 using (Global.streamLogFile = File.AppendText(Global.strLogFile))
                 {
                     Global.streamLogFile.WriteLine(System.DateTime.Now.ToString("yyyy.MM.dd_hhmmss", Global.cultures) + Global.stringTab + strClassification + Global.stringTab + strArgument);
+                }
+            }
+        }
+        public static string CheckServiceStatus (string strServiceName) {
+            using (ServiceController sc = new ServiceController(strServiceName)) { 
+                switch (sc.Status)
+                {
+                    case ServiceControllerStatus.Running:
+                        return "Running";
+                    case ServiceControllerStatus.Stopped:
+                        return "Stopped";
+                    case ServiceControllerStatus.Paused:
+                        return "Paused";
+                    case ServiceControllerStatus.StopPending:
+                        return "Stopping";
+                    case ServiceControllerStatus.StartPending:
+                        return "Starting";
+                    default:
+                        return "Status Changing";
                 }
             }
         }

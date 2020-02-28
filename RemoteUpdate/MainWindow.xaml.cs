@@ -156,6 +156,7 @@ namespace RemoteUpdate
             Global.TimerUpdateGrid.Tick += (sender, e) => { Worker.TimerUpdateGrid_Tick(GridMainWindow); };
             Global.TimerUpdateGrid.Start();
             Tasks.WriteLogFile(0, "Timer for Grid Update created", true);
+            string strTmp = Tasks.CheckServiceStatus("WinRM");
         }
         /// <summary>
         /// Function to change all Checkboxes IsChecked Status in the same name range
