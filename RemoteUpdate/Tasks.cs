@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Net;
 using System.Security.Cryptography;
@@ -617,6 +618,46 @@ namespace RemoteUpdate
                         return "Status Changing";
                 }
             }
+        }
+        public static bool CheckWinRMStatus(out string strMessage)
+        {
+            strMessage = "";
+            if(CheckServiceStatus("WinRM") != "Running")
+            {
+                strMessage = "WinRM Service is not running!";
+                return false;
+            }
+            var sessionState = InitialSessionState.CreateDefault();
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                pipeline.Commands.AddScript(@"(get-item wsman:\localhost\Client\TrustedHosts).value");
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    if (exResults.Count > 0)
+                    {
+                        if(!exResults[0].ToString().Contains("*"))
+                        {
+                            strMessage = "The following hosts are in the TrustedHosts list: " + exResults[0].ToString();
+                            return false;
+                        }
+                    } else
+                    {
+                        strMessage = "No hosts are in the TrustedHosts list.";
+                        return false;
+                    }
+                }
+                catch (PSSnapInException ee)
+                {
+                    WriteLogFile(2, "An error occured while retrieving the WinRM TrustedHosts list.");
+                    strMessage = "An error occured while retrieving the WinRM TrustedHosts list.";
+                    return false;
+                }
+            }
+            strMessage = "WinRM service is running and * is in the TrustedHosts list.";
+            return true;
         }
     }
 }
