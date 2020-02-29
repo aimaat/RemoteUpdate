@@ -5,6 +5,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Threading;
+using System.Diagnostics;
+using System.Security.Permissions;
 
 namespace RemoteUpdate
 {
@@ -160,17 +162,10 @@ namespace RemoteUpdate
             if(Tasks.CheckWinRMStatus(out string strMessage))
             {
                 this.TextboxInfoMessage.Text = strMessage;
-                //this.LabelInfoMessage.Content = strMessage;
-                // Alles passt, rein ins label
             } else
             {
                 this.TextboxInfoMessage.Text = strMessage;
-                //this.LabelInfoMessage.Content = strMessage;
-                // etwas ist schiefgegangen, rein ins label
             }
-
-
-            
         }
         /// <summary>
         /// Function to change all Checkboxes IsChecked Status in the same name range
@@ -469,6 +464,23 @@ namespace RemoteUpdate
                 CheckBoxChangedServer(sender, e);
                 // If CheckboxGUI and Checked
             }
+        }
+        private void ButtonFixIt_Click(object sender, RoutedEventArgs e)
+        {
+            Elevate();
+        }
+
+        private void Elevate()
+        {
+            Process p = new Process();
+            p.StartInfo.Verb = "runas";
+            p.StartInfo.WorkingDirectory = Environment.CurrentDirectory;
+            p.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
+            p.StartInfo.Arguments = "test";
+            p.StartInfo.UseShellExecute = true;
+            p.Start();
+            p.WaitForExit();
+            p.Dispose();
         }
     }
 }
