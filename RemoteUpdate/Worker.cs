@@ -45,11 +45,13 @@ namespace RemoteUpdate
 
         public static void Ping_Tick(int line)
         {
-            if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0 && Global.TableRuntime.Rows[line]["Servername"].ToString().Length == 0)
+            string strTmpIP = Global.TableRuntime.Rows[line]["IP"].ToString();
+            string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+            if (strTmpIP.Length == 0 && strTmpServername.Length == 0)
             {
                 return;
             }
-            if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0)
+            if (strTmpIP.Length == 0)
             {
                 Global.TableRuntime.Rows[line]["Ping"] = "noIP";
                 return;
@@ -58,7 +60,7 @@ namespace RemoteUpdate
             PingOptions options = new PingOptions();
             options.DontFragment = true;
             byte[] buffer = Encoding.ASCII.GetBytes("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            PingReply reply = pingSender.Send(Global.TableRuntime.Rows[line]["IP"].ToString(), 1000, buffer, options);
+            PingReply reply = pingSender.Send(strTmpIP, 1000, buffer, options);
             pingSender.Dispose();
             try
             {
@@ -70,29 +72,36 @@ namespace RemoteUpdate
                 {
                     Global.TableRuntime.Rows[line]["Ping"] = "false";
                 }
-            } catch { return;  }
+            } catch (PingException ee)
+            {
+                Tasks.WriteLogFile(2, "Ping error with " + strTmpServername + "/" + strTmpIP + ": " + ee.Message, true);
+                return;
+            }
         }
         public static void Uptime_Tick(int line)
         {
             if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0) { return; }
+            string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+            string strTmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+            string strTmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
             var sessionState = InitialSessionState.CreateDefault();
             using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
             {
                 psRunspace.Open();
                 Pipeline pipeline = psRunspace.CreatePipeline();
-                if (Global.TableRuntime.Rows[line]["Username"].ToString().Length != 0 && Global.TableRuntime.Rows[line]["Username"].ToString().Length != 0)
+                if (strTmpUsername.Length != 0 && strTmpPassword.Length != 0)
                 {
-                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;");
-                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;");
-                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + Global.TableRuntime.Rows[line]["Servername"].ToString() + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + strTmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + strTmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + strTmpServername + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
                 }
                 else
                 {
-                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + Global.TableRuntime.Rows[line]["Servername"].ToString() + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + strTmpServername + "' { (get-date) - (gcim Win32_OperatingSystem).LastBootUpTime };");
                 }
-                var exResults = pipeline.Invoke();
                 try
                 {
+                    var exResults = pipeline.Invoke();
                     if (exResults.Count != 0)
                     {
                         TimeSpan tstmp = TimeSpan.Parse(exResults[0].BaseObject.ToString(), Global.cultures);
@@ -102,7 +111,11 @@ namespace RemoteUpdate
                     {
                         Global.TableRuntime.Rows[line]["Uptime"] = "no connection";
                     }
-                } catch { return; }
+                } catch (InvalidPipelineStateException ee)
+                {
+                    Tasks.WriteLogFile(2, "Uptime check error with " + strTmpServername + ": " + ee.Message, true);
+                    return; 
+                }
             }
         }
         public static void BackgroundWorkerUptime(int line)
@@ -153,7 +166,12 @@ namespace RemoteUpdate
                         GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = Global.TableRuntime.Rows[ii]["Uptime"].ToString();
                     }
                 }
-            } catch { }
+            }
+            catch (DataException ee)
+            {
+                Tasks.WriteLogFile(2, "Update Grid error : " + ee.Message, true);
+                return;
+            }
             Global.TimerUpdateGrid.Start();
         }
     }

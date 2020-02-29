@@ -445,8 +445,11 @@ namespace RemoteUpdate
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = DateTime.Now.ToString("HH:mm:ss", Global.cultures);
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
-            
-
+            string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures);
+            string strTmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+            string strTmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+            string strTmpCredentials = "";
+            string strTmpVirtualAccount = Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString();
                 ProcessStartInfo startInfo = new ProcessStartInfo(@"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe");
                 startInfo.UseShellExecute = false;
                 startInfo.EnvironmentVariables.Add("RedirectStandardOutput", "true");
@@ -461,16 +464,12 @@ namespace RemoteUpdate
                 }
                 // https://devblogs.microsoft.com/scripting/how-can-i-expand-the-width-of-the-windows-powershell-console/ entfern: $newsize.width = 120; 
                 startInfo.Arguments += "$pshost = get-host; $pswindow = $pshost.ui.rawui; $newsize = $pswindow.buffersize; $newsize.height = 10; $pswindow.windowsize = $newsize; $pswindow.buffersize = $newsize;";
-                startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures) + "';";
-                if (Global.TableRuntime.Rows[line]["Username"].ToString().Length != 0 && Global.TableRuntime.Rows[line]["Password"].ToString().Length != 0)
+                startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + strTmpServername + "';";
+                if (strTmpUsername.Length != 0 && strTmpPassword.Length != 0)
                 {
-                    startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + Global.TableRuntime.Rows[line]["Password"].ToString() + "' -Force;";
-                    startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + Global.TableRuntime.Rows[line]["Username"].ToString() + "',$pass;";
-                    startInfo.Arguments += "$session = New-PSSession -Credential $Cred -ConfigurationName '" + Global.TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ";";
-                }
-                else
-                {
-                    startInfo.Arguments += "$session = New-PSSession -ConfigurationName '" + Global.TableSettings.Rows[0]["PSVirtualAccountName"] + "' -ComputerName " + Global.TableRuntime.Rows[line]["Servername"].ToString() + ";";
+                    startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + strTmpPassword + "' -Force;";
+                    startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + strTmpUsername + "',$pass;";
+                    strTmpCredentials = "-Credential $Cred ";
                 }
                 string WUArguments = "";
                 if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
@@ -487,14 +486,18 @@ namespace RemoteUpdate
                 }
                 if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
                 {
-                    if ((Global.TableSettings.Rows[0]["SMTPServer"].ToString().Length != 0) && (Global.TableSettings.Rows[0]["SMTPPort"].ToString().Length != 0) && (Global.TableSettings.Rows[0]["MailFrom"].ToString().Length != 0) && (Global.TableSettings.Rows[0]["MailTo"].ToString().Length != 0))
+                string strTmpSMTPServer = Global.TableSettings.Rows[0]["SMTPServer"].ToString();
+                string strTmpSMTPPort = Global.TableSettings.Rows[0]["SMTPPort"].ToString();
+                string strTmpMailFrom = Global.TableSettings.Rows[0]["MailFrom"].ToString();
+                string strTmpMailTo = Global.TableSettings.Rows[0]["MailTo"].ToString();
+                    if ((strTmpSMTPServer.Length != 0) && (strTmpSMTPPort.Length != 0) && (strTmpMailFrom.Length != 0) && (strTmpMailTo.Length != 0))
                     {
-                        WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + Global.TableSettings.Rows[0]["SMTPServer"].ToString() + "'; Port = " + Global.TableSettings.Rows[0]["SMTPPort"].ToString() + "; From = '" + Global.TableSettings.Rows[0]["MailFrom"].ToString() + "'; To = '" + Global.TableSettings.Rows[0]["MailTo"].ToString() + "' }";
+                        WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + strTmpSMTPServer + "'; Port = " + strTmpSMTPPort + "; From = '" + strTmpMailFrom + "'; To = '" + strTmpMailTo + "' }";
                     }
                 }
-                startInfo.Arguments += "Invoke-Command $session { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
+                startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
                 Process test = Process.Start(startInfo);
-                WriteLogFile(0, "Update startet on Server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures));
+                WriteLogFile(0, "Update startet on Server " + strTmpServername.ToUpper(Global.cultures));
         }
         public static string GetIPfromHostname(string Servername)
         {
