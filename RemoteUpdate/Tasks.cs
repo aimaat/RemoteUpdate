@@ -638,20 +638,26 @@ namespace RemoteUpdate
                     var exResults = pipeline.Invoke();
                     if (exResults.Count > 0)
                     {
+                        if(exResults[0].ToString().Length == 0)
+                        {
+                            strMessage = "No hosts are in the TrustedHosts list.";
+                            return false;
+                        }
                         if(!exResults[0].ToString().Contains("*"))
                         {
-                            strMessage = "The following hosts are in the TrustedHosts list: " + exResults[0].ToString();
+                            strMessage = "The following hosts are in the TrustedHosts list: " + exResults[0].ToString().Replace(",",", ").ToUpper(Global.cultures);
                             return false;
                         }
                     } else
                     {
-                        strMessage = "No hosts are in the TrustedHosts list.";
+                        WriteLogFile(1, "The WinRM TrustedHosts list could not be retrieved.");
+                        strMessage = "The WinRM TrustedHosts list could not be retrieved.";
                         return false;
                     }
                 }
                 catch (PSSnapInException ee)
                 {
-                    WriteLogFile(2, "An error occured while retrieving the WinRM TrustedHosts list.");
+                    WriteLogFile(2, "An error occured while retrieving the WinRM TrustedHosts list: " + ee.Message);
                     strMessage = "An error occured while retrieving the WinRM TrustedHosts list.";
                     return false;
                 }

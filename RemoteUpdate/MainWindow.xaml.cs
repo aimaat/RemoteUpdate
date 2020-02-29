@@ -90,7 +90,7 @@ namespace RemoteUpdate
             // Create BackgroundWorker (Ping and Uptime)
             Worker.CreateBackgroundWorker(0);
             // Change Height of Main Window when more than 10 Servers are in the List
-            if (ServerNumber > 2) { Application.Current.MainWindow.Height = 130 + ServerNumber * 30; }
+            if (ServerNumber > 2) { Application.Current.MainWindow.Height = 160 + ServerNumber * 30; }
             // Add Controls for each Server loaded
             for (int ii = 1; ii < ServerNumber + 1; ii++)
             {
@@ -156,12 +156,16 @@ namespace RemoteUpdate
             Global.TimerUpdateGrid.Tick += (sender, e) => { Worker.TimerUpdateGrid_Tick(GridMainWindow); };
             Global.TimerUpdateGrid.Start();
             Tasks.WriteLogFile(0, "Timer for Grid Update created", true);
-
+            // Check WinRM Status and write Info Message into Label
             if(Tasks.CheckWinRMStatus(out string strMessage))
             {
+                this.TextboxInfoMessage.Text = strMessage;
+                //this.LabelInfoMessage.Content = strMessage;
                 // Alles passt, rein ins label
             } else
             {
+                this.TextboxInfoMessage.Text = strMessage;
+                //this.LabelInfoMessage.Content = strMessage;
                 // etwas ist schiefgegangen, rein ins label
             }
 
@@ -378,16 +382,14 @@ namespace RemoteUpdate
                 Worker.CreateBackgroundWorker(list.Length);
                 if (list.Length >= 3)
                 {
-                    Application.Current.MainWindow.Height = 130 + list.Length * 30;
+                    Application.Current.MainWindow.Height = 160 + list.Length * 30;
                 }
-
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 dtrow["Servername"] = "";
                 dtrow["IP"] = "";
                 dtrow["Username"] = "";
                 dtrow["Password"] = "";
                 Global.TableRuntime.Rows.Add(dtrow);
-
             }
         }
         private void GetCredentials(object sender, RoutedEventArgs e)
@@ -449,7 +451,6 @@ namespace RemoteUpdate
             RemoteUpdate.About ShowAbout = new RemoteUpdate.About(Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString());
             ShowAbout.ShowDialog();
         }
-
         private void CheckboxChangedGUIAccept(object sender, RoutedEventArgs e)
         {
             string strCheckBoxName = (sender as CheckBox).Name.Split('_')[0];
