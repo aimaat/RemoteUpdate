@@ -467,20 +467,13 @@ namespace RemoteUpdate
         }
         private void ButtonFixIt_Click(object sender, RoutedEventArgs e)
         {
-            Elevate();
-        }
-
-        private void Elevate()
-        {
-            Process p = new Process();
-            p.StartInfo.Verb = "runas";
-            p.StartInfo.WorkingDirectory = Environment.CurrentDirectory;
-            p.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
-            p.StartInfo.Arguments = "test";
-            p.StartInfo.UseShellExecute = true;
-            p.Start();
-            p.WaitForExit();
-            p.Dispose();
+            if (Tasks.IsAdministrator())
+            {
+                
+            } else
+            {
+                Tasks.Elevate();
+            }
         }
     }
 }

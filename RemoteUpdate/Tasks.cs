@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Net;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
 using System.Windows.Controls;
@@ -664,6 +665,85 @@ namespace RemoteUpdate
             }
             strMessage = "WinRM service is running and * is in the TrustedHosts list.";
             return true;
+        }
+        public static void SetServiceStartup(string strServicename, string strStartType)
+        {
+            using (Process p = new Process())
+            {
+                p.StartInfo.FileName = "cmd.exe";
+                p.StartInfo.Arguments = "/c sc config \"" + strServicename + "\" start=" + strStartType;
+                p.StartInfo.UseShellExecute = true;
+                p.Start();
+                p.WaitForExit(5000);
+            }
+        }
+        public static bool GetServiceStartup(string strServicename)
+        {
+            // https://social.msdn.microsoft.com/Forums/vstudio/en-US/f2fed453-edca-44bb-8f70-197d9bcddc41/get-startup-type-of-a-windows-service?forum=netfxbcl
+
+            RegistryKey reg = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\services\" + strServicename);
+            int startupTypeValue = (int)reg.GetValue("Start");
+            switch (startupTypeValue)
+            {
+                case 0:
+                    // startupType = "BOOT";
+                    return false;
+                case 1:
+                    // startupType = "SYSTEM";
+                    return false;
+                case 2:
+                    //startupType = "AUTOMATIC";
+                    return true;
+                case 3:
+                    //startupType = "MANUAL";
+                    return true;
+                case 4:
+                    //startupType = "DISABLED";
+                    return false;
+                default:
+                    //startupType = "UNKNOWN";
+                    return false;
+            }
+        }
+        public static void StartService(string strServicename)
+        {
+            if(!GetServiceStartup(strServicename))
+            {
+                SetServiceStartup(strServicename, "demand");
+            }
+            using (ServiceController service = new ServiceController(strServicename)) {
+                service.Start();
+                service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromMilliseconds(5000));
+            }
+        }
+        public static void SetTrustedHosts(string strTrustedHosts)
+        {
+            var sessionState = InitialSessionState.CreateDefault();
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                pipeline.Commands.AddScript(@"set-item wsman:\localhost\Client\TrustedHosts -Value '" + strTrustedHosts + "' -Force");
+                pipeline.Invoke();
+            }
+        }
+        public static bool IsAdministrator()
+        {
+            return (new WindowsPrincipal(WindowsIdentity.GetCurrent()))
+                      .IsInRole(WindowsBuiltInRole.Administrator);
+        }
+        public static void Elevate()
+        {
+            using (Process p = new Process())
+            {
+                p.StartInfo.Verb = "runas";
+                p.StartInfo.WorkingDirectory = Environment.CurrentDirectory;
+                p.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
+                p.StartInfo.Arguments = "-WinRM";
+                p.StartInfo.UseShellExecute = true;
+                p.Start();
+                p.WaitForExit();
+            }
         }
     }
 }
