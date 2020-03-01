@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Media;
 
 namespace RemoteUpdate
 {
@@ -35,6 +36,19 @@ namespace RemoteUpdate
         private void ButtonCancel(object sender, RoutedEventArgs e)
         {
             this.Close();
+        }
+        private void ButtonSendMail_Click(object sender, RoutedEventArgs e)
+        {
+            if((TextboxSMTPServer.Text.Length > 0) && (TextboxSMTPPort.Text.Length > 0) && (TextboxMailFrom.Text.Length > 0) && (TextboxMailTo.Text.Length > 0))
+            {
+                if(Tasks.SendTestMail(TextboxSMTPServer.Text, TextboxSMTPPort.Text, TextboxMailFrom.Text, TextboxMailTo.Text))
+                {
+                    ButtonSendMail.Background = new SolidColorBrush(Color.FromRgb(107, 228, 118));
+                } else
+                {
+                    ButtonSendMail.Background = new SolidColorBrush(Color.FromRgb(226, 137, 137));
+                }
+            }
         }
     }
 }

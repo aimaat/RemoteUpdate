@@ -11,6 +11,7 @@ using System.ServiceProcess;
 using System.Text;
 using System.Windows.Controls;
 using System.Xml;
+using System.Net.Mail;
 
 namespace RemoteUpdate
 {
@@ -751,6 +752,32 @@ namespace RemoteUpdate
             {
                 WriteLogFile(2, "UAC Elevation error: " + ee.Message);
             }
+        }
+        public static bool SendTestMail(string strSMTPServer, string strSMTPPort, string strMailFrom, string strMailTo)
+        {
+            try
+            {
+                using (MailMessage mail = new MailMessage())
+                {
+                    mail.From = new MailAddress(strMailFrom);
+                    mail.To.Add(strMailTo);
+                    mail.Subject = "Test Mail from RemoteUpdate";
+                    mail.Body = "This is a Test Mail from RemoteUpdate to check if the SMTP Settings are OK.";
+                    using (SmtpClient SmtpServer = new SmtpClient(strSMTPServer))
+                    {
+                        SmtpServer.Port = int.Parse(strSMTPPort, Global.cultures);
+                        SmtpServer.Timeout = 10000;
+                        SmtpServer.Send(mail);
+                        Tasks.WriteLogFile(0, "Test Mail was sent to " + strMailTo);
+                    }
+                }
+            }
+            catch (SmtpException ee)
+            {
+                Tasks.WriteLogFile(2, "Test Mail had an error while sending: " + ee.Message);
+                return false;
+            }
+            return true;
         }
     }
 }
