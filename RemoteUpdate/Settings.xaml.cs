@@ -10,7 +10,9 @@ namespace RemoteUpdate
         public Settings()
         {
             InitializeComponent();
-            if(Global.TableSettings.Rows[0]["SMTPPort"].ToString().Length != 0)
+            WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            Owner = Application.Current.MainWindow;
+            if (Global.TableSettings.Rows[0]["SMTPPort"].ToString().Length != 0)
             {
                 TextboxSMTPPort.Text = Global.TableSettings.Rows[0]["SMTPPort"].ToString();
             }

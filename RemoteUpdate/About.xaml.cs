@@ -12,6 +12,8 @@ namespace RemoteUpdate
         public About(string strVATmp)
         {
             InitializeComponent();
+            WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            Owner = Application.Current.MainWindow;
             strVirtualAccountName = strVATmp;
             LabelVersion.Content = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
         }

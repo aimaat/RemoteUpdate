@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RemoteUpdate"
         mc:Ignorable="d"
-        Title="RemoteUpdate Settings" Height="255.83" Width="302.166" ResizeMode="CanMinimize" Icon="RemoteUpdate.png" Background="#FFCDC8C8">
+        Title="RemoteUpdate Settings" Height="255.83" Width="302.166" ResizeMode="CanMinimize" Icon="RemoteUpdate.png" Background="#FFCDC8C8" WindowStartupLocation="CenterOwner">
     <Grid>
         <Label x:Name="LabelSMTPSettings" Content="SMTP Server Settings" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
         <Label x:Name="LabelSMTPServer" Content="Server:" HorizontalAlignment="Left" Margin="10,22,0,0" VerticalAlignment="Top"/>

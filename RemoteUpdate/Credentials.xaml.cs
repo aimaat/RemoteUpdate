@@ -12,6 +12,8 @@ namespace RemoteUpdate
         public Credentials(int iTmpID)
         {
             InitializeComponent();
+            WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            Owner = Application.Current.MainWindow;
             iLabelID = iTmpID;
             if (Global.TableRuntime.Rows[iLabelID]["Password"].ToString().Length != 0) {
                 PasswordBoxPassword.Password = Global.TableRuntime.Rows[iLabelID]["Password"].ToString();

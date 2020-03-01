@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RemoteUpdate"
         mc:Ignorable="d"
-        Title="About" Height="173" Width="300" Background="#FFCDC8C8" ResizeMode="CanMinimize">
+        Title="About" Height="173" Width="300" Background="#FFCDC8C8" ResizeMode="CanMinimize" WindowStartupLocation="CenterOwner">
     <Grid>
 
         <Label Content="Remote Update by aima" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="148" Height="26"/>

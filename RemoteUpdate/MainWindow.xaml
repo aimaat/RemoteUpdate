@@ -40,8 +40,8 @@
         <Button x:Name="ButtonStart" Content="Start All" HorizontalAlignment="Left" Margin="620,0,0,50" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="ButtonStartAll_Click"/>
         <CheckBox x:Name="CheckboxEnabled" Content="" HorizontalAlignment="Left" Margin="710,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
 
-        <TextBlock Margin="20,0,355,0"  x:Name="TextboxInfoMessage" TextWrapping="Wrap" Height="33" VerticalAlignment="Bottom" Text=""/>
-        <Button x:Name="ButtonFixIt" Content="Fix it" HorizontalAlignment="Left" Margin="390,0,0,15" VerticalAlignment="Bottom" Width="30" Panel.ZIndex="5" Click="ButtonFixIt_Click" />
+        <TextBlock Margin="60,0,315,0"  x:Name="TextboxInfoMessage" TextWrapping="Wrap" Height="33" VerticalAlignment="Bottom" Text=""/>
+        <Button x:Name="ButtonFixIt" Content="Fix it" Margin="20,0,0,15" VerticalAlignment="Bottom" Panel.ZIndex="5" Click="ButtonFixIt_Click" HorizontalAlignment="Left" Width="35" />
         <Button x:Name="ButtonAbout" Content="About" HorizontalAlignment="Left" Margin="440,0,0,15" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="ButtonAbout_Click"/>
         <Button x:Name="ButtonSettings" Content="Settings" HorizontalAlignment="Left" Margin="530,0,0,15" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="ButtonSettings_Click"/>
         <Button x:Name="ButtonSave" Content="Save" HorizontalAlignment="Left" Margin="620,0,0,15" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="SaveSettings"/>

@@ -506,7 +506,6 @@ namespace RemoteUpdate
             if (Servername.Length == 0) { return ""; }
             try
             {
-
                 IPHostEntry hostEntry = Dns.GetHostEntry(Servername);
                 if (IsLocalHost(hostEntry)) 
                 {
@@ -746,6 +745,7 @@ namespace RemoteUpdate
                     p.Start();
                     p.WaitForExit(5000);
                 }
+                WriteLogFile(0, "UAC Elevation successfull");
             }
             catch (Exception ee)
             {

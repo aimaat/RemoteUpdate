@@ -22,7 +22,9 @@ namespace RemoteUpdate
         public Fixit()
         {
             InitializeComponent();
-            if(Tasks.IsAdministrator())
+            WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            Owner = Application.Current.MainWindow;
+            if (Tasks.IsAdministrator())
             {
                 ImageUAC.Visibility = System.Windows.Visibility.Collapsed;
             }
