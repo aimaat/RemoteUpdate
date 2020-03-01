@@ -159,13 +159,7 @@ namespace RemoteUpdate
             Global.TimerUpdateGrid.Start();
             Tasks.WriteLogFile(0, "Timer for Grid Update created", true);
             // Check WinRM Status and write Info Message into Label
-            if(Tasks.CheckWinRMStatus(out string strMessage))
-            {
-                this.TextboxInfoMessage.Text = strMessage;
-            } else
-            {
-                this.TextboxInfoMessage.Text = strMessage;
-            }
+            SetWinRMStatus();
         }
         /// <summary>
         /// Function to change all Checkboxes IsChecked Status in the same name range
@@ -467,12 +461,57 @@ namespace RemoteUpdate
         }
         private void ButtonFixIt_Click(object sender, RoutedEventArgs e)
         {
-            if (Tasks.IsAdministrator())
+            Fixit ShowFixit = new Fixit();
+            ShowFixit.ShowDialog();
+            if((bool)ShowFixit.DialogResult)
             {
-                
-            } else
+                if (Tasks.IsAdministrator())
+                {
+                    if((bool)ShowFixit.WinRMServiceStartupType.IsChecked)
+                    {
+                        Tasks.SetServiceStartup("winrm", "auto");
+                    }
+                    if((bool)ShowFixit.WinRMServiceStart.IsChecked)
+                    {
+                        Tasks.StartService("winrm");
+                    }
+                    if((bool)ShowFixit.WinRMTrustedHosts.IsChecked)
+                    {
+                        Tasks.SetTrustedHosts("*");
+                    }
+                    SetWinRMStatus();
+                } else
+                {
+                    string strArguments = "";
+                    if ((bool)ShowFixit.WinRMServiceStartupType.IsChecked)
+                    {
+                        strArguments += "WinRMService ";
+                    }
+                    if ((bool)ShowFixit.WinRMServiceStart.IsChecked)
+                    {
+                        strArguments += "WinRMStart ";
+                    }
+                    if ((bool)ShowFixit.WinRMTrustedHosts.IsChecked)
+                    {
+                        strArguments += "TrustedHosts";
+                    }
+                    if(strArguments.Length > 0) { 
+                        Tasks.Elevate(strArguments);
+                        SetWinRMStatus();
+                    }
+                }
+            }
+        }
+        private void SetWinRMStatus()
+        {
+            if (Tasks.CheckWinRMStatus(out string strMessage))
             {
-                Tasks.Elevate();
+                this.TextboxInfoMessage.Text = strMessage;
+                ButtonFixIt.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                this.TextboxInfoMessage.Text = strMessage;
             }
         }
     }

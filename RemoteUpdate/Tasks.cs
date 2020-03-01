@@ -732,17 +732,24 @@ namespace RemoteUpdate
             return (new WindowsPrincipal(WindowsIdentity.GetCurrent()))
                       .IsInRole(WindowsBuiltInRole.Administrator);
         }
-        public static void Elevate()
+        public static void Elevate(string strArguments)
         {
-            using (Process p = new Process())
+            try
             {
-                p.StartInfo.Verb = "runas";
-                p.StartInfo.WorkingDirectory = Environment.CurrentDirectory;
-                p.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
-                p.StartInfo.Arguments = "-WinRM";
-                p.StartInfo.UseShellExecute = true;
-                p.Start();
-                p.WaitForExit();
+                using (Process p = new Process())
+                {
+                    p.StartInfo.Verb = "runas";
+                    p.StartInfo.WorkingDirectory = Environment.CurrentDirectory;
+                    p.StartInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
+                    p.StartInfo.Arguments = strArguments;
+                    p.StartInfo.UseShellExecute = true;
+                    p.Start();
+                    p.WaitForExit(5000);
+                }
+            }
+            catch (Exception ee)
+            {
+                WriteLogFile(2, "UAC Elevation error: " + ee.Message);
             }
         }
     }

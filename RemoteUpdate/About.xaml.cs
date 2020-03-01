@@ -24,24 +24,5 @@ namespace RemoteUpdate
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
             e.Handled = true;
         }
-        /*
-        private void ButtonCreate_Click(object sender, RoutedEventArgs e)
-        {
-            string fileName = System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateClientScript.ps1";
-            // Check if file already exists. If yes, delete it.     
-            if (File.Exists(fileName))
-            {
-                File.Delete(fileName);
-            }
-            // Create a new file     
-            using (StreamWriter sw = File.CreateText(fileName))
-            {
-                sw.WriteLine("Install-Module PSWindowsUpdate -Force");
-                sw.WriteLine(@"New-PSSessionConfigurationFile -RunAsVirtualAccount -Path .\" + strVirtualAccountName + ".pssc");
-                sw.WriteLine(@"Register-PSSessionConfiguration -Name '" + strVirtualAccountName + "' -Path .\\" + strVirtualAccountName + ".pssc -Force");
-            }
-            Process.Start(fileName);
-        }
-        */
     }
 }
