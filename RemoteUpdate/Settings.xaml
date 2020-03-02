@@ -19,9 +19,9 @@
         <Button x:Name="ButtonSendMail" Content="Send Test" HorizontalAlignment="Left" Margin="204,102,0,0" Width="75" Height="20" VerticalAlignment="Top" Click="ButtonSendMail_Click"/>
         <Line X1="10" Y1="134" X2="290" Y2="134" Stroke="Black" StrokeThickness="1" />
         <Label x:Name="LabelApplicationSettings" Content="Application Settings" HorizontalAlignment="Left" Margin="10,135,0,0" VerticalAlignment="Top"/>
-        <Label x:Name="LabelVirtualAccount" Content="PS Virtual Account:" HorizontalAlignment="Left" Margin="10,155,0,0" VerticalAlignment="Top" />
+        <Label x:Name="LabelVirtualAccount" Content="PS Virtual Account:" HorizontalAlignment="Left" Margin="10,155,0,0" VerticalAlignment="Top" ToolTip="Powershell Virtual Account Name" />
         <TextBox x:Name="TextboxVirtualAccount" Height="20" Margin="125,159,15,0" TextWrapping="Wrap" Text="VirtualAccount" VerticalAlignment="Top"/>
-        <Label x:Name="LabelPSWUCommands" Content="PS WU Commands" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top" />
+        <Label x:Name="LabelPSWUCommands" Content="PS WU Commands" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top" ToolTip="Additional PSWindowsUpdate Commands like '-MicrosoftUpdate' or '-NotTitle OneDrive'. Can be combined."/>
         <TextBox x:Name="TextboxPSWUCommands" Height="20" Margin="125,184,15,0" TextWrapping="Wrap" Text="-MicrosoftUpdate" VerticalAlignment="Top"/>
         <CheckBox x:Name="CheckboxVerboseLog" Content="Verbose Logging" HorizontalAlignment="Left" Margin="15,210,0,0" VerticalAlignment="Top"/>
         <Button x:Name="ButtonCredentialOK" Content="OK" Margin="160,0,15,10" Click="ButtonOk" Height="20" VerticalAlignment="Bottom" IsDefault="True"/>
