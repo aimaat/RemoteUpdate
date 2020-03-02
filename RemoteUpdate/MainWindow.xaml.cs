@@ -246,7 +246,7 @@ namespace RemoteUpdate
                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                 VerticalAlignment = System.Windows.VerticalAlignment.Top,
                 Margin = new Thickness(tbmarginleft, tbmargintop, 0, 0),
-                TextWrapping = System.Windows.TextWrapping.Wrap
+                TextWrapping = System.Windows.TextWrapping.NoWrap
             };
             Textbox1.LostFocus += TextboxLostFocus;
             GridMainWindow.Children.Add(Textbox1);
