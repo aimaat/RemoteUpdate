@@ -28,6 +28,11 @@
                 <TextBlock Text="info@aima.at" />
             </Hyperlink>
         </Label>
+        <Label Width="112" HorizontalAlignment="Right" Margin="0,0,172,0" Height="31" VerticalAlignment="Bottom">
+            <Hyperlink    NavigateUri= "https://icons8.com/" RequestNavigate="Hyperlink_RequestNavigate">
+                <TextBlock Text="App icon by icons8" />
+            </Hyperlink>
+        </Label>
         <Button Content="ButtonExit" HorizontalAlignment="Left" Margin="263,115,0,0" VerticalAlignment="Top" Width="1" Height="1" Click="ButtonExit_Click" IsDefault="True" IsCancel="True" Panel.ZIndex="-1"/>
     </Grid>
 </Window>
