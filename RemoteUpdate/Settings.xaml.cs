@@ -22,6 +22,11 @@ namespace RemoteUpdate
             TextboxMailTo.Text = Global.TableSettings.Rows[0]["MailTo"].ToString();
             TextboxVirtualAccount.Text = Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString();
             TextboxPSWUCommands.Text = Global.TableSettings.Rows[0]["PSWUCommands"].ToString();
+            bool bVerboseLog = bool.TryParse(Global.TableSettings.Rows[0]["VerboseLog"].ToString(),out bool bParse);
+            if(bParse)
+            {
+                CheckboxVerboseLog.IsChecked = bVerboseLog;
+            }
         }
         private void ButtonOk(object sender, RoutedEventArgs e)
         {
@@ -31,6 +36,7 @@ namespace RemoteUpdate
             Global.TableSettings.Rows[0]["MailTo"] = TextboxMailTo.Text;
             Global.TableSettings.Rows[0]["PSVirtualAccountName"] = TextboxVirtualAccount.Text;
             Global.TableSettings.Rows[0]["PSWUCommands"] = TextboxPSWUCommands.Text;
+            Global.TableSettings.Rows[0]["VerboseLog"] = CheckboxVerboseLog.IsChecked.ToString();
             this.Close();
         }
         private void ButtonCancel(object sender, RoutedEventArgs e)

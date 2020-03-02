@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RemoteUpdate"
         mc:Ignorable="d"
-        Title="RemoteUpdate Settings" Height="280" Width="300" ResizeMode="CanMinimize" Icon="RemoteUpdate.png" Background="#FFCDC8C8" WindowStartupLocation="CenterOwner">
+        Title="RemoteUpdate Settings" Height="300" Width="300" ResizeMode="CanMinimize" Icon="RemoteUpdate.png" Background="#FFCDC8C8" WindowStartupLocation="CenterOwner">
     <Grid>
         <Label x:Name="LabelSMTPSettings" Content="SMTP Server Settings" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
         <Label x:Name="LabelSMTPServer" Content="Server:" HorizontalAlignment="Left" Margin="10,22,0,0" VerticalAlignment="Top"/>
@@ -23,6 +23,7 @@
         <TextBox x:Name="TextboxVirtualAccount" Height="20" Margin="125,159,15,0" TextWrapping="Wrap" Text="VirtualAccount" VerticalAlignment="Top"/>
         <Label x:Name="LabelPSWUCommands" Content="PS WU Commands" HorizontalAlignment="Left" Margin="10,180,0,0" VerticalAlignment="Top" />
         <TextBox x:Name="TextboxPSWUCommands" Height="20" Margin="125,184,15,0" TextWrapping="Wrap" Text="-MicrosoftUpdate" VerticalAlignment="Top"/>
+        <CheckBox x:Name="CheckboxVerboseLog" Content="Verbose Logging" HorizontalAlignment="Left" Margin="15,210,0,0" VerticalAlignment="Top"/>
         <Button x:Name="ButtonCredentialOK" Content="OK" Margin="160,0,15,10" Click="ButtonOk" Height="20" VerticalAlignment="Bottom" IsDefault="True"/>
         <Button x:Name="ButtonCredentialCancel" Content="Cancel" HorizontalAlignment="Left" Margin="15,0,0,10" Width="75" Click="ButtonCancel" Height="20" VerticalAlignment="Bottom" IsCancel="True"/>
     </Grid>

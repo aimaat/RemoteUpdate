@@ -49,9 +49,10 @@ namespace RemoteUpdate
                 Global.TableSettings.Rows[0]["PSVirtualAccountName"] = "VirtualAccount";
             }
             // Set Verbose Logging if it is true in Settings file
-            if(Global.TableSettings.Rows[0]["VerboseLog"].ToString() == "true")
+            bool bVerboseLog = bool.TryParse(Global.TableSettings.Rows[0]["VerboseLog"].ToString(), out bool bParse);
+            if (bParse)
             {
-                Global.bVerboseLog = true;
+                Global.bVerboseLog = bVerboseLog;
             }
             // Initialize Datatable for XML Load
             System.Data.DataTable LoadTable = new System.Data.DataTable();
