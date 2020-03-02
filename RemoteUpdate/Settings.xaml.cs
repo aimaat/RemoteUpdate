@@ -43,10 +43,10 @@ namespace RemoteUpdate
             {
                 if(Tasks.SendTestMail(TextboxSMTPServer.Text, TextboxSMTPPort.Text, TextboxMailFrom.Text, TextboxMailTo.Text))
                 {
-                    ButtonSendMail.Background = new SolidColorBrush(Color.FromRgb(107, 228, 118));
+                    ButtonSendMail.Background = new SolidColorBrush(Color.FromRgb(121, 255, 164));
                 } else
                 {
-                    ButtonSendMail.Background = new SolidColorBrush(Color.FromRgb(226, 137, 137));
+                    ButtonSendMail.Background = new SolidColorBrush(Color.FromRgb(240, 139, 139));
                 }
             }
         }

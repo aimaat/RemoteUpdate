@@ -10,12 +10,12 @@
         <CheckBox x:Name="WinRMServiceStartupType" Content="Set WinRM Service startup type to 'Automatic'" Margin="20,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <CheckBox x:Name="WinRMServiceStart" Content="Start WinRM service" Margin="20,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <CheckBox x:Name="WinRMTrustedHosts" Content="Add * to TrustedHosts list" Margin="20,80,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Checked="WinRMTrustedHosts_Checked" Unchecked="WinRMTrustedHosts_Unchecked" />
-        <Button x:Name="ButtonFixitCancel" Content="Cancel" HorizontalAlignment="Left" Margin="20,110,0,0" Width="70" Click="ButtonFixitCancel_Click" Height="20" VerticalAlignment="Top"/>
-        <Button x:Name="ButtonFixitOK" Margin="0,110,20,0" Click="ButtonFixitOK_Click" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120">
+        <Button x:Name="ButtonFixitOK" Margin="0,110,20,0" Click="ButtonFixitOK_Click" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120" IsDefault="True">
             <StackPanel Orientation="Horizontal">
                 <Image x:Name="ImageUAC" Source="uac-shield.png" Height="16" />
                 <TextBlock x:Name="TextblockUAC" Text=" OK" />
             </StackPanel>
         </Button>
+        <Button x:Name="ButtonFixitCancel" Content="Cancel" HorizontalAlignment="Left" Margin="20,110,0,0" Width="70" Click="ButtonFixitCancel_Click" Height="20" VerticalAlignment="Top" IsCancel="True"/>
     </Grid>
 </Window>

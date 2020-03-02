@@ -766,7 +766,7 @@ namespace RemoteUpdate
                     using (SmtpClient SmtpServer = new SmtpClient(strSMTPServer))
                     {
                         SmtpServer.Port = int.Parse(strSMTPPort, Global.cultures);
-                        SmtpServer.Timeout = 10000;
+                        SmtpServer.Timeout = 1000;
                         SmtpServer.Send(mail);
                         Tasks.WriteLogFile(0, "Test Mail was sent to " + strMailTo);
                     }

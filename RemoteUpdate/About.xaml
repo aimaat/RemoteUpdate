@@ -28,5 +28,6 @@
                 <TextBlock Text="info@aima.at" />
             </Hyperlink>
         </Label>
+        <Button Content="ButtonExit" HorizontalAlignment="Left" Margin="263,115,0,0" VerticalAlignment="Top" Width="1" Height="1" Click="ButtonExit_Click" IsDefault="True" IsCancel="True" Panel.ZIndex="-1"/>
     </Grid>
 </Window>
