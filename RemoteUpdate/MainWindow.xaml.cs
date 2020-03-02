@@ -404,7 +404,7 @@ namespace RemoteUpdate
                 }
                 else
                 {
-                    ThreadPool.QueueUserWorkItem(delegate { MessageBox.Show("Can't create the Powershell Virtual Account on server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures) + ".\nPlease check your credentials or firewall settings."); });
+                    ThreadPool.QueueUserWorkItem(delegate { MessageBox.Show("Can't connect to server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures) + ".\nPlease check your credentials, firewall ruleset and the WinRM settings."); });
                 }
             }
         }

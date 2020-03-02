@@ -39,5 +39,14 @@ namespace RemoteUpdate
             this.DialogResult = true;
             this.Close();
         }
+        private void WinRMTrustedHosts_Checked(object sender, RoutedEventArgs e)
+        {
+            WinRMServiceStart.IsChecked = true;
+            WinRMServiceStart.IsEnabled = false;
+        }
+        private void WinRMTrustedHosts_Unchecked(object sender, RoutedEventArgs e)
+        {
+            WinRMServiceStart.IsEnabled = true;
+        }
     }
 }
