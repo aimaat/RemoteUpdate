@@ -41,11 +41,13 @@ namespace RemoteUpdate
         {
             if (TextboxUsername.Text != "Username")
             {
-                Global.TableRuntime.Rows[iLabelID]["Username"] = TextboxUsername.Text;
+                Tasks.LockAndWriteDataTable(Global.TableRuntime, iLabelID, "Username", TextboxUsername.Text, 100);
+                //Global.TableRuntime.Rows[iLabelID]["Username"] = TextboxUsername.Text;
             }
             if (PasswordBoxPassword.Password != "ABC")
             {
-                Global.TableRuntime.Rows[iLabelID]["Password"] = PasswordBoxPassword.Password;
+                Tasks.LockAndWriteDataTable(Global.TableRuntime, iLabelID, "Password", PasswordBoxPassword.Password, 100);
+                //Global.TableRuntime.Rows[iLabelID]["Password"] = PasswordBoxPassword.Password;
             }
             this.Close();
         }

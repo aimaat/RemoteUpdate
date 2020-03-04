@@ -33,6 +33,7 @@ namespace RemoteUpdate
             Global.TableRuntime.Columns.Add("Password");
             Global.TableRuntime.Columns.Add("Ping");
             Global.TableRuntime.Columns.Add("Uptime");
+            Global.TableRuntime.Columns.Add("PID");
             // Get Grid to add more Controls
             GridMainWindow = this.Content as Grid;
             // Load Schema and Data from XML RemoteUpdateSettings.xml
@@ -325,8 +326,10 @@ namespace RemoteUpdate
         private void TextboxLostFocus(object sender, RoutedEventArgs e)
         {
             int line = Int32.Parse((sender as TextBox).Name.Split('_')[1], Global.cultures);
-            Global.TableRuntime.Rows[line]["IP"] = Tasks.GetIPfromHostname((sender as TextBox).Text);
-            Global.TableRuntime.Rows[line]["Servername"] = (sender as TextBox).Text;
+            Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "IP", Tasks.GetIPfromHostname((sender as TextBox).Text), 100);
+            //Global.TableRuntime.Rows[line]["IP"] = Tasks.GetIPfromHostname((sender as TextBox).Text);
+            Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Servername", (sender as TextBox).Text, 100);
+            //Global.TableRuntime.Rows[line]["Servername"] = (sender as TextBox).Text;
             CreateNewLine(sender, e);
         }
         /// <summary>

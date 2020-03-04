@@ -28,7 +28,6 @@ namespace RemoteUpdate
             BgWUptimeTmp.RunWorkerAsync();
             Global.ListBackgroundWorkerUptime.Add(BgWUptimeTmp);
             Tasks.WriteLogFile(0, "BackgroundWorker Uptime for row " + (line + 1) + " created", true);
-
         }
         /// <summary>
         /// Create a new BackgroundWorker for Ping of the host xyz
@@ -42,7 +41,6 @@ namespace RemoteUpdate
             Global.ListBackgroundWorkerPing.Add(BgWUptimeTmp);
             Tasks.WriteLogFile(0, "BackgroundWorker Ping for row " + (line + 1) + " created", true);
         }
-
         public static void Ping_Tick(int line)
         {
             string strTmpIP = Global.TableRuntime.Rows[line]["IP"].ToString();
@@ -53,7 +51,8 @@ namespace RemoteUpdate
             }
             if (strTmpIP.Length == 0)
             {
-                Global.TableRuntime.Rows[line]["Ping"] = "noIP";
+                Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Ping", "noIP", 100);
+                //Global.TableRuntime.Rows[line]["Ping"] = "noIP";
                 return;
             }
             Ping pingSender = new Ping();
@@ -66,11 +65,13 @@ namespace RemoteUpdate
             {
                 if (reply.Status == IPStatus.Success)
                 {
-                    Global.TableRuntime.Rows[line]["Ping"] = "true";
+                    Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Ping", "true", 100);
+                    //Global.TableRuntime.Rows[line]["Ping"] = "true";
                 }
                 else
                 {
-                    Global.TableRuntime.Rows[line]["Ping"] = "false";
+                    Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Ping", "false", 100);
+                    //Global.TableRuntime.Rows[line]["Ping"] = "false";
                 }
             } catch (PingException ee)
             {
@@ -105,11 +106,13 @@ namespace RemoteUpdate
                     if (exResults.Count != 0)
                     {
                         TimeSpan tstmp = TimeSpan.Parse(exResults[0].BaseObject.ToString(), Global.cultures);
-                        Global.TableRuntime.Rows[line]["Uptime"] = tstmp.Days + "d " + tstmp.Hours + "h " + tstmp.Minutes + "m";
+                        Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Uptime", tstmp.Days + "d " + tstmp.Hours + "h " + tstmp.Minutes + "m", 100);
+                        //Global.TableRuntime.Rows[line]["Uptime"] = tstmp.Days + "d " + tstmp.Hours + "h " + tstmp.Minutes + "m";
                     }
                     else
                     {
-                        Global.TableRuntime.Rows[line]["Uptime"] = "no connection";
+                        Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Uptime", "no connection", 100);
+                        //Global.TableRuntime.Rows[line]["Uptime"] = "no connection";
                     }
                 } catch (InvalidPipelineStateException ee)
                 {

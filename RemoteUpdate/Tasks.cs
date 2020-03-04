@@ -12,6 +12,7 @@ using System.Text;
 using System.Windows.Controls;
 using System.Xml;
 using System.Net.Mail;
+using System.Threading;
 
 namespace RemoteUpdate
 {
@@ -453,54 +454,58 @@ namespace RemoteUpdate
             string strTmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
             string strTmpCredentials = "";
             string strTmpVirtualAccount = Global.TableSettings.Rows[0]["PSVirtualAccountName"].ToString();
-                ProcessStartInfo startInfo = new ProcessStartInfo(@"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe");
-                startInfo.UseShellExecute = false;
-                startInfo.EnvironmentVariables.Add("RedirectStandardOutput", "true");
-                startInfo.EnvironmentVariables.Add("RedirectStandardError", "true");
-                startInfo.EnvironmentVariables.Add("UseShellExecute", "false");
-                startInfo.EnvironmentVariables.Add("CreateNoWindow", "false");
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().IsChecked)
+            ProcessStartInfo startInfo = new ProcessStartInfo(@"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe");
+            startInfo.UseShellExecute = false;
+            startInfo.EnvironmentVariables.Add("RedirectStandardOutput", "true");
+            startInfo.EnvironmentVariables.Add("RedirectStandardError", "true");
+            startInfo.EnvironmentVariables.Add("UseShellExecute", "false");
+            startInfo.EnvironmentVariables.Add("CreateNoWindow", "false");
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().IsChecked)
+            {
+                startInfo.Arguments = "-noexit ";
+            } else {
+                startInfo.Arguments = "-WindowStyle Hidden ";
+            }
+            // https://devblogs.microsoft.com/scripting/how-can-i-expand-the-width-of-the-windows-powershell-console/ entfern: $newsize.width = 120; 
+            startInfo.Arguments += "$pshost = get-host; $pswindow = $pshost.ui.rawui; $newsize = $pswindow.buffersize; $newsize.height = 10; $pswindow.windowsize = $newsize; $pswindow.buffersize = $newsize;";
+            startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + strTmpServername + "';";
+            if (strTmpUsername.Length != 0 && strTmpPassword.Length != 0)
+            {
+                startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + strTmpPassword + "' -Force;";
+                startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + strTmpUsername + "',$pass;";
+                strTmpCredentials = "-Credential $Cred ";
+            }
+            string WUArguments = "";
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+            {
+                WUArguments += "-AcceptAll ";
+            }
+            if (!(bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+            {
+                WUArguments += "-NotCategory Drivers ";
+            }
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+            {
+                WUArguments += "-AutoReboot ";
+            }
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+            {
+            string strTmpSMTPServer = Global.TableSettings.Rows[0]["SMTPServer"].ToString();
+            string strTmpSMTPPort = Global.TableSettings.Rows[0]["SMTPPort"].ToString();
+            string strTmpMailFrom = Global.TableSettings.Rows[0]["MailFrom"].ToString();
+            string strTmpMailTo = Global.TableSettings.Rows[0]["MailTo"].ToString();
+                if ((strTmpSMTPServer.Length != 0) && (strTmpSMTPPort.Length != 0) && (strTmpMailFrom.Length != 0) && (strTmpMailTo.Length != 0))
                 {
-                    startInfo.Arguments = "-noexit ";
-                } else {
-                    startInfo.Arguments = "-WindowStyle Hidden ";
+                    WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + strTmpSMTPServer + "'; Port = " + strTmpSMTPPort + "; From = '" + strTmpMailFrom + "'; To = '" + strTmpMailTo + "' }";
                 }
-                // https://devblogs.microsoft.com/scripting/how-can-i-expand-the-width-of-the-windows-powershell-console/ entfern: $newsize.width = 120; 
-                startInfo.Arguments += "$pshost = get-host; $pswindow = $pshost.ui.rawui; $newsize = $pswindow.buffersize; $newsize.height = 10; $pswindow.windowsize = $newsize; $pswindow.buffersize = $newsize;";
-                startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + strTmpServername + "';";
-                if (strTmpUsername.Length != 0 && strTmpPassword.Length != 0)
-                {
-                    startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + strTmpPassword + "' -Force;";
-                    startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + strTmpUsername + "',$pass;";
-                    strTmpCredentials = "-Credential $Cred ";
-                }
-                string WUArguments = "";
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
-                {
-                    WUArguments += "-AcceptAll ";
-                }
-                if (!(bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
-                {
-                    WUArguments += "-NotCategory Drivers ";
-                }
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
-                {
-                    WUArguments += "-AutoReboot ";
-                }
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
-                {
-                string strTmpSMTPServer = Global.TableSettings.Rows[0]["SMTPServer"].ToString();
-                string strTmpSMTPPort = Global.TableSettings.Rows[0]["SMTPPort"].ToString();
-                string strTmpMailFrom = Global.TableSettings.Rows[0]["MailFrom"].ToString();
-                string strTmpMailTo = Global.TableSettings.Rows[0]["MailTo"].ToString();
-                    if ((strTmpSMTPServer.Length != 0) && (strTmpSMTPPort.Length != 0) && (strTmpMailFrom.Length != 0) && (strTmpMailTo.Length != 0))
-                    {
-                        WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + strTmpSMTPServer + "'; Port = " + strTmpSMTPPort + "; From = '" + strTmpMailFrom + "'; To = '" + strTmpMailTo + "' }";
-                    }
-                }
-                startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
-                Process test = Process.Start(startInfo);
-                WriteLogFile(0, "Update startet on Server " + strTmpServername.ToUpper(Global.cultures));
+            }
+            startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
+            Process tmpProcess = Process.Start(startInfo);
+            if(tmpProcess.Id.ToString(Global.cultures).Length > 0)
+            {
+                LockAndWriteDataTable(Global.TableRuntime, line, "PID", tmpProcess.Id.ToString(Global.cultures), 100);
+            }
+            WriteLogFile(0, "Update startet on Server " + strTmpServername.ToUpper(Global.cultures));
         }
         public static string GetIPfromHostname(string Servername)
         {
@@ -778,6 +783,24 @@ namespace RemoteUpdate
                 return false;
             }
             return true;
+        }
+        public static void LockAndWriteDataTable (System.Data.DataTable tmpTable, int line, string strColumn, string strValue, int iTimeout)
+        {
+            if (Monitor.TryEnter(tmpTable.Rows.SyncRoot, iTimeout))
+            {
+                try
+                {
+                    tmpTable.Rows[line][strColumn] = strValue;
+                }
+                finally
+                {
+                    Monitor.Exit(tmpTable.Rows.SyncRoot);
+                }
+            }
+            else
+            {
+                WriteLogFile(1, "Locking of Table " + tmpTable.TableName.ToString(Global.cultures) + " in Row " + line + " and Column " + strColumn + " with value " + strValue + " failed.", true);
+            }
         }
     }
 }
