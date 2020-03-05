@@ -18,49 +18,76 @@ namespace RemoteUpdate
 {
     class Tasks
     {
-        public static string Encrypt(string clearText)
+        public static string Encrypt(string clearText, string strServername)
         {
-            if (clearText.Length == 0) { return clearText; }
-            string EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
-            byte[] clearBytes = Encoding.Unicode.GetBytes(clearText);
-            using (Aes encryptor = Aes.Create())
-            {
-                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-                encryptor.Key = pdb.GetBytes(32);
-                encryptor.IV = pdb.GetBytes(16);
-                using (MemoryStream ms = new MemoryStream())
+            try {
+                string strSalt = strServername;
+                if (clearText.Length == 0) { return clearText; }
+                string EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
+                byte[] clearBytes = Encoding.Unicode.GetBytes(clearText);
+                using (Aes encryptor = Aes.Create())
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+                    while (strSalt.Length < 16)
                     {
-                        cs.Write(clearBytes, 0, clearBytes.Length);
+                        strSalt += strSalt;
                     }
-                    clearText = Convert.ToBase64String(ms.ToArray());
+                    byte[] salt = Encoding.ASCII.GetBytes(strSalt);
+                    Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, salt, 5000, HashAlgorithmName.SHA512);
+                    encryptor.Key = pdb.GetBytes(32);
+                    encryptor.IV = pdb.GetBytes(16);
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateEncryptor(), CryptoStreamMode.Write))
+                        {
+                            cs.Write(clearBytes, 0, clearBytes.Length);
+                        }
+                        clearText = Convert.ToBase64String(ms.ToArray());
+                    }
+                    pdb.Dispose();
                 }
-                pdb.Dispose();
+                return clearText;
             }
-            return clearText;
-        }
-        public static string Decrypt(string cipherText)
+            catch (Exception ee)
+            {
+                WriteLogFile(2, "Encrypt error for server " + strServername.ToUpper(Global.cultures) + ": " + ee.Message);
+                return "";
+            }
+}
+        public static string Decrypt(string cipherText, string strServername)
         {
-            string EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
-            cipherText = cipherText.Replace(" ", "+");
-            byte[] cipherBytes = Convert.FromBase64String(cipherText);
-            using (Aes encryptor = Aes.Create())
-            {
-                Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
-                encryptor.Key = pdb.GetBytes(32);
-                encryptor.IV = pdb.GetBytes(16);
-                using (MemoryStream ms = new MemoryStream())
+            try {
+                string strSalt = strServername;
+                string EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
+                cipherText = cipherText.Replace(" ", "+");
+                byte[] cipherBytes = Convert.FromBase64String(cipherText);
+                using (Aes encryptor = Aes.Create())
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
+                    while (strSalt.Length < 16)
                     {
-                        cs.Write(cipherBytes, 0, cipherBytes.Length);
+                        strSalt += strSalt;
                     }
-                    cipherText = Encoding.Unicode.GetString(ms.ToArray());
+                    byte[] salt = Encoding.ASCII.GetBytes(strSalt);
+                    Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, salt, 5000, HashAlgorithmName.SHA512);
+                    encryptor.Key = pdb.GetBytes(32);
+                    encryptor.IV = pdb.GetBytes(16);
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        using (CryptoStream cs = new CryptoStream(ms, encryptor.CreateDecryptor(), CryptoStreamMode.Write))
+                        {
+                            cs.Write(cipherBytes, 0, cipherBytes.Length);
+                        }
+                        cipherText = Encoding.Unicode.GetString(ms.ToArray());
+                    }
+                    pdb.Dispose();
                 }
-                pdb.Dispose();
+                return cipherText;
             }
-            return cipherText;
+            catch (Exception ee)
+            {
+                WriteLogFile(2, "Decrypt error for server " + strServername.ToUpper(Global.cultures) + ": " + ee.Message);
+                return "";
+            }
+            
         }
         public static bool CheckPSConnection(int line)
         {

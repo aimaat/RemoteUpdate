@@ -79,7 +79,7 @@ namespace RemoteUpdate
                 dtrow["Servername"] = LoadTable.Rows[0]["Server"].ToString();
                 dtrow["IP"] = Tasks.GetIPfromHostname(LoadTable.Rows[0]["Server"].ToString());
                 dtrow["Username"] = LoadTable.Rows[0]["Username"].ToString();
-                dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[0]["Password"].ToString());
+                dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[0]["Password"].ToString(), LoadTable.Rows[0]["Server"].ToString());
                 dtrow["Ping"] = "";
                 dtrow["Uptime"] = "";
                 Global.TableRuntime.Rows.Add(dtrow);
@@ -146,7 +146,7 @@ namespace RemoteUpdate
                     dtrow["Servername"] = LoadTable.Rows[ii]["Server"].ToString();
                     dtrow["IP"] = Tasks.GetIPfromHostname(LoadTable.Rows[ii]["Server"].ToString());
                     dtrow["Username"] = LoadTable.Rows[ii]["Username"].ToString();
-                    dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[ii]["Password"].ToString());
+                    dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[ii]["Password"].ToString(), LoadTable.Rows[ii]["Server"].ToString());
                     dtrow["Ping"] = "";
                     dtrow["Uptime"] = "";
                 }
@@ -230,7 +230,7 @@ namespace RemoteUpdate
                 dtrow["GUI"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + ii).FirstOrDefault().IsChecked;
                 dtrow["Mail"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + ii).FirstOrDefault().IsChecked;
                 dtrow["Username"] = Global.TableRuntime.Rows[ii]["Username"].ToString();
-                dtrow["Password"] = Tasks.Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString());
+                dtrow["Password"] = Tasks.Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString(),tmpServername);
                 dtrow["Enabled"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked;
                 SaveTable.Rows.Add(dtrow);
             }
