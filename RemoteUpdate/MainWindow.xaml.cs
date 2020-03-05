@@ -60,7 +60,9 @@ namespace RemoteUpdate
             // Initialize Servernumber
             int ServerNumber;
             // Load Schema and Data from XML RemoteUpdateServer.xml
-            if (Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", LoadTable))
+            bool bReadXML = Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", LoadTable);
+            // Only if Load of XML was successfull and RowCount is at least 1
+            if (bReadXML == true && LoadTable.Rows.Count > 0)
             {
                 // Set Servernumber according to Rows from XML
                 ServerNumber = LoadTable.Rows.Count;
