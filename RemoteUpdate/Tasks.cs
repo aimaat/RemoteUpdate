@@ -18,12 +18,12 @@ namespace RemoteUpdate
 {
     class Tasks
     {
-        public static string Encrypt(string clearText, string strServername)
+        public static string Encrypt(string clearText, string strServername, string EncryptionKey)
         {
             try {
                 string strSalt = strServername;
                 if (clearText.Length == 0) { return clearText; }
-                string EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
+                //EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
                 byte[] clearBytes = Encoding.Unicode.GetBytes(clearText);
                 using (Aes encryptor = Aes.Create())
                 {
@@ -32,7 +32,7 @@ namespace RemoteUpdate
                         strSalt += strSalt;
                     }
                     byte[] salt = Encoding.ASCII.GetBytes(strSalt);
-                    Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, salt, 5000, HashAlgorithmName.SHA512);
+                    Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, salt, 1000, HashAlgorithmName.SHA512);
                     encryptor.Key = pdb.GetBytes(32);
                     encryptor.IV = pdb.GetBytes(16);
                     using (MemoryStream ms = new MemoryStream())
@@ -53,11 +53,11 @@ namespace RemoteUpdate
                 return "";
             }
 }
-        public static string Decrypt(string cipherText, string strServername)
+        public static string Decrypt(string cipherText, string strServername, string EncryptionKey)
         {
             try {
                 string strSalt = strServername;
-                string EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
+                //EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
                 cipherText = cipherText.Replace(" ", "+");
                 byte[] cipherBytes = Convert.FromBase64String(cipherText);
                 using (Aes encryptor = Aes.Create())
@@ -67,7 +67,7 @@ namespace RemoteUpdate
                         strSalt += strSalt;
                     }
                     byte[] salt = Encoding.ASCII.GetBytes(strSalt);
-                    Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, salt, 5000, HashAlgorithmName.SHA512);
+                    Rfc2898DeriveBytes pdb = new Rfc2898DeriveBytes(EncryptionKey, salt, 1000, HashAlgorithmName.SHA512);
                     encryptor.Key = pdb.GetBytes(32);
                     encryptor.IV = pdb.GetBytes(16);
                     using (MemoryStream ms = new MemoryStream())

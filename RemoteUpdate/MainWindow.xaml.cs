@@ -21,7 +21,7 @@ namespace RemoteUpdate
         public MainWindow()
         {
             InitializeComponent();
-            if(!Tasks.CreateLogFile())
+            if (!Tasks.CreateLogFile())
             {
                 this.ButtonSave.IsEnabled = false;
                 MessageBox.Show("Directory is not writable therefore no settings can be saved or log file can be written");
@@ -59,11 +59,28 @@ namespace RemoteUpdate
             System.Data.DataTable LoadTable = new System.Data.DataTable();
             // Initialize Servernumber
             int ServerNumber;
+            // Encryption Password initialization
+            string strDecryptionPassword = "";
             // Load Schema and Data from XML RemoteUpdateServer.xml
             bool bReadXML = Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", LoadTable);
             // Only if Load of XML was successfull and RowCount is at least 1
             if (bReadXML == true && LoadTable.Rows.Count > 0)
             {
+                // Temporary bool if Encryption Password is needed
+                bool bPassword = false;
+                // Check if in any Row is a saved Password, if yes, ask for the Password to encrypt
+                for(int ii = 0; ii < LoadTable.Rows.Count; ii++) { 
+                    if(LoadTable.Rows[ii]["Password"].ToString().Length > 0)
+                    {
+                        bPassword = true;
+                        break;
+                    }
+                }
+                if(bPassword)
+                {
+                    strDecryptionPassword = GetPassword();
+                }
+
                 // Set Servernumber according to Rows from XML
                 ServerNumber = LoadTable.Rows.Count;
                 // Set Values for first Row
@@ -79,7 +96,7 @@ namespace RemoteUpdate
                 dtrow["Servername"] = LoadTable.Rows[0]["Server"].ToString();
                 dtrow["IP"] = Tasks.GetIPfromHostname(LoadTable.Rows[0]["Server"].ToString());
                 dtrow["Username"] = LoadTable.Rows[0]["Username"].ToString();
-                dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[0]["Password"].ToString(), LoadTable.Rows[0]["Server"].ToString());
+                dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[0]["Password"].ToString(), LoadTable.Rows[0]["Server"].ToString(), strDecryptionPassword);
                 dtrow["Ping"] = "";
                 dtrow["Uptime"] = "";
                 Global.TableRuntime.Rows.Add(dtrow);
@@ -96,7 +113,7 @@ namespace RemoteUpdate
             // Create BackgroundWorker (Ping and Uptime)
             Worker.CreateBackgroundWorker(0);
             // Change Height of Main Window when more than 10 Servers are in the List
-            if (ServerNumber > 2) { Application.Current.MainWindow.Height = 160 + ServerNumber * 30; }
+            if (ServerNumber > 2) { Application.Current.MainWindow.Height = 170 + ServerNumber * 30; }
             // Add Controls for each Server loaded
             for (int ii = 1; ii < ServerNumber + 1; ii++)
             {
@@ -146,7 +163,7 @@ namespace RemoteUpdate
                     dtrow["Servername"] = LoadTable.Rows[ii]["Server"].ToString();
                     dtrow["IP"] = Tasks.GetIPfromHostname(LoadTable.Rows[ii]["Server"].ToString());
                     dtrow["Username"] = LoadTable.Rows[ii]["Username"].ToString();
-                    dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[ii]["Password"].ToString(), LoadTable.Rows[ii]["Server"].ToString());
+                    dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[ii]["Password"].ToString(), LoadTable.Rows[ii]["Server"].ToString(), strDecryptionPassword);
                     dtrow["Ping"] = "";
                     dtrow["Uptime"] = "";
                 }
@@ -206,6 +223,7 @@ namespace RemoteUpdate
         }
         private void SaveSettings(object sender, EventArgs e)
         {
+            bool bIsCredential = false;
             System.Data.DataTable SaveTable = new System.Data.DataTable("RemoteUpdateServer");
             SaveTable.Columns.Add("Server");
             SaveTable.Columns.Add("Accept");
@@ -217,11 +235,28 @@ namespace RemoteUpdate
             SaveTable.Columns.Add("Password");
             SaveTable.Columns.Add("Enabled");
             var tblist = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name.Contains("TextBoxServer_"));
+            // Check if Credentials are there, if yes, then set bool to true
+            for (int ii = 0; ii < tblist.Count(); ii++)
+            {
+                string tmpPassword = Global.TableRuntime.Rows[ii]["Password"].ToString();
+                if (tmpPassword.Length > 0)
+                { 
+                    bIsCredential = true;
+                    break;
+                }
+            }
+            // If bIsCredential is true, ask for password with which it should be saved
+            string strEncryptionPassword = "";
+            if(bIsCredential)
+            {
+                strEncryptionPassword = GetPassword();
+            }
+            // Create DataTable to write it to XML
             for (int ii = 0; ii < tblist.Count(); ii++)
             {
                 string tmpServername = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Text;
+                string tmpPassword = Global.TableRuntime.Rows[ii]["Password"].ToString();
                 if (tmpServername.Length == 0) { continue; }
-
                 System.Data.DataRow dtrow = SaveTable.NewRow();
                 dtrow["Server"] = tmpServername;
                 dtrow["Accept"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + ii).FirstOrDefault().IsChecked;
@@ -230,7 +265,13 @@ namespace RemoteUpdate
                 dtrow["GUI"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + ii).FirstOrDefault().IsChecked;
                 dtrow["Mail"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + ii).FirstOrDefault().IsChecked;
                 dtrow["Username"] = Global.TableRuntime.Rows[ii]["Username"].ToString();
-                dtrow["Password"] = Tasks.Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString(),tmpServername);
+                if(strEncryptionPassword.Length > 0 ) 
+                {
+                    dtrow["Password"] = Tasks.Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString(), tmpServername, strEncryptionPassword);
+                } else
+                {
+                    dtrow["Password"] = "";
+                }
                 dtrow["Enabled"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked;
                 SaveTable.Rows.Add(dtrow);
             }
@@ -377,7 +418,7 @@ namespace RemoteUpdate
                 Worker.CreateBackgroundWorker(list.Length);
                 if (list.Length >= 3)
                 {
-                    Application.Current.MainWindow.Height = 160 + list.Length * 30;
+                    Application.Current.MainWindow.Height = 170 + list.Length * 30;
                 }
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
                 dtrow["Servername"] = "";
@@ -394,6 +435,17 @@ namespace RemoteUpdate
             Credentials AskCred = new Credentials(iLabelID);
             AskCred.Title = tmpServer + " Credentials";
             AskCred.ShowDialog();
+        }
+        private string GetPassword()
+        {
+            Password AskPassword = new Password();
+            if((bool)AskPassword.ShowDialog())
+            {
+                return AskPassword.PasswordBoxPassword.Password.ToString(Global.cultures);
+            } else
+            {
+                return "";
+            }
         }
         private void StartUpdate(int line)
         {
