@@ -593,7 +593,7 @@ namespace RemoteUpdate
                 // Create Logfile
                 using (Global.streamLogFile = File.AppendText(Global.strLogFile))
                 {
-                    Global.streamLogFile.WriteLine(System.DateTime.Now.ToString("yyyy.MM.dd_hhmmss", Global.cultures) + Global.stringTab + "INFO" + Global.stringTab + "Logfile created");
+                    Global.streamLogFile.WriteLine(System.DateTime.Now.ToString("yyyy.MM.dd_HHmmss", Global.cultures) + Global.stringTab + "INFO" + Global.stringTab + "Logfile created");
                 }
                 // Set Global variable that 
                 Global.bDirectoryWritable = true;
@@ -629,7 +629,7 @@ namespace RemoteUpdate
                 // Write Log Entry
                 using (Global.streamLogFile = File.AppendText(Global.strLogFile))
                 {
-                    Global.streamLogFile.WriteLine(System.DateTime.Now.ToString("yyyy.MM.dd_hhmmss", Global.cultures) + Global.stringTab + strClassification + Global.stringTab + strArgument);
+                    Global.streamLogFile.WriteLine(System.DateTime.Now.ToString("yyyy.MM.dd_HHmmss", Global.cultures) + Global.stringTab + strClassification + Global.stringTab + strArgument);
                 }
             }
         }
@@ -660,42 +660,47 @@ namespace RemoteUpdate
                 strMessage = "WinRM Service is not running!";
                 return false;
             }
-            var sessionState = InitialSessionState.CreateDefault();
-            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            string strTrustedHostsLine = "";
+            try
             {
-                psRunspace.Open();
-                Pipeline pipeline = psRunspace.CreatePipeline();
-                pipeline.Commands.AddScript(@"(get-item wsman:\localhost\Client\TrustedHosts).value");
-                try
+                // Start the child process.>
+                using (Process p = new Process())
                 {
-                    var exResults = pipeline.Invoke();
-                    if (exResults.Count > 0)
-                    {
-                        if(exResults[0].ToString().Length == 0)
-                        {
-                            strMessage = "No hosts are in the TrustedHosts list.";
-                            return false;
-                        }
-                        if(!exResults[0].ToString().Contains("*"))
-                        {
-                            strMessage = "The following hosts are in the TrustedHosts list: " + exResults[0].ToString().Replace(",",", ").ToUpper(Global.cultures);
-                            return false;
-                        }
-                    } else
-                    {
-                        WriteLogFile(1, "The WinRM TrustedHosts list could not be retrieved.");
-                        strMessage = "The WinRM TrustedHosts list could not be retrieved.";
-                        return false;
-                    }
+                    // Redirect the output stream of the child process.
+                    p.StartInfo.UseShellExecute = false;
+                    p.StartInfo.RedirectStandardOutput = true;
+                    p.StartInfo.CreateNoWindow = true;
+                    p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    p.StartInfo.FileName = "cmd.exe";
+                    p.StartInfo.Arguments = "/C winrm get winrm/config/client";
+                    p.Start();
+                    p.WaitForExit();
+                    // Get Output of cmd and create string array
+                    string[] strOutput = p.StandardOutput.ReadToEnd().Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                    // Get line where 'TrustedHosts' exists and split it with = and than trim it
+                    strTrustedHostsLine = Array.Find(strOutput, str => str.Contains("TrustedHosts")).Split(new[] { '=' }).Last().Trim();
                 }
-                catch (PSSnapInException ee)
+                if (strTrustedHostsLine.Length == 0)
                 {
-                    WriteLogFile(2, "An error occured while retrieving the WinRM TrustedHosts list: " + ee.Message);
-                    strMessage = "An error occured while retrieving the WinRM TrustedHosts list.";
+                    strMessage = "No hosts are in the TrustedHosts list.";
+                    Tasks.WriteLogFile(0, strMessage, true);
+                    return false;
+                }
+                if (!strTrustedHostsLine.Contains("*"))
+                {
+                    strMessage = "The following hosts are in the TrustedHosts list: " + strTrustedHostsLine.Replace(",", ", ").ToUpper(Global.cultures);
+                    Tasks.WriteLogFile(0, strMessage, true);
                     return false;
                 }
             }
+            catch (Exception ee)
+            {
+                strMessage = "An error occured while retrieving the WinRM TrustedHosts list. ";
+                WriteLogFile(2, strMessage + ee.Message, true);
+                return false;
+            }
             strMessage = "WinRM service is running and * is in the TrustedHosts list.";
+            Tasks.WriteLogFile(0, strMessage, true);
             return true;
         }
         public static void SetServiceStartup(string strServicename, string strStartType)

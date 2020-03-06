@@ -19,7 +19,7 @@ namespace RemoteUpdate
         // Culture variable, for future changes to dynamic adaption
         public static System.Globalization.CultureInfo cultures = System.Globalization.CultureInfo.CurrentCulture;
         // Variable for Logfile Destination
-        public static string strLogFile = System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateLog-" + System.DateTime.Now.ToString("yyyy.MM.dd_hhmmss", cultures) + ".txt";
+        public static string strLogFile = System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateLog-" + System.DateTime.Now.ToString("yyyy.MM.dd_HHmmss", cultures) + ".txt";
         // Bool for Log and Save Write
         public static bool bDirectoryWritable;
         // Streamwriter for LogFile
