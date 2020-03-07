@@ -12,23 +12,23 @@
         <Label x:Name="LabelVersion" Content="1.1.1.1" HorizontalAlignment="Left" Margin="10,27,0,0" VerticalAlignment="Top"  Width="148" Height="26"/>
         <!--<Button Content="Create Powershell script for client requirements" Margin="10,0,10,10" Height="20" VerticalAlignment="Bottom" Click="ButtonCreate_Click"/>-->
 
-        <Label Width="102" HorizontalAlignment="Right" Margin="0,101,6,6">
+        <Label Width="102" HorizontalAlignment="Right" Margin="0,0,6,6" Height="37" VerticalAlignment="Bottom">
             <Hyperlink NavigateUri= "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=6JQTFNSEJZD9J&amp;amp;source=url" RequestNavigate="Hyperlink_RequestNavigate" TextDecorations="">
                 <Image HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="92" Source="Donate.gif"/>
             </Hyperlink>
         </Label>
 
-        <Label Width="92" HorizontalAlignment="Right" Margin="0,51,192,62">
+        <Label Width="92" HorizontalAlignment="Left" Margin="10,50,0,0" Height="31" VerticalAlignment="Top">
             <Hyperlink    NavigateUri= "https://aima.at" RequestNavigate="Hyperlink_RequestNavigate">
                 <TextBlock Text="https://aima.at" />
             </Hyperlink>
         </Label>
-        <Label Margin="10,73,192,44">
+        <Label Margin="10,70,0,0" Height="27" VerticalAlignment="Top" HorizontalAlignment="Left" Width="92">
             <Hyperlink NavigateUri="mailto:info@aima.at">
                 <TextBlock Text="info@aima.at" />
             </Hyperlink>
         </Label>
-        <Label Width="112" HorizontalAlignment="Right" Margin="0,0,172,0" Height="31" VerticalAlignment="Bottom">
+        <Label Width="112" HorizontalAlignment="Left" Margin="10,0,0,0" Height="31" VerticalAlignment="Bottom">
             <Hyperlink    NavigateUri= "https://icons8.com/" RequestNavigate="Hyperlink_RequestNavigate">
                 <TextBlock Text="App icon by icons8" />
             </Hyperlink>
