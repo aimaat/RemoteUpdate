@@ -78,7 +78,7 @@ namespace RemoteUpdate
                 }
                 if(bPassword)
                 {
-                    strDecryptionPassword = GetPassword();
+                    GetPassword(false, out strDecryptionPassword);
                 }
 
                 // Set Servernumber according to Rows from XML
@@ -249,7 +249,10 @@ namespace RemoteUpdate
             string strEncryptionPassword = "";
             if(bIsCredential)
             {
-                strEncryptionPassword = GetPassword();
+                if(!GetPassword(true, out strEncryptionPassword))
+                {
+                    return;
+                }
             }
             // Create DataTable to write it to XML
             for (int ii = 0; ii < tblist.Count(); ii++)
@@ -436,15 +439,17 @@ namespace RemoteUpdate
             AskCred.Title = tmpServer + " Credentials";
             AskCred.ShowDialog();
         }
-        private string GetPassword()
+        private bool GetPassword(bool bEncrypt, out string strCryptPassword)
         {
-            Password AskPassword = new Password();
+            Password AskPassword = new Password(bEncrypt);
             if((bool)AskPassword.ShowDialog())
             {
-                return AskPassword.PasswordBoxPassword.Password.ToString(Global.cultures);
+                strCryptPassword = AskPassword.PasswordBoxPassword.Password.ToString(Global.cultures);
+                return true;
             } else
             {
-                return "";
+                strCryptPassword = "";
+                return false;
             }
         }
         private void StartUpdate(int line)

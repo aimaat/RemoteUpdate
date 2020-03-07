@@ -19,10 +19,16 @@ namespace RemoteUpdate
     /// </summary>
     public partial class Password : Window
     {
-        public Password()
+        public Password(bool bEncrypt)
         {
             InitializeComponent();
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            if(bEncrypt) {
+                Owner = Application.Current.MainWindow;
+            } else
+            {
+                this.Title = "Decryption Password";
+            }
         }
         private void PasswordGotFocus(object sender, RoutedEventArgs e)
         {
