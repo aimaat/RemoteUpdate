@@ -744,13 +744,16 @@ namespace RemoteUpdate
         }
         public static void StartService(string strServicename)
         {
+
             if(!GetServiceStartup(strServicename))
             {
                 SetServiceStartup(strServicename, "demand");
             }
             using (ServiceController service = new ServiceController(strServicename)) {
-                service.Start();
-                service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromMilliseconds(5000));
+                if(service.Status != ServiceControllerStatus.Running) { 
+                    service.Start();
+                    service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromMilliseconds(5000));
+                }
             }
         }
         public static void SetTrustedHosts(string strTrustedHosts)
