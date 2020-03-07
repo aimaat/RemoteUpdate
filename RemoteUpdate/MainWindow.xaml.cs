@@ -21,6 +21,7 @@ namespace RemoteUpdate
         public MainWindow()
         {
             InitializeComponent();
+
             if (!Tasks.CreateLogFile())
             {
                 this.ButtonSave.IsEnabled = false;
@@ -181,6 +182,10 @@ namespace RemoteUpdate
             Tasks.WriteLogFile(0, "Timer for Grid Update created", true);
             // Check WinRM Status and write Info Message into Label
             SetWinRMStatus();
+            if (!Tasks.CheckLatestVersion())
+            {
+                LabelUpdate.Visibility = Visibility.Hidden;
+            }
         }
         /// <summary>
         /// Function to change all Checkboxes IsChecked Status in the same name range
@@ -571,11 +576,17 @@ namespace RemoteUpdate
             {
                 this.TextboxInfoMessage.Text = strMessage;
                 ButtonFixIt.Visibility = Visibility.Hidden;
+                TextboxInfoMessage.Margin = new Thickness(24, 0, 315, 0);
             }
             else
             {
                 this.TextboxInfoMessage.Text = strMessage;
             }
+        }
+
+        private void LabelUpdate_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Tasks.UpdateRemoteUpdate();
         }
     }
 }

@@ -837,5 +837,135 @@ namespace RemoteUpdate
                 WriteLogFile(1, "Locking of Table " + tmpTable.TableName.ToString(Global.cultures) + " in Row " + line + " and Column " + strColumn + " with value " + strValue + " failed.", true);
             }
         }
+        public static string GetFinalRedirect(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return url;
+
+            int maxRedirCount = 8;  // prevent infinite loops
+            string newUrl = url;
+            do
+            {
+                HttpWebRequest req = null;
+                HttpWebResponse resp = null;
+                try
+                {
+                    req = (HttpWebRequest)WebRequest.Create(url);
+                    req.Method = "HEAD";
+                    req.AllowAutoRedirect = false;
+                    resp = (HttpWebResponse)req.GetResponse();
+                    switch (resp.StatusCode)
+                    {
+                        case HttpStatusCode.OK:
+                            return newUrl;
+                        case HttpStatusCode.Redirect:
+                        case HttpStatusCode.MovedPermanently:
+                        case HttpStatusCode.RedirectKeepVerb:
+                        case HttpStatusCode.RedirectMethod:
+                            newUrl = resp.Headers["Location"];
+                            if (newUrl == null)
+                                return url;
+
+                            if (newUrl.IndexOf("://", System.StringComparison.Ordinal) == -1)
+                            {
+                                // Doesn't have a URL Schema, meaning it's a relative or absolute URL
+                                Uri u = new Uri(new Uri(url), newUrl);
+                                newUrl = u.ToString();
+                            }
+                            break;
+                        default:
+                            return newUrl;
+                    }
+                    url = newUrl;
+                }
+                catch (WebException)
+                {
+                    // Return the last known good URL
+                    return newUrl;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
+                finally
+                {
+                    if (resp != null)
+                        resp.Close();
+                }
+            } while (maxRedirCount-- > 0);
+
+            return newUrl;
+        }
+        public static bool CheckLatestVersion()
+        {
+            try
+            {
+                // Check Directory if there are write rights
+                string strCurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+                System.Security.AccessControl.DirectorySecurity ds = Directory.GetAccessControl(strCurrentDirectory);
+                string strLatestVersionUrl = Tasks.GetFinalRedirect("https://github.com/aimaat/RemoteUpdate/releases/latest");
+                string strLatestVersion = strLatestVersionUrl.Substring(strLatestVersionUrl.Length - 7);
+                Version ActualVersion = System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
+                Version LatestVersion = new Version(strLatestVersion);
+                //Version LatestVersion = new Version("0.3.2.3");
+                if (LatestVersion > ActualVersion)
+                {
+                    WriteLogFile(0, "New version is available; Installed: " + ActualVersion.ToString() + "; New Version: " + strLatestVersion);
+                    return true;
+                } else
+                {
+                    WriteLogFile(0, "No new version was found");
+                    return false;
+                }
+            }
+            catch (Exception ee)
+            {
+                WriteLogFile(2, "An error occured while searching for a new version: " + ee.Message);
+                return false;
+            }
+        }
+        public static void UpdateRemoteUpdate()
+        {
+            try {
+                // Download latest version from github
+                using (var client = new WebClient())
+                {
+                    client.DownloadFile("https://github.com/aimaat/RemoteUpdate/releases/latest/download/RemoteUpdate.exe", "RemoteUpdateLatest.exe");
+                }
+                WriteLogFile(1, "Newest version downloaded", true);
+                int PID = Process.GetCurrentProcess().Id;
+                string strApplicationName = Process.GetCurrentProcess().MainModule.ModuleName;
+                string strCurrentDirectory = System.AppDomain.CurrentDomain.BaseDirectory;
+                // Create cmd for update mechanics (kill remoteupdate, delete exe, move downloaded exe to original place, start it and delete the script)
+                using (System.IO.StreamWriter swBat = File.AppendText(Path.Combine(strCurrentDirectory, "UpdateRemoteUpdate.cmd")))
+                {
+                    swBat.WriteLine("taskkill /PID " + PID + " /F");
+                    swBat.WriteLine("timeout /T 1");
+                    swBat.WriteLine("cd \"" + strCurrentDirectory + "\""); 
+                    swBat.WriteLine("del \"" + strApplicationName + "\"");
+                    swBat.WriteLine("copy \"RemoteUpdateLatest.exe\" \"" + strApplicationName + "\"");
+                    swBat.WriteLine("del \"RemoteUpdateLatest.exe\"");
+                    swBat.WriteLine("start \"" + strApplicationName + "\" \"" + strApplicationName + "\"");
+                    swBat.WriteLine("DEL \"%~f0\"");
+                }
+                WriteLogFile(1, "Selfupdate script created, waiting for execution", true);
+                // start created cmd
+                using (Process p = new Process())
+                {
+                    // Redirect the output stream of the child process.
+                    p.StartInfo.UseShellExecute = false;
+                    p.StartInfo.RedirectStandardOutput = true;
+                    p.StartInfo.CreateNoWindow = false;
+                    p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                    p.StartInfo.FileName = "cmd.exe";
+                    p.StartInfo.Arguments = "/C " + Path.Combine(strCurrentDirectory, "UpdateRemoteUpdate.cmd");
+                    p.Start();
+                }
+            }
+            catch (Exception ee)
+            {
+                WriteLogFile(2, "An error occured while the self updating process: " + ee.Message);
+            }
+        }
     }
 }
