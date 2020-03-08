@@ -147,7 +147,7 @@ namespace RemoteUpdate
                 CreateButton("ButtonTime_" + ii, "12:12:12", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
                 // Enabled Checkbox creation
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Enabled"], Global.cultures); }
-                CreateCheckbox("CheckboxEnabled_" + ii, 710, 30 * (ii + 1), tmpBool);
+                CreateCheckbox("CheckboxEnabled_" + ii, 715, 30 * (ii + 1), tmpBool);
                 // If Servernumber is Even, create Light Grey Rectangle Background
                 if ((ii + 1) % 2 == 0)
                 {
@@ -412,7 +412,7 @@ namespace RemoteUpdate
                 // Time Button creation
                 CreateButton("ButtonTime_" + list.Length, "12:12:12", 70, 620, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
                 // Enabled Checkbox creation
-                CreateCheckbox("CheckboxEnabled_" + list.Length, 710, 30 * (list.Length + 1), false);
+                CreateCheckbox("CheckboxEnabled_" + list.Length, 715, 30 * (list.Length + 1), false);
                 if ((list.Length + 1) % 2 == 0)
                 {
                     // Light Grey Rectangle creation
@@ -582,6 +582,12 @@ namespace RemoteUpdate
         private void LabelUpdate_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             Tasks.UpdateRemoteUpdate();
+        }
+
+        private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            (sender as MediaElement).Position = new TimeSpan(0, 0, 0, 0, 1);
+            (sender as MediaElement).Play();
         }
     }
 }

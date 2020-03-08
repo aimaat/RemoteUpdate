@@ -14,7 +14,7 @@
         <Label x:Name="LabelReboot" Content="Reboot" HorizontalAlignment="Left" Margin="355,-1,0,0" VerticalAlignment="Top" ToolTip="Check if you want the Server to reboot after the update installation"/>
         <Label x:Name="LabelGUI" Content="GUI" HorizontalAlignment="Left" Margin="424,-1,0,0" VerticalAlignment="Top" ToolTip="Check if you want a seperate Powershell Window for the Server. Only if AcceptAll is Checked"/>
         <Label x:Name="LabelMail" Content="Mail" HorizontalAlignment="Left" Margin="482,-1,0,0" VerticalAlignment="Top" ToolTip="Check if you want a mail sent to you after the upgrade (see Settings)"/>
-        <Label x:Name="LabelEnabled" Content="Enabled" HorizontalAlignment="Left" Margin="692,-1,0,0" VerticalAlignment="Top" ToolTip="Check if you want this Server to install the updates when you click 'Start All'"/>
+        <Label x:Name="LabelEnabled" Content="Enabled" HorizontalAlignment="Left" Margin="697,-1,0,0" VerticalAlignment="Top" ToolTip="Check if you want this Server to install the updates when you click 'Start All'"/>
 
         <TextBox x:Name="TextBoxServer_0" HorizontalAlignment="Left" Margin="20,30,0,0" Text="" TextWrapping="NoWrap" VerticalAlignment="Top" Width="120" Height="18" Background="White" LostFocus="TextboxLostFocus"/>
         <Label x:Name="LabelServer_0" Content="" HorizontalAlignment="Left" Margin="20,30,0,0" VerticalAlignment="Top" Height="18" Width="120" Visibility="Hidden"/>
@@ -27,7 +27,9 @@
         <Button x:Name="ButtonCredentials_0" Content="Credentials" HorizontalAlignment="Left" Margin="530,29,0,0" VerticalAlignment="Top" Width="70" Click="GetCredentials"/>
         <Button x:Name="ButtonStart_0" Content="Start" HorizontalAlignment="Left" Margin="620,29,0,0" VerticalAlignment="Top" Width="70" Click="ButtonStart_Click"/>
         <Button x:Name="ButtonTime_0" Content="12:12:12" HorizontalAlignment="Left" Margin="620,29,0,0" VerticalAlignment="Top" Width="70" Click="ButtonTime_Click" Visibility="Hidden"/>
-        <CheckBox x:Name="CheckboxEnabled_0" Content="" HorizontalAlignment="Left" Margin="710,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
+        <Image x:Name="Image_0" Source="D:\Dokumente\Projekte\RemoteUpdate\RemoteUpdate\checkmark.png" Height="20" Width="20" Margin="692,29,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" />
+        <MediaElement x:Name="MediaElement_0" LoadedBehavior="Manual" UnloadedBehavior="Manual" MediaEnded="MediaElement_MediaEnded"  Source="D:\Dokumente\Projekte\RemoteUpdate\RemoteUpdate\loading_gray.gif" Height="20" VerticalAlignment="Top" HorizontalAlignment="Left" Width="20" Margin="692,29,0,0"/>
+        <CheckBox x:Name="CheckboxEnabled_0" Content="" HorizontalAlignment="Left" Margin="715,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
 
         <CheckBox x:Name="CheckboxAccept" Content="" HorizontalAlignment="Left" Margin="250,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
         <CheckBox x:Name="CheckboxDrivers" Content="" HorizontalAlignment="Left" Margin="310,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
@@ -35,7 +37,7 @@
         <CheckBox x:Name="CheckboxGUI" Content="" HorizontalAlignment="Left" Margin="430,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5" />
         <CheckBox x:Name="CheckboxMail" Content="" HorizontalAlignment="Left" Margin="490,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
         <Button x:Name="ButtonStart" Content="Start All" HorizontalAlignment="Left" Margin="620,0,0,50" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="ButtonStartAll_Click"/>
-        <CheckBox x:Name="CheckboxEnabled" Content="" HorizontalAlignment="Left" Margin="710,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
+        <CheckBox x:Name="CheckboxEnabled" Content="" HorizontalAlignment="Left" Margin="715,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
 
         <TextBlock x:Name="TextboxInfoMessage" Margin="60,0,315,0" TextWrapping="Wrap" Height="33" VerticalAlignment="Bottom" Text="" ToolTip="WinRM and TrustedHosts are important if you want to access hosts that are not domain joined. &#10;The WinRM service must run and at least the servers to be reached should be in the TrustedHosts list (or * if you want a wildcard for every server)"/>
         <Button x:Name="ButtonFixIt"  Margin="20,0,0,15" Content="Fix it" VerticalAlignment="Bottom" Panel.ZIndex="5" Click="ButtonFixIt_Click" HorizontalAlignment="Left" Width="35" />
