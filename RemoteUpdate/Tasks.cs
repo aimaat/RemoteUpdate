@@ -850,7 +850,8 @@ namespace RemoteUpdate
                 HttpWebResponse resp = null;
                 try
                 {
-                    req = (HttpWebRequest)WebRequest.Create(url);
+                    Uri uurl = new Uri(url);
+                    req = (HttpWebRequest)WebRequest.Create(Uri.EscapeUriString(url));
                     req.Method = "HEAD";
                     req.AllowAutoRedirect = false;
                     resp = (HttpWebResponse)req.GetResponse();
@@ -883,7 +884,7 @@ namespace RemoteUpdate
                     // Return the last known good URL
                     return newUrl;
                 }
-                catch (Exception ex)
+                catch (Exception ee)
                 {
                     return null;
                 }

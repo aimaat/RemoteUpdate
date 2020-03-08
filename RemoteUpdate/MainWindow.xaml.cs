@@ -223,63 +223,65 @@ namespace RemoteUpdate
         private void SaveSettings(object sender, EventArgs e)
         {
             bool bIsCredential = false;
-            System.Data.DataTable SaveTable = new System.Data.DataTable("RemoteUpdateServer");
-            SaveTable.Columns.Add("Server");
-            SaveTable.Columns.Add("Accept");
-            SaveTable.Columns.Add("Drivers");
-            SaveTable.Columns.Add("Reboot");
-            SaveTable.Columns.Add("GUI");
-            SaveTable.Columns.Add("Mail");
-            SaveTable.Columns.Add("Username");
-            SaveTable.Columns.Add("Password");
-            SaveTable.Columns.Add("Enabled");
-            var tblist = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name.Contains("TextBoxServer_"));
-            // Check if Credentials are there, if yes, then set bool to true
-            for (int ii = 0; ii < tblist.Count(); ii++)
+            using (System.Data.DataTable SaveTable = new System.Data.DataTable("RemoteUpdateServer"))
             {
-                string tmpPassword = Global.TableRuntime.Rows[ii]["Password"].ToString();
-                if (tmpPassword.Length > 0)
-                { 
-                    bIsCredential = true;
-                    break;
-                }
-            }
-            // If bIsCredential is true, ask for password with which it should be saved
-            string strEncryptionPassword = "";
-            if(bIsCredential)
-            {
-                if(!GetPassword(true, out strEncryptionPassword))
+                SaveTable.Columns.Add("Server");
+                SaveTable.Columns.Add("Accept");
+                SaveTable.Columns.Add("Drivers");
+                SaveTable.Columns.Add("Reboot");
+                SaveTable.Columns.Add("GUI");
+                SaveTable.Columns.Add("Mail");
+                SaveTable.Columns.Add("Username");
+                SaveTable.Columns.Add("Password");
+                SaveTable.Columns.Add("Enabled");
+                var tblist = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name.Contains("TextBoxServer_"));
+                // Check if Credentials are there, if yes, then set bool to true
+                for (int ii = 0; ii < tblist.Count(); ii++)
                 {
-                    return;
+                    string tmpPassword = Global.TableRuntime.Rows[ii]["Password"].ToString();
+                    if (tmpPassword.Length > 0)
+                    {
+                        bIsCredential = true;
+                        break;
+                    }
                 }
-            }
-            // Create DataTable to write it to XML
-            for (int ii = 0; ii < tblist.Count(); ii++)
-            {
-                string tmpServername = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Text;
-                string tmpPassword = Global.TableRuntime.Rows[ii]["Password"].ToString();
-                if (tmpServername.Length == 0) { continue; }
-                System.Data.DataRow dtrow = SaveTable.NewRow();
-                dtrow["Server"] = tmpServername;
-                dtrow["Accept"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + ii).FirstOrDefault().IsChecked;
-                dtrow["Drivers"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + ii).FirstOrDefault().IsChecked;
-                dtrow["Reboot"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + ii).FirstOrDefault().IsChecked;
-                dtrow["GUI"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + ii).FirstOrDefault().IsChecked;
-                dtrow["Mail"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + ii).FirstOrDefault().IsChecked;
-                dtrow["Username"] = Global.TableRuntime.Rows[ii]["Username"].ToString();
-                if(strEncryptionPassword.Length > 0 ) 
+                // If bIsCredential is true, ask for password with which it should be saved
+                string strEncryptionPassword = "";
+                if (bIsCredential)
                 {
-                    dtrow["Password"] = Tasks.Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString(), tmpServername, strEncryptionPassword);
-                } else
-                {
-                    dtrow["Password"] = "";
+                    if (!GetPassword(true, out strEncryptionPassword))
+                    {
+                        return;
+                    }
                 }
-                dtrow["Enabled"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked;
-                SaveTable.Rows.Add(dtrow);
+                // Create DataTable to write it to XML
+                for (int ii = 0; ii < tblist.Count(); ii++)
+                {
+                    string tmpServername = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Text;
+                    string tmpPassword = Global.TableRuntime.Rows[ii]["Password"].ToString();
+                    if (tmpServername.Length == 0) { continue; }
+                    System.Data.DataRow dtrow = SaveTable.NewRow();
+                    dtrow["Server"] = tmpServername;
+                    dtrow["Accept"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + ii).FirstOrDefault().IsChecked;
+                    dtrow["Drivers"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + ii).FirstOrDefault().IsChecked;
+                    dtrow["Reboot"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + ii).FirstOrDefault().IsChecked;
+                    dtrow["GUI"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + ii).FirstOrDefault().IsChecked;
+                    dtrow["Mail"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + ii).FirstOrDefault().IsChecked;
+                    dtrow["Username"] = Global.TableRuntime.Rows[ii]["Username"].ToString();
+                    if (strEncryptionPassword.Length > 0)
+                    {
+                        dtrow["Password"] = Tasks.Encrypt(Global.TableRuntime.Rows[ii]["Password"].ToString(), tmpServername, strEncryptionPassword);
+                    }
+                    else
+                    {
+                        dtrow["Password"] = "";
+                    }
+                    dtrow["Enabled"] = GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked;
+                    SaveTable.Rows.Add(dtrow);
+                }
+                Tasks.WriteTableToXML(SaveTable, System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
             }
-            Tasks.WriteTableToXML(SaveTable, System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml");
             Tasks.WriteTableToXML(Global.TableSettings, System.AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateSettings.xml");
-            SaveTable.Dispose();
         }
         private void CreateTextbox(string tbname, string tbtext, int tbheight, int tbwidth, int tbmarginleft, int tbmargintop)
         {
