@@ -30,5 +30,7 @@ namespace RemoteUpdate
         public static bool bVerboseLog = false;
         // IPHostEntry for localhost to check if servername is localhost
         public static System.Net.IPHostEntry localHost = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
+        // Variable for threaded Update Search
+        public static bool bNewVersionOnline = false;
     }
 }

@@ -169,6 +169,14 @@ namespace RemoteUpdate
                         GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = Global.TableRuntime.Rows[ii]["Uptime"].ToString();
                     }
                 }
+                // Show if online is a new update available
+                if(Global.bNewVersionOnline)
+                {
+                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUpdate").FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
+                } else
+                {
+                    GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUpdate").FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
+                }
             }
             catch (DataException ee)
             {

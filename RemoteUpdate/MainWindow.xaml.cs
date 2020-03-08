@@ -5,8 +5,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Threading;
-using System.Diagnostics;
-using System.Security.Permissions;
 
 namespace RemoteUpdate
 {
@@ -21,7 +19,6 @@ namespace RemoteUpdate
         public MainWindow()
         {
             InitializeComponent();
-
             if (!Tasks.CreateLogFile())
             {
                 this.ButtonSave.IsEnabled = false;
@@ -182,10 +179,7 @@ namespace RemoteUpdate
             Tasks.WriteLogFile(0, "Timer for Grid Update created", true);
             // Check WinRM Status and write Info Message into Label
             SetWinRMStatus();
-            if (!Tasks.CheckLatestVersion())
-            {
-                LabelUpdate.Visibility = Visibility.Hidden;
-            }
+            new System.Threading.Tasks.Task(Tasks.CheckLatestVersion).Start();
         }
         /// <summary>
         /// Function to change all Checkboxes IsChecked Status in the same name range
@@ -583,7 +577,6 @@ namespace RemoteUpdate
                 this.TextboxInfoMessage.Text = strMessage;
             }
         }
-
         private void LabelUpdate_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             Tasks.UpdateRemoteUpdate();

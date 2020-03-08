@@ -42,7 +42,7 @@
         <Button x:Name="ButtonAbout" Margin="440,0,0,15" Content="About" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="ButtonAbout_Click"/>
         <Button x:Name="ButtonSettings" Margin="530,0,0,15" Content="Settings" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="ButtonSettings_Click"/>
         <Button x:Name="ButtonSave" Margin="620,0,0,15" Content="Save" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="SaveSettings"/>
-        <Label x:Name="LabelUpdate" Content="Update available: Click to download" HorizontalAlignment="Left" Margin="18,0,0,40" Height="26" VerticalAlignment="Bottom" MouseLeftButtonUp="LabelUpdate_MouseLeftButtonUp"/>
+        <Label x:Name="LabelUpdate" Content="Update available: Click to install" HorizontalAlignment="Left" Margin="18,0,0,40" Height="26" VerticalAlignment="Bottom" MouseLeftButtonUp="LabelUpdate_MouseLeftButtonUp" Visibility="Hidden"/>
 
         <!--<Rectangle HorizontalAlignment="" Height="30" Margin="0,54,0,0" Stroke="Black" VerticalAlignment="Top" Width="750" Fill="#FFDED9D9" Panel.ZIndex="-3" StrokeThickness="0"/>-->
     </Grid>

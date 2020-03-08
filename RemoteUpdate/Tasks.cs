@@ -896,7 +896,7 @@ namespace RemoteUpdate
 
             return newUrl;
         }
-        public static bool CheckLatestVersion()
+        public static void CheckLatestVersion()
         {
             try
             {
@@ -910,18 +910,19 @@ namespace RemoteUpdate
                 //Version LatestVersion = new Version("0.3.2.3");
                 if (LatestVersion > ActualVersion)
                 {
-                    WriteLogFile(0, "New version is available; Installed: " + ActualVersion.ToString() + "; New Version: " + strLatestVersion);
-                    return true;
-                } else
+                    Tasks.WriteLogFile(0, "New version is available; Installed: " + ActualVersion.ToString() + "; New Version: " + strLatestVersion);
+                    Global.bNewVersionOnline = true;
+                }
+                else
                 {
-                    WriteLogFile(0, "No new version was found");
-                    return false;
+                    Tasks.WriteLogFile(0, "No new version was found");
+                    Global.bNewVersionOnline = false;
                 }
             }
             catch (Exception ee)
             {
-                WriteLogFile(2, "An error occured while searching for a new version: " + ee.Message);
-                return false;
+                Tasks.WriteLogFile(2, "An error occured while searching for a new version: " + ee.Message);
+                Global.bNewVersionOnline = false;
             }
         }
         public static void UpdateRemoteUpdate()
