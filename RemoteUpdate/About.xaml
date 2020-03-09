@@ -14,7 +14,7 @@
 
         <Label Width="102" HorizontalAlignment="Right" Margin="0,0,6,6" Height="37" VerticalAlignment="Bottom">
             <Hyperlink NavigateUri= "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=6JQTFNSEJZD9J&amp;amp;source=url" RequestNavigate="Hyperlink_RequestNavigate" TextDecorations="">
-                <Image HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="92" Source="Donate.gif"/>
+                <Image HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="92" Source="Pictures\Donate.gif"/>
             </Hyperlink>
         </Label>
 

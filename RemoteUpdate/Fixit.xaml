@@ -5,14 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RemoteUpdate"
         mc:Ignorable="d"
-        Title="RemoteUpdate Fix it" Height="180" Width="320" Background="#FFCDC8C8" ResizeMode="CanMinimize" WindowStartupLocation="CenterOwner">
+        Title="RemoteUpdate Fix it" Height="180" Width="320" Background="#FFCDC8C8" ResizeMode="CanMinimize" Icon="Pictures\RemoteUpdate.png" WindowStartupLocation="CenterOwner">
     <Grid>
         <CheckBox x:Name="WinRMServiceStartupType" Content="Set WinRM Service startup type to 'Automatic'" Margin="20,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <CheckBox x:Name="WinRMServiceStart" Content="Start WinRM service" Margin="20,50,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         <CheckBox x:Name="WinRMTrustedHosts" Content="Add * to TrustedHosts list" Margin="20,80,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Checked="WinRMTrustedHosts_Checked" Unchecked="WinRMTrustedHosts_Unchecked" />
         <Button x:Name="ButtonFixitOK" Margin="0,110,20,0" Click="ButtonFixitOK_Click" Height="20" VerticalAlignment="Top" HorizontalAlignment="Right" Width="120" IsDefault="True">
             <StackPanel Orientation="Horizontal">
-                <Image x:Name="ImageUAC" Source="uac-shield.png" Height="16" />
+                <Image x:Name="ImageUAC" Source="Pictures\uac-shield.png" Height="16" />
                 <TextBlock x:Name="TextblockUAC" Text=" OK" />
             </StackPanel>
         </Button>
