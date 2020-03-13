@@ -41,6 +41,12 @@ namespace RemoteUpdate
             Global.ListBackgroundWorkerPing.Add(BgWUptimeTmp);
             Tasks.WriteLogFile(0, "BackgroundWorker Ping for row " + (line + 1) + " created", true);
         }
+        public static void CreateBackgroundWorkerProcess()
+        {
+            Global.BackgroundWorkerProcess.DoWork += new DoWorkEventHandler((sender, e) => { BackgroundWorkerProcess(); });
+            Global.BackgroundWorkerProcess.RunWorkerAsync();
+            Tasks.WriteLogFile(0, "BackgroundWorker Process created", true);
+        }
         public static void Ping_Tick(int line)
         {
             string strTmpIP = Global.TableRuntime.Rows[line]["IP"].ToString();
@@ -52,7 +58,6 @@ namespace RemoteUpdate
             if (strTmpIP.Length == 0)
             {
                 Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Ping", "noIP", 100);
-                //Global.TableRuntime.Rows[line]["Ping"] = "noIP";
                 return;
             }
             Ping pingSender = new Ping();
@@ -66,12 +71,10 @@ namespace RemoteUpdate
                 if (reply.Status == IPStatus.Success)
                 {
                     Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Ping", "true", 100);
-                    //Global.TableRuntime.Rows[line]["Ping"] = "true";
                 }
                 else
                 {
                     Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Ping", "false", 100);
-                    //Global.TableRuntime.Rows[line]["Ping"] = "false";
                 }
             } catch (PingException ee)
             {
@@ -107,12 +110,10 @@ namespace RemoteUpdate
                     {
                         TimeSpan tstmp = TimeSpan.Parse(exResults[0].BaseObject.ToString(), Global.cultures);
                         Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Uptime", tstmp.Days + "d " + tstmp.Hours + "h " + tstmp.Minutes + "m", 100);
-                        //Global.TableRuntime.Rows[line]["Uptime"] = tstmp.Days + "d " + tstmp.Hours + "h " + tstmp.Minutes + "m";
                     }
                     else
                     {
                         Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Uptime", "no connection", 100);
-                        //Global.TableRuntime.Rows[line]["Uptime"] = "no connection";
                     }
                 } catch (InvalidPipelineStateException ee)
                 {
@@ -120,6 +121,14 @@ namespace RemoteUpdate
                     return; 
                 }
             }
+        }
+        public static void Process_Tick()
+        {
+            for(int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
+            {
+
+            }
+
         }
         public static void BackgroundWorkerUptime(int line)
         {
@@ -137,6 +146,15 @@ namespace RemoteUpdate
             {
                 Ping_Tick(line);
                 System.Threading.Thread.Sleep(5 * 1000);  // Wait 5 seconds
+            }
+        }
+        public static void BackgroundWorkerProcess()
+        {
+            System.Threading.Thread.Sleep(30 * 1000);
+            while (true)
+            {
+                Process_Tick();
+                System.Threading.Thread.Sleep(20 * 1000);  // Wait 20 seconds
             }
         }
         public static void TimerUpdateGrid_Tick(Grid GridMainWindow)

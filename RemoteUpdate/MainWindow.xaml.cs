@@ -153,6 +153,11 @@ namespace RemoteUpdate
                 {
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + ii, 30, double.NaN, 0, 24 + 30 * ii, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
+                    CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, false);
+                }
+                else
+                {
+                    CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, true);
                 }
                 // Create new Row in TableRuntime
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
@@ -365,6 +370,34 @@ namespace RemoteUpdate
             Panel.SetZIndex(Rectangle1, -3);
             GridMainWindow.Children.Add(Rectangle1);
         }
+        private void CreateMediaElement(string mename, int memarginleft, int memargintop, bool bGray)
+        {
+            Uri UriMediaElement;
+            if (bGray)
+            {
+                UriMediaElement = new Uri(@"Pictures\loading_gray.gif", UriKind.Relative);
+                //UriMediaElement = new Uri(@"D:\Dokumente\Projekte\RemoteUpdate\RemoteUpdate\Pictures\loading_gray.gif");
+            } else
+            {
+                UriMediaElement = new Uri(@"Pictures\loading_lightgray.gif", UriKind.Relative);
+                //UriMediaElement = new Uri(@"D:\Dokumente\Projekte\RemoteUpdate\RemoteUpdate\Pictures\loading_lightgray.gif");
+            }
+            MediaElement MediaElement1 = new MediaElement()
+            {
+                Name = mename,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Width = 20,
+                Height = 20,
+                LoadedBehavior = MediaState.Manual,
+                UnloadedBehavior = MediaState.Manual,
+                Source = UriMediaElement,
+                Margin = new Thickness(memarginleft, memargintop, 0, 0),
+                //< MediaElement x:Name = "MediaElement_0" LoadedBehavior = "Manual" UnloadedBehavior = "Manual" MediaEnded = "MediaElement_MediaEnded"  Source = "D:\Dokumente\Projekte\RemoteUpdate\RemoteUpdate\Pictures\loading_gray.gif" Height = "20" VerticalAlignment = "Top" HorizontalAlignment = "Left" Width = "20" Margin = "692,29,0,0" />
+            };
+            MediaElement1.MediaEnded += MediaElement_MediaEnded;
+            GridMainWindow.Children.Add(MediaElement1);
+        }
         /// <summary>
         /// Event Function that calls two functions for Textbox LostFocus Handling
         /// </summary>
@@ -417,6 +450,10 @@ namespace RemoteUpdate
                 {
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + list.Length, 30, double.NaN, 0, 24 + 30 * list.Length, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
+                    CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, false);
+                } else
+                {
+                    CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, true);
                 }
                 // Create BackgroundWorker (Ping and Uptime)
                 Worker.CreateBackgroundWorker(list.Length);
@@ -455,6 +492,7 @@ namespace RemoteUpdate
         }
         private void StartUpdate(int line)
         {
+            GridMainWindow.Children.OfType<MediaElement>().Where(me => me.Name.Equals("MediaElement_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Play();
             if (Tasks.CheckPSConnection(line))
             {
                 Tasks.OpenPowerShell(line, GridMainWindow);
@@ -583,10 +621,10 @@ namespace RemoteUpdate
         {
             Tasks.UpdateRemoteUpdate();
         }
-
         private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
         {
-            (sender as MediaElement).Position = new TimeSpan(0, 0, 0, 0, 1);
+            //(sender as MediaElement).LoadedBehavior = MediaState.Manual;
+            (sender as MediaElement).Position = TimeSpan.FromMilliseconds(1);
             (sender as MediaElement).Play();
         }
     }

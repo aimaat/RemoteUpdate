@@ -851,7 +851,7 @@ namespace RemoteUpdate
                 try
                 {
                     Uri uurl = new Uri(url);
-                    req = (HttpWebRequest)WebRequest.Create(Uri.EscapeUriString(url));
+                    req = (HttpWebRequest)WebRequest.Create(new Uri(url));
                     req.Method = "HEAD";
                     req.AllowAutoRedirect = false;
                     resp = (HttpWebResponse)req.GetResponse();

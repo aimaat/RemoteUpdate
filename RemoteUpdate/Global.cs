@@ -14,6 +14,8 @@ namespace RemoteUpdate
         public static List<BackgroundWorker> ListBackgroundWorkerUptime = new List<BackgroundWorker>();
         // BackgroundWorker List for Ping Checks
         public static List<BackgroundWorker> ListBackgroundWorkerPing = new List<BackgroundWorker>();
+        // BackgroundWorker for Process Lookup
+        public static BackgroundWorker BackgroundWorkerProcess = new BackgroundWorker();
         // Timer for Grid Update
         public static DispatcherTimer TimerUpdateGrid = new DispatcherTimer();
         // Culture variable, for future changes to dynamic adaption
