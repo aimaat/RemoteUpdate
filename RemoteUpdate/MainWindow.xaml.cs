@@ -153,11 +153,13 @@ namespace RemoteUpdate
                 {
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + ii, 30, double.NaN, 0, 24 + 30 * ii, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
-                    CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, false);
+                    //CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, false);
+                    CreateImage("Image_" + ii, 692, 30 * ((ii + 1) - 1) + 29, false);
                 }
                 else
                 {
-                    CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, true);
+                    //CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, true);
+                    CreateImage("Image_" + ii, 692, 30 * ((ii + 1) - 1) + 29, true);
                 }
                 // Create new Row in TableRuntime
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
@@ -398,6 +400,29 @@ namespace RemoteUpdate
             MediaElement1.MediaEnded += MediaElement_MediaEnded;
             GridMainWindow.Children.Add(MediaElement1);
         }
+        private void CreateImage(string strname, int imarginleft, int margintop, bool bGray)
+        {
+            Uri UriImage;
+            if (bGray)
+            {
+                UriImage = new Uri(@"Pictures\loading_gray.gif", UriKind.Relative);
+            }
+            else
+            {
+                UriImage = new Uri(@"Pictures\loading_lightgray.gif", UriKind.Relative);
+            }
+            Image Image1 = new Image()
+            {
+                Name = strname,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Width = 20,
+                Height = 20,
+                Source = new System.Windows.Media.Imaging.BitmapImage(UriImage),
+                Margin = new Thickness(imarginleft, margintop, 0, 0),
+            };
+            GridMainWindow.Children.Add(Image1);
+        }
         /// <summary>
         /// Event Function that calls two functions for Textbox LostFocus Handling
         /// </summary>
@@ -450,10 +475,12 @@ namespace RemoteUpdate
                 {
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + list.Length, 30, double.NaN, 0, 24 + 30 * list.Length, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
-                    CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, false);
+                    //CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, false);
+                    CreateImage("Image_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, false);
                 } else
                 {
-                    CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, true);
+                    //CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, true);
+                    CreateImage("Image_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, true);
                 }
                 // Create BackgroundWorker (Ping and Uptime)
                 Worker.CreateBackgroundWorker(list.Length);
