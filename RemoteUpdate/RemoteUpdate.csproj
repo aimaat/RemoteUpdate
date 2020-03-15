@@ -109,6 +109,7 @@
     <Compile Include="Fixit.xaml.cs">
       <DependentUpon>Fixit.xaml</DependentUpon>
     </Compile>
+    <Compile Include="GifImage.cs" />
     <Compile Include="Global.cs" />
     <Compile Include="Password.xaml.cs">
       <DependentUpon>Password.xaml</DependentUpon>

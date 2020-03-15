@@ -419,9 +419,33 @@ namespace RemoteUpdate
                 Width = 20,
                 Height = 20,
                 Source = new System.Windows.Media.Imaging.BitmapImage(UriImage),
-                Margin = new Thickness(imarginleft, margintop, 0, 0),
+                Margin = new Thickness(imarginleft, margintop, 0, 0)
             };
             GridMainWindow.Children.Add(Image1);
+        }
+        private void CreateGifImage(string strname, int imarginleft, int margintop, bool bGray)
+        {
+            Uri UriImage;
+            if (bGray)
+            {
+                UriImage = new Uri(@"Pictures\loading_gray.gif", UriKind.Relative);
+            }
+            else
+            {
+                UriImage = new Uri(@"Pictures\loading_lightgray.gif", UriKind.Relative);
+            }
+            GifImage GifImage1 = new GifImage()
+            {
+                Name = strname,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Width = 20,
+                Height = 20,
+                Source = new System.Windows.Media.Imaging.BitmapImage(UriImage),
+                Margin = new Thickness(imarginleft, margintop, 0, 0),
+                AutoStart = true
+            };
+            GridMainWindow.Children.Add(GifImage1);
         }
         /// <summary>
         /// Event Function that calls two functions for Textbox LostFocus Handling
@@ -653,6 +677,12 @@ namespace RemoteUpdate
             //(sender as MediaElement).LoadedBehavior = MediaState.Manual;
             (sender as MediaElement).Position = TimeSpan.FromMilliseconds(1);
             (sender as MediaElement).Play();
+        }
+
+        private void gifImage_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            (sender as GifImage).Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Pictures\checkmark.png", UriKind.Relative));
+            //(sender as GifImage).StartAnimation();
         }
     }
 }
