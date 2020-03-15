@@ -186,6 +186,7 @@ namespace RemoteUpdate
             Tasks.WriteLogFile(0, "Timer for Grid Update created", true);
             // Check WinRM Status and write Info Message into Label
             SetWinRMStatus();
+            Worker.CreateBackgroundWorkerProcess();
             new System.Threading.Tasks.Task(Tasks.CheckLatestVersion).Start();
         }
         /// <summary>
@@ -372,29 +373,6 @@ namespace RemoteUpdate
             Panel.SetZIndex(Rectangle1, -3);
             GridMainWindow.Children.Add(Rectangle1);
         }
-        private void CreateImage(string strname, int imarginleft, int margintop, bool bGray)
-        {
-            Uri UriImage;
-            if (bGray)
-            {
-                UriImage = new Uri(@"Pictures\loading_gray.gif", UriKind.Relative);
-            }
-            else
-            {
-                UriImage = new Uri(@"Pictures\loading_lightgray.gif", UriKind.Relative);
-            }
-            Image Image1 = new Image()
-            {
-                Name = strname,
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                VerticalAlignment = System.Windows.VerticalAlignment.Top,
-                Width = 20,
-                Height = 20,
-                Source = new System.Windows.Media.Imaging.BitmapImage(UriImage),
-                Margin = new Thickness(imarginleft, margintop, 0, 0)
-            };
-            GridMainWindow.Children.Add(Image1);
-        }
         private void CreateGifImage(string strname, int imarginleft, int margintop)
         {
             GifImage GifImage1 = new GifImage()
@@ -462,14 +440,11 @@ namespace RemoteUpdate
                 {
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + list.Length, 30, double.NaN, 0, 24 + 30 * list.Length, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
-                    //CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, false);
                     CreateGifImage("gifImage_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29);
                 } else
                 {
-                    //CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, true);
                     CreateGifImage("gifImage_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29);
                 }
-                // Create BackgroundWorker (Ping and Uptime)
                 Worker.CreateBackgroundWorker(list.Length);
                 if (list.Length >= 3)
                 {
@@ -520,6 +495,7 @@ namespace RemoteUpdate
                 else
                 {
                     ThreadPool.QueueUserWorkItem(delegate { MessageBox.Show("Can't connect to server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures) + ".\nPlease check your credentials, firewall ruleset and the WinRM settings."); });
+                    Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "PID", "error", 100);
                     Tasks.UpdateStatusGUI(line, "error", GridMainWindow);
                 }
             }
@@ -534,6 +510,7 @@ namespace RemoteUpdate
             int line = Int32.Parse((sender as Button).Name.Split('_')[1], Global.cultures);
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
+            GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
         }
         private void ButtonStartAll_Click(object sender, RoutedEventArgs e)
         {
@@ -634,18 +611,6 @@ namespace RemoteUpdate
         private void LabelUpdate_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             Tasks.UpdateRemoteUpdate();
-        }
-        private void MediaElement_MediaEnded(object sender, RoutedEventArgs e)
-        {
-            //(sender as MediaElement).LoadedBehavior = MediaState.Manual;
-            (sender as MediaElement).Position = TimeSpan.FromMilliseconds(1);
-            (sender as MediaElement).Play();
-        }
-
-        private void gifImage_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            (sender as GifImage).Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Pictures\error.png", UriKind.Relative));
-            //(sender as GifImage).StartAnimation();
         }
     }
 }

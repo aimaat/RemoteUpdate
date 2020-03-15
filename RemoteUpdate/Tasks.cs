@@ -489,7 +489,7 @@ namespace RemoteUpdate
             startInfo.EnvironmentVariables.Add("CreateNoWindow", "false");
             if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().IsChecked)
             {
-                startInfo.Arguments = "-noexit ";
+                //startInfo.Arguments = "-noexit ";
             } else {
                 startInfo.Arguments = "-WindowStyle Hidden ";
             }
@@ -535,6 +535,7 @@ namespace RemoteUpdate
                 UpdateStatusGUI(line, "progress", GridMainWindow);
             } else
             {
+                LockAndWriteDataTable(Global.TableRuntime, line, "PID", "error", 100);
                 WriteLogFile(2, "Process for Server " + strTmpServername.ToUpper(Global.cultures) + " could not be opened");
                 UpdateStatusGUI(line, "error", GridMainWindow);
             }
@@ -998,12 +999,14 @@ namespace RemoteUpdate
                 GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
                 tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
                 tmpGifImage.Visibility = System.Windows.Visibility.Visible;
-            } else if (strStatus == "done")
+            } else if (strStatus == "finished")
             {
                 Uri UriImage = new Uri(@"pack://application:,,,/Pictures/checkmark.gif", UriKind.Absolute);
                 GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
+                tmpGifImage.StopAnimation();
                 tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
                 tmpGifImage.Visibility = System.Windows.Visibility.Visible;
+                //tmpGifImage.UpdateLayout();
             }
             else
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using System.Management.Automation.Runspaces;
 using System.Net.NetworkInformation;
@@ -126,7 +127,20 @@ namespace RemoteUpdate
         {
             for(int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
             {
-
+                string tmpPID = Global.TableRuntime.Rows[ii]["PID"].ToString();
+                if (tmpPID.Length > 0)
+                {
+                    if(tmpPID != "error" && tmpPID != "finished")
+                    {
+                        try
+                        {
+                            Process tmpProcess = Process.GetProcessById(int.Parse(tmpPID, Global.cultures));
+                        } catch (ArgumentException)
+                        {
+                            Tasks.LockAndWriteDataTable(Global.TableRuntime, ii, "PID", "finished", 100);
+                        }
+                    }
+                }
             }
 
         }
@@ -185,6 +199,10 @@ namespace RemoteUpdate
                     {
                         GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(240, 139, 139)); // #FFF08B8B
                         GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = Global.TableRuntime.Rows[ii]["Uptime"].ToString();
+                    }
+                    if(Global.TableRuntime.Rows[ii]["PID"].ToString() == "finished")
+                    {
+                        Tasks.UpdateStatusGUI(ii, "finished", GridMainWindow);
                     }
                 }
                 // Show if online is a new update available
