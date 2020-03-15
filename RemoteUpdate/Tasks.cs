@@ -531,8 +531,14 @@ namespace RemoteUpdate
             if(tmpProcess.Id.ToString(Global.cultures).Length > 0)
             {
                 LockAndWriteDataTable(Global.TableRuntime, line, "PID", tmpProcess.Id.ToString(Global.cultures), 100);
+                WriteLogFile(0, "Update startet on Server " + strTmpServername.ToUpper(Global.cultures));
+                UpdateStatusGUI(line, "progress", GridMainWindow);
+            } else
+            {
+                WriteLogFile(2, "Process for Server " + strTmpServername.ToUpper(Global.cultures) + " could not be opened");
+                UpdateStatusGUI(line, "error", GridMainWindow);
             }
-            WriteLogFile(0, "Update startet on Server " + strTmpServername.ToUpper(Global.cultures));
+            
         }
         public static string GetIPfromHostname(string Servername)
         {
@@ -967,6 +973,41 @@ namespace RemoteUpdate
             catch (Exception ee)
             {
                 WriteLogFile(2, "An error occured while the self updating process: " + ee.Message);
+            }
+        }
+        public static void UpdateStatusGUI(int line, string strStatus, Grid GridMainWindow)
+        {
+            if (strStatus == "progress")
+            {
+                Uri UriImage;
+                if ((line + 1) % 2 == 0)
+                {
+                    UriImage = new Uri(@"pack://application:,,,/Pictures/loading_lightgray.gif", UriKind.Absolute);
+                }
+                else
+                {
+                    UriImage = new Uri(@"pack://application:,,,/Pictures/loading_gray.gif", UriKind.Absolute);
+                }
+                GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
+                tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
+                tmpGifImage.Visibility = System.Windows.Visibility.Visible;
+                tmpGifImage.StartAnimation();
+            } else if (strStatus == "error")
+            {
+                Uri UriImage = new Uri(@"pack://application:,,,/Pictures/error.gif", UriKind.Absolute);
+                GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
+                tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
+                tmpGifImage.Visibility = System.Windows.Visibility.Visible;
+            } else if (strStatus == "done")
+            {
+                Uri UriImage = new Uri(@"pack://application:,,,/Pictures/checkmark.gif", UriKind.Absolute);
+                GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
+                tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
+                tmpGifImage.Visibility = System.Windows.Visibility.Visible;
+            }
+            else
+            {
+
             }
         }
     }

@@ -216,7 +216,8 @@
     <Resource Include="Pictures\loading_lightgray.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Pictures\checkmark.png" />
+    <Resource Include="Pictures\checkmark.gif" />
+    <Resource Include="Pictures\error.gif" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -154,12 +154,12 @@ namespace RemoteUpdate
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + ii, 30, double.NaN, 0, 24 + 30 * ii, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
                     //CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, false);
-                    CreateImage("Image_" + ii, 692, 30 * ((ii + 1) - 1) + 29, false);
+                    CreateGifImage("gifImage_" + ii, 692, 30 * ((ii + 1) - 1) + 29);
                 }
                 else
                 {
                     //CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, true);
-                    CreateImage("Image_" + ii, 692, 30 * ((ii + 1) - 1) + 29, true);
+                    CreateGifImage("gifImage_" + ii, 692, 30 * ((ii + 1) - 1) + 29);
                 }
                 // Create new Row in TableRuntime
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
@@ -372,34 +372,6 @@ namespace RemoteUpdate
             Panel.SetZIndex(Rectangle1, -3);
             GridMainWindow.Children.Add(Rectangle1);
         }
-        private void CreateMediaElement(string mename, int memarginleft, int memargintop, bool bGray)
-        {
-            Uri UriMediaElement;
-            if (bGray)
-            {
-                UriMediaElement = new Uri(@"Pictures\loading_gray.gif", UriKind.Relative);
-                //UriMediaElement = new Uri(@"D:\Dokumente\Projekte\RemoteUpdate\RemoteUpdate\Pictures\loading_gray.gif");
-            } else
-            {
-                UriMediaElement = new Uri(@"Pictures\loading_lightgray.gif", UriKind.Relative);
-                //UriMediaElement = new Uri(@"D:\Dokumente\Projekte\RemoteUpdate\RemoteUpdate\Pictures\loading_lightgray.gif");
-            }
-            MediaElement MediaElement1 = new MediaElement()
-            {
-                Name = mename,
-                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                VerticalAlignment = System.Windows.VerticalAlignment.Top,
-                Width = 20,
-                Height = 20,
-                LoadedBehavior = MediaState.Manual,
-                UnloadedBehavior = MediaState.Manual,
-                Source = UriMediaElement,
-                Margin = new Thickness(memarginleft, memargintop, 0, 0),
-                //< MediaElement x:Name = "MediaElement_0" LoadedBehavior = "Manual" UnloadedBehavior = "Manual" MediaEnded = "MediaElement_MediaEnded"  Source = "D:\Dokumente\Projekte\RemoteUpdate\RemoteUpdate\Pictures\loading_gray.gif" Height = "20" VerticalAlignment = "Top" HorizontalAlignment = "Left" Width = "20" Margin = "692,29,0,0" />
-            };
-            MediaElement1.MediaEnded += MediaElement_MediaEnded;
-            GridMainWindow.Children.Add(MediaElement1);
-        }
         private void CreateImage(string strname, int imarginleft, int margintop, bool bGray)
         {
             Uri UriImage;
@@ -423,17 +395,8 @@ namespace RemoteUpdate
             };
             GridMainWindow.Children.Add(Image1);
         }
-        private void CreateGifImage(string strname, int imarginleft, int margintop, bool bGray)
+        private void CreateGifImage(string strname, int imarginleft, int margintop)
         {
-            Uri UriImage;
-            if (bGray)
-            {
-                UriImage = new Uri(@"Pictures\loading_gray.gif", UriKind.Relative);
-            }
-            else
-            {
-                UriImage = new Uri(@"Pictures\loading_lightgray.gif", UriKind.Relative);
-            }
             GifImage GifImage1 = new GifImage()
             {
                 Name = strname,
@@ -441,9 +404,9 @@ namespace RemoteUpdate
                 VerticalAlignment = System.Windows.VerticalAlignment.Top,
                 Width = 20,
                 Height = 20,
-                Source = new System.Windows.Media.Imaging.BitmapImage(UriImage),
                 Margin = new Thickness(imarginleft, margintop, 0, 0),
-                AutoStart = true
+                AutoStart = false,
+                Visibility = Visibility.Hidden
             };
             GridMainWindow.Children.Add(GifImage1);
         }
@@ -500,11 +463,11 @@ namespace RemoteUpdate
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + list.Length, 30, double.NaN, 0, 24 + 30 * list.Length, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
                     //CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, false);
-                    CreateImage("Image_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, false);
+                    CreateGifImage("gifImage_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29);
                 } else
                 {
                     //CreateMediaElement("MediaElement_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, true);
-                    CreateImage("Image_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29, true);
+                    CreateGifImage("gifImage_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29);
                 }
                 // Create BackgroundWorker (Ping and Uptime)
                 Worker.CreateBackgroundWorker(list.Length);
@@ -543,7 +506,6 @@ namespace RemoteUpdate
         }
         private void StartUpdate(int line)
         {
-            GridMainWindow.Children.OfType<MediaElement>().Where(me => me.Name.Equals("MediaElement_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Play();
             if (Tasks.CheckPSConnection(line))
             {
                 Tasks.OpenPowerShell(line, GridMainWindow);
@@ -558,6 +520,7 @@ namespace RemoteUpdate
                 else
                 {
                     ThreadPool.QueueUserWorkItem(delegate { MessageBox.Show("Can't connect to server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures) + ".\nPlease check your credentials, firewall ruleset and the WinRM settings."); });
+                    Tasks.UpdateStatusGUI(line, "error", GridMainWindow);
                 }
             }
         }
@@ -681,7 +644,7 @@ namespace RemoteUpdate
 
         private void gifImage_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            (sender as GifImage).Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Pictures\checkmark.png", UriKind.Relative));
+            (sender as GifImage).Source = new System.Windows.Media.Imaging.BitmapImage(new Uri(@"Pictures\error.png", UriKind.Relative));
             //(sender as GifImage).StartAnimation();
         }
     }
