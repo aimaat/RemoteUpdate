@@ -511,10 +511,10 @@ namespace RemoteUpdate
             {
                 WUArguments += "-NotCategory Drivers ";
             }
-            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
-            {
-                WUArguments += "-AutoReboot ";
-            }
+            //if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+            //{
+            //    WUArguments += "-AutoReboot ";
+            //}
             if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
             {
             string strTmpSMTPServer = Global.TableSettings.Rows[0]["SMTPServer"].ToString();
@@ -526,7 +526,14 @@ namespace RemoteUpdate
                     WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + strTmpSMTPServer + "'; Port = " + strTmpSMTPPort + "; From = '" + strTmpMailFrom + "'; To = '" + strTmpMailTo + "' }";
                 }
             }
-            startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + "}";
+            startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString();
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+            {
+                startInfo.Arguments += "; Restart-Computer -Force }";
+            } else
+            {
+                startInfo.Arguments += "}";
+            }
             Process tmpProcess = Process.Start(startInfo);
             if(tmpProcess.Id.ToString(Global.cultures).Length > 0)
             {
