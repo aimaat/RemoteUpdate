@@ -687,7 +687,8 @@ namespace RemoteUpdate
                     // Get line where 'TrustedHosts' exists and split it with = and than trim it
                     strTrustedHostsLine = Array.Find(strOutput, str => str.Contains("TrustedHosts")).Split(new[] { '=' }).Last().Trim();
                 }
-                if (strTrustedHostsLine.Length == 0)
+                //if (strTrustedHostsLine.Length == 0)
+                if (strTrustedHostsLine == "TrustedHosts")
                 {
                     strMessage = "No hosts are in the TrustedHosts list.";
                     Tasks.WriteLogFile(0, strMessage, true);
