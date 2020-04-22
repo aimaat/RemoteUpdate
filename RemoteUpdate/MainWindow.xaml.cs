@@ -396,6 +396,7 @@ namespace RemoteUpdate
         private void TextboxLostFocus(object sender, RoutedEventArgs e)
         {
             int line = Int32.Parse((sender as TextBox).Name.Split('_')[1], Global.cultures);
+            (sender as TextBox).Text = (sender as TextBox).Text.Trim();
             Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "IP", Tasks.GetIPfromHostname((sender as TextBox).Text), 100);
             //Global.TableRuntime.Rows[line]["IP"] = Tasks.GetIPfromHostname((sender as TextBox).Text);
             Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Servername", (sender as TextBox).Text, 100);
