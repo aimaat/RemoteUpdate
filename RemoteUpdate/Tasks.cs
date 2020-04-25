@@ -511,10 +511,10 @@ namespace RemoteUpdate
             {
                 WUArguments += "-NotCategory Drivers ";
             }
-            //if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
-            //{
-            //    WUArguments += "-AutoReboot ";
-            //}
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+            {
+                WUArguments += "-AutoReboot ";
+            }
             if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
             {
             string strTmpSMTPServer = Global.TableSettings.Rows[0]["SMTPServer"].ToString();
@@ -526,14 +526,14 @@ namespace RemoteUpdate
                     WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + strTmpSMTPServer + "'; Port = " + strTmpSMTPPort + "; From = '" + strTmpMailFrom + "'; To = '" + strTmpMailTo + "' }";
                 }
             }
-            startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString();
-            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
-            {
-                startInfo.Arguments += "; Restart-Computer -Force }";
-            } else
-            {
-                startInfo.Arguments += "}";
-            }
+            startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + " }";
+            //if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+            //{
+            //    startInfo.Arguments += "; Restart-Computer -Force }";
+            //} else
+            //{
+            //    startInfo.Arguments += "}";
+            //}
             Process tmpProcess = Process.Start(startInfo);
             if(tmpProcess.Id.ToString(Global.cultures).Length > 0)
             {
@@ -1019,6 +1019,39 @@ namespace RemoteUpdate
             else
             {
 
+            }
+        }
+        public static void StartReboot(int line)
+        {
+            if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0) { return; }
+            string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+            string strTmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+            string strTmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+            var sessionState = InitialSessionState.CreateDefault();
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                if (strTmpUsername.Length != 0 && strTmpPassword.Length != 0)
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + strTmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + strTmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + strTmpServername + "' { Restart-Computer -Force };");
+                }
+                else
+                {
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + strTmpServername + "' { Restart-Computer -Force };");
+                }
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    Tasks.WriteLogFile(2, "Server " + strTmpServername + " was rebooted", true);
+                }
+                catch (InvalidPipelineStateException ee)
+                {
+                    Tasks.WriteLogFile(2, "Reboot error with " + strTmpServername + ": " + ee.Message, true);
+                    return;
+                }
             }
         }
     }

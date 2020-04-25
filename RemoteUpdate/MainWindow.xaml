@@ -25,8 +25,9 @@
         <CheckBox x:Name="CheckboxGUI_0" Content="" HorizontalAlignment="Left" Margin="430,31,0,0" VerticalAlignment="Top" Unchecked="CheckboxChangedGUIAccept" Checked="CheckboxChangedGUIAccept" IsChecked="True"/>
         <CheckBox x:Name="CheckboxMail_0" Content="" HorizontalAlignment="Left" Margin="490,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
         <Button x:Name="ButtonCredentials_0" Content="Credentials" HorizontalAlignment="Left" Margin="530,29,0,0" VerticalAlignment="Top" Width="70" Click="GetCredentials"/>
-        <Button x:Name="ButtonStart_0" Content="Start" HorizontalAlignment="Left" Margin="620,29,0,0" VerticalAlignment="Top" Width="70" Click="ButtonStart_Click"/>
+        <Button x:Name="ButtonStart_0" Content="Update" HorizontalAlignment="Left" Margin="620,29,0,0" VerticalAlignment="Top" Width="70" Click="ButtonStart_Click"/>
         <Button x:Name="ButtonTime_0" Content="12:12:12" HorizontalAlignment="Left" Margin="620,29,0,0" VerticalAlignment="Top" Width="70" Click="ButtonTime_Click" Visibility="Hidden"/>
+        <ComboBox x:Name="ComboBox_0" HorizontalAlignment="Left" Margin="620,29,0,0" Width="88" Panel.ZIndex="-1" Height="20" VerticalAlignment="Top" SelectionChanged="ComboBox_SelectionChanged" />
         <local:GifImage x:Name="gifImage_0" Stretch="None" AutoStart="False" Margin="692,29,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Visibility="Hidden" />
         <CheckBox x:Name="CheckboxEnabled_0" Content="" HorizontalAlignment="Left" Margin="715,31,0,0" VerticalAlignment="Top" Unchecked="CheckBoxChangedServer"/>
 
@@ -35,7 +36,8 @@
         <CheckBox x:Name="CheckboxReboot" Content="" HorizontalAlignment="Left" Margin="370,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
         <CheckBox x:Name="CheckboxGUI" Content="" HorizontalAlignment="Left" Margin="430,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5" />
         <CheckBox x:Name="CheckboxMail" Content="" HorizontalAlignment="Left" Margin="490,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
-        <Button x:Name="ButtonStart" Content="Start All" HorizontalAlignment="Left" Margin="620,0,0,50" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="ButtonStartAll_Click"/>
+        <Button x:Name="ButtonStart" Content="Update All" HorizontalAlignment="Left" Margin="620,0,0,50" VerticalAlignment="Bottom" Width="70" Panel.ZIndex="5" Click="ButtonStartAll_Click"/>
+        <ComboBox x:Name="ComboBox_All" HorizontalAlignment="Left" Margin="620,0,0,50" Width="88" Panel.ZIndex="-1" Height="20" VerticalAlignment="Bottom" SelectionChanged="ComboBox_SelectionChanged" />
         <CheckBox x:Name="CheckboxEnabled" Content="" HorizontalAlignment="Left" Margin="715,0,0,52" VerticalAlignment="Bottom" Checked="CheckBoxChanged" Unchecked="CheckBoxChanged" Panel.ZIndex="5"/>
 
         <TextBlock x:Name="TextboxInfoMessage" Margin="60,0,315,0" TextWrapping="Wrap" Height="33" VerticalAlignment="Bottom" Text="" ToolTip="WinRM and TrustedHosts are important if you want to access hosts that are not domain joined. &#10;The WinRM service must run and at least the servers to be reached should be in the TrustedHosts list (or * if you want a wildcard for every server)"/>

@@ -142,9 +142,11 @@ namespace RemoteUpdate
                 // Credentials Button creation
                 CreateButton("ButtonCredentials_" + ii, "Credentials", 70, 530, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(GetCredentials), System.Windows.Visibility.Visible);
                 // Start Button creation
-                CreateButton("ButtonStart_" + ii, "Start", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
+                CreateButton("ButtonStart_" + ii, "Update", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
                 // Time Button creation
                 CreateButton("ButtonTime_" + ii, "12:12:12", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
+                // ComboBox creation
+                CreateComboBox("ComboBox_" + ii, 620, 30 * ((ii + 1) - 1) + 29, new SelectionChangedEventHandler(ComboBox_SelectionChanged));
                 // Enabled Checkbox creation
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Enabled"], Global.cultures); }
                 CreateCheckbox("CheckboxEnabled_" + ii, 715, 30 * (ii + 1), tmpBool);
@@ -188,6 +190,9 @@ namespace RemoteUpdate
             SetWinRMStatus();
             Worker.CreateBackgroundWorkerProcess();
             new System.Threading.Tasks.Task(Tasks.CheckLatestVersion).Start();
+            // Add Items to first and last Combobox
+            ComboBox_0.ItemsSource = new System.Collections.Generic.List<string> { "Update", "Pending", "Reboot", "Script" };
+            ComboBox_All.ItemsSource = new System.Collections.Generic.List<string> { "Update All", "Pending All", "Reboot All", "Script All" };
         }
         /// <summary>
         /// Function to change all Checkboxes IsChecked Status in the same name range
@@ -373,7 +378,7 @@ namespace RemoteUpdate
             Panel.SetZIndex(Rectangle1, -3);
             GridMainWindow.Children.Add(Rectangle1);
         }
-        private void CreateGifImage(string strname, int imarginleft, int margintop)
+        private void CreateGifImage(string strname, int imarginleft, int imargintop)
         {
             GifImage GifImage1 = new GifImage()
             {
@@ -382,11 +387,28 @@ namespace RemoteUpdate
                 VerticalAlignment = System.Windows.VerticalAlignment.Top,
                 Width = 20,
                 Height = 20,
-                Margin = new Thickness(imarginleft, margintop, 0, 0),
+                Margin = new Thickness(imarginleft, imargintop, 0, 0),
                 AutoStart = false,
                 Visibility = Visibility.Hidden
             };
             GridMainWindow.Children.Add(GifImage1);
+        }
+        private void CreateComboBox(string strname, int imarginleft, int imargintop, SelectionChangedEventHandler btnevent)
+        {
+            ComboBox ComboBox1 = new ComboBox()
+            {
+                Name = strname,
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                VerticalAlignment = System.Windows.VerticalAlignment.Top,
+                Width = 88,
+                Height = 20,
+                Margin = new Thickness(imarginleft, imargintop, 0, 0)
+                // Panel.ZIndex="-1"
+            };
+            Panel.SetZIndex(ComboBox1, -1);
+            ComboBox1.ItemsSource = new System.Collections.Generic.List<string> { "Update", "Pending", "Reboot", "Script" };
+            ComboBox1.SelectionChanged += btnevent;
+            GridMainWindow.Children.Add(ComboBox1);
         }
         /// <summary>
         /// Event Function that calls two functions for Textbox LostFocus Handling
@@ -432,9 +454,11 @@ namespace RemoteUpdate
                 // Credentials Button creation
                 CreateButton("ButtonCredentials_" + list.Length, "Credentials", 70, 530, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(GetCredentials), System.Windows.Visibility.Visible);
                 // Start Button creation
-                CreateButton("ButtonStart_" + list.Length, "Start", 70, 620, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
+                CreateButton("ButtonStart_" + list.Length, "Update", 70, 620, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
                 // Time Button creation
                 CreateButton("ButtonTime_" + list.Length, "12:12:12", 70, 620, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
+                // ComboBox creation
+                CreateComboBox("ComboBox_" + list.Length, 620, 30 * ((list.Length + 1) - 1) + 29, new SelectionChangedEventHandler(ComboBox_SelectionChanged));
                 // Enabled Checkbox creation
                 CreateCheckbox("CheckboxEnabled_" + list.Length, 715, 30 * (list.Length + 1), false);
                 if ((list.Length + 1) % 2 == 0)
@@ -504,7 +528,8 @@ namespace RemoteUpdate
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
             int line = Int32.Parse((sender as Button).Name.Split('_')[1], Global.cultures);
-            StartUpdate(line);
+            //StartUpdate(line);
+            ButtonClicked(line);
         }
         private void ButtonTime_Click(object sender, RoutedEventArgs e)
         {
@@ -515,13 +540,42 @@ namespace RemoteUpdate
         }
         private void ButtonStartAll_Click(object sender, RoutedEventArgs e)
         {
+            string btnContent = GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name == "ButtonStart").FirstOrDefault().Content.ToString();
+            btnContent = btnContent.Substring(0, btnContent.Length - 4);
             for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++) {
                 if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString(Global.cultures)).FirstOrDefault().IsChecked) {
                     if (Global.TableRuntime.Rows[ii]["Servername"].ToString().Length != 0 && Global.TableRuntime.Rows[ii]["IP"].ToString().Length != 0)
                     {
-                        StartUpdate(ii);
+
+                        //StartUpdate(ii);
+                        ButtonClicked(ii, btnContent);
                     }
                 }
+            }
+        }
+        private void ButtonClicked(int line)
+        {
+            string btnContent = GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content.ToString();
+            ButtonClicked(line, btnContent);
+        }
+        private void ButtonClicked(int line, string btnContent)
+        {
+            switch (btnContent)
+            {
+                case "Update":
+                    StartUpdate(line);
+                    return;
+                case "Pending":
+                    MessageBox.Show(btnContent);
+                    return;
+                case "Reboot":
+                    Tasks.StartReboot(line);
+                    return;
+                case "Script":
+                    MessageBox.Show(btnContent);
+                    return;
+                default:
+                    return;
             }
         }
         private void ButtonSettings_Click(object sender, RoutedEventArgs e)
@@ -612,6 +666,18 @@ namespace RemoteUpdate
         private void LabelUpdate_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             Tasks.UpdateRemoteUpdate();
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string strline = (sender as ComboBox).Name.Split('_')[1];
+            if(strline == "All")
+            {
+                ButtonStart.Content = (sender as ComboBox).SelectedItem.ToString();
+            } else { 
+                int line = Int32.Parse(strline, Global.cultures);
+                GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = (sender as ComboBox).SelectedItem.ToString();
+            }
         }
     }
 }
