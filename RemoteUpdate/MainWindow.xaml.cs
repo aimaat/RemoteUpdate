@@ -508,14 +508,14 @@ namespace RemoteUpdate
         {
             if (Tasks.CheckPSConnection(line))
             {
-                Tasks.OpenPowerShell(line, GridMainWindow);
+                Tasks.OpenPowerShellUpdate(line, GridMainWindow);
             }
             else
             {
                 string strFailureMessage;
                 if (Tasks.CreatePSConnectionPrerequisites(line, out strFailureMessage))
                 {
-                    Tasks.OpenPowerShell(line, GridMainWindow);
+                    Tasks.OpenPowerShellUpdate(line, GridMainWindow);
                 }
                 else
                 {
@@ -546,7 +546,6 @@ namespace RemoteUpdate
                 if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString(Global.cultures)).FirstOrDefault().IsChecked) {
                     if (Global.TableRuntime.Rows[ii]["Servername"].ToString().Length != 0 && Global.TableRuntime.Rows[ii]["IP"].ToString().Length != 0)
                     {
-
                         //StartUpdate(ii);
                         ButtonClicked(ii, btnContent);
                     }
@@ -572,7 +571,11 @@ namespace RemoteUpdate
                     Tasks.StartReboot(line);
                     return;
                 case "Script":
-                    MessageBox.Show(btnContent);
+                    PSScript GetScript = new PSScript();
+                    GetScript.ShowDialog();
+                    if ((bool)GetScript.DialogResult) { 
+                        Tasks.OpenPowerShellScript(line, GridMainWindow, "Script");
+                    }
                     return;
                 default:
                     return;

@@ -471,7 +471,48 @@ namespace RemoteUpdate
             }
             return returnValue;
         }
-        public static void OpenPowerShell(int line, Grid GridMainWindow)
+        public static void OpenPowerShellScript(int line, Grid GridMainWindow, string strFunction)
+        {
+            string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures);
+            string strTmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+            string strTmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+            string strTmpCredentials = "";
+            ProcessStartInfo startInfo = new ProcessStartInfo(@"C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe");
+            startInfo.UseShellExecute = false;
+            startInfo.EnvironmentVariables.Add("RedirectStandardOutput", "true");
+            startInfo.EnvironmentVariables.Add("RedirectStandardError", "true");
+            startInfo.EnvironmentVariables.Add("UseShellExecute", "false");
+            startInfo.EnvironmentVariables.Add("CreateNoWindow", "false");
+            if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().IsChecked)
+            {
+                startInfo.Arguments = "-noexit ";
+            }
+            else
+            {
+                startInfo.Arguments = "-WindowStyle Hidden ";
+            }
+            startInfo.Arguments += "$pshost = get-host; $pswindow = $pshost.ui.rawui; $newsize = $pswindow.buffersize; $newsize.height = 10; $pswindow.windowsize = $newsize; "; //$pswindow.buffersize = $newsize;
+            startInfo.Arguments += "$host.ui.RawUI.WindowTitle = '" + strTmpServername + "';";
+            if (strTmpUsername.Length != 0 && strTmpPassword.Length != 0)
+            {
+                startInfo.Arguments += "$pass = ConvertTo-SecureString -AsPlainText '" + strTmpPassword + "' -Force;";
+                startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + strTmpUsername + "',$pass;";
+                strTmpCredentials = "-Credential $Cred ";
+            }
+            string strScriptBlock = "$env:computername; Get-DnsClient; ipconfig";
+            startInfo.Arguments += "Invoke-Command " + strTmpCredentials + " -ComputerName " + strTmpServername + " { " + strScriptBlock + " }";
+            //startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + " }";
+            Process tmpProcess = Process.Start(startInfo);
+            if (tmpProcess.Id.ToString(Global.cultures).Length > 0)
+            {
+                WriteLogFile(0, "Powershell startet on Server " + strTmpServername.ToUpper(Global.cultures));
+            }
+            else
+            {
+                WriteLogFile(2, "Powershell for Server " + strTmpServername.ToUpper(Global.cultures) + " could not be opened");
+            }
+        }
+        public static void OpenPowerShellUpdate(int line, Grid GridMainWindow)
         {
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
             GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = DateTime.Now.ToString("HH:mm:ss", Global.cultures);
@@ -487,6 +528,8 @@ namespace RemoteUpdate
             startInfo.EnvironmentVariables.Add("RedirectStandardError", "true");
             startInfo.EnvironmentVariables.Add("UseShellExecute", "false");
             startInfo.EnvironmentVariables.Add("CreateNoWindow", "false");
+
+
             if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().IsChecked)
             {
                 //startInfo.Arguments = "-noexit ";
@@ -517,23 +560,16 @@ namespace RemoteUpdate
             }
             if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
             {
-            string strTmpSMTPServer = Global.TableSettings.Rows[0]["SMTPServer"].ToString();
-            string strTmpSMTPPort = Global.TableSettings.Rows[0]["SMTPPort"].ToString();
-            string strTmpMailFrom = Global.TableSettings.Rows[0]["MailFrom"].ToString();
-            string strTmpMailTo = Global.TableSettings.Rows[0]["MailTo"].ToString();
+                string strTmpSMTPServer = Global.TableSettings.Rows[0]["SMTPServer"].ToString();
+                string strTmpSMTPPort = Global.TableSettings.Rows[0]["SMTPPort"].ToString();
+                string strTmpMailFrom = Global.TableSettings.Rows[0]["MailFrom"].ToString();
+                string strTmpMailTo = Global.TableSettings.Rows[0]["MailTo"].ToString();
                 if ((strTmpSMTPServer.Length != 0) && (strTmpSMTPPort.Length != 0) && (strTmpMailFrom.Length != 0) && (strTmpMailTo.Length != 0))
                 {
                     WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + strTmpSMTPServer + "'; Port = " + strTmpSMTPPort + "; From = '" + strTmpMailFrom + "'; To = '" + strTmpMailTo + "' }";
                 }
             }
             startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + " }";
-            //if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + line.ToString(Global.cultures)).FirstOrDefault().IsChecked)
-            //{
-            //    startInfo.Arguments += "; Restart-Computer -Force }";
-            //} else
-            //{
-            //    startInfo.Arguments += "}";
-            //}
             Process tmpProcess = Process.Start(startInfo);
             if(tmpProcess.Id.ToString(Global.cultures).Length > 0)
             {
@@ -546,7 +582,6 @@ namespace RemoteUpdate
                 WriteLogFile(2, "Process for Server " + strTmpServername.ToUpper(Global.cultures) + " could not be opened");
                 UpdateStatusGUI(line, "error", GridMainWindow);
             }
-            
         }
         public static string GetIPfromHostname(string Servername)
         {
