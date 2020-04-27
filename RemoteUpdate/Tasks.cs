@@ -471,7 +471,7 @@ namespace RemoteUpdate
             }
             return returnValue;
         }
-        public static void OpenPowerShellScript(int line, Grid GridMainWindow, string strFunction)
+        public static void OpenPowerShellScript(int line, Grid GridMainWindow, string strScriptBlock)
         {
             string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures);
             string strTmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
@@ -499,7 +499,7 @@ namespace RemoteUpdate
                 startInfo.Arguments += "$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + strTmpUsername + "',$pass;";
                 strTmpCredentials = "-Credential $Cred ";
             }
-            string strScriptBlock = "$env:computername; Get-DnsClient; ipconfig";
+            //string strScriptBlock = "$env:computername; Get-DnsClient; ipconfig";
             startInfo.Arguments += "Invoke-Command " + strTmpCredentials + " -ComputerName " + strTmpServername + " { " + strScriptBlock + " }";
             //startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + " }";
             Process tmpProcess = Process.Start(startInfo);

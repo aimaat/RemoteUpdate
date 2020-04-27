@@ -142,7 +142,7 @@ namespace RemoteUpdate
                 // Credentials Button creation
                 CreateButton("ButtonCredentials_" + ii, "Credentials", 70, 530, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(GetCredentials), System.Windows.Visibility.Visible);
                 // Start Button creation
-                CreateButton("ButtonStart_" + ii, "Update", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
+                CreateButton("ButtonStart_" + ii, "Update", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonStartClick), System.Windows.Visibility.Visible);
                 // Time Button creation
                 CreateButton("ButtonTime_" + ii, "12:12:12", 70, 620, 30 * ((ii + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
                 // ComboBox creation
@@ -454,7 +454,7 @@ namespace RemoteUpdate
                 // Credentials Button creation
                 CreateButton("ButtonCredentials_" + list.Length, "Credentials", 70, 530, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(GetCredentials), System.Windows.Visibility.Visible);
                 // Start Button creation
-                CreateButton("ButtonStart_" + list.Length, "Update", 70, 620, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(ButtonStart_Click), System.Windows.Visibility.Visible);
+                CreateButton("ButtonStart_" + list.Length, "Update", 70, 620, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(ButtonStartClick), System.Windows.Visibility.Visible);
                 // Time Button creation
                 CreateButton("ButtonTime_" + list.Length, "12:12:12", 70, 620, 30 * ((list.Length + 1) - 1) + 29, new RoutedEventHandler(ButtonTime_Click), System.Windows.Visibility.Hidden);
                 // ComboBox creation
@@ -552,6 +552,40 @@ namespace RemoteUpdate
                 }
             }
         }
+        private void ButtonStartClick(object sender, RoutedEventArgs e)
+        {
+            string strButtonLine = (sender as Button).Name.Split('_')[1];
+            string strButtonFunction = (sender as Button).Content.ToString().Split(' ')[0];
+            string strScriptBlock = "";
+            if (strButtonFunction == "Script")
+            {
+                PSScript GetScript = new PSScript();
+                GetScript.ShowDialog();
+                if ((bool)GetScript.DialogResult)
+                {
+                    strScriptBlock = GetScript.TextBoxScript.Text;
+                } else
+                {
+                    return;
+                }
+            }
+            if(strButtonLine == "All")
+            {
+                for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
+                {
+                    if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+                    {
+                        if (Global.TableRuntime.Rows[ii]["Servername"].ToString().Length != 0 && Global.TableRuntime.Rows[ii]["IP"].ToString().Length != 0)
+                        {
+                            ButtonClicked(ii, strButtonFunction, strScriptBlock);
+                        }
+                    }
+                }
+            } else
+            {
+                ButtonClicked(Int32.Parse(strButtonLine, Global.cultures), strButtonFunction, strScriptBlock);
+            }
+        }
         private void ButtonClicked(int line)
         {
             string btnContent = GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content.ToString();
@@ -576,6 +610,26 @@ namespace RemoteUpdate
                     if ((bool)GetScript.DialogResult) { 
                         Tasks.OpenPowerShellScript(line, GridMainWindow, "Script");
                     }
+                    return;
+                default:
+                    return;
+            }
+        }
+        private void ButtonClicked(int line, string btnContent, string strScript)
+        {
+            switch (btnContent)
+            {
+                case "Update":
+                    StartUpdate(line);
+                    return;
+                case "Pending":
+                    MessageBox.Show(btnContent);
+                    return;
+                case "Reboot":
+                    Tasks.StartReboot(line);
+                    return;
+                case "Script":
+                    Tasks.OpenPowerShellScript(line, GridMainWindow, strScript);
                     return;
                 default:
                     return;
@@ -676,7 +730,7 @@ namespace RemoteUpdate
             string strline = (sender as ComboBox).Name.Split('_')[1];
             if(strline == "All")
             {
-                ButtonStart.Content = (sender as ComboBox).SelectedItem.ToString();
+                ButtonStart_All.Content = (sender as ComboBox).SelectedItem.ToString();
             } else { 
                 int line = Int32.Parse(strline, Global.cultures);
                 GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = (sender as ComboBox).SelectedItem.ToString();
