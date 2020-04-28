@@ -23,6 +23,7 @@ namespace RemoteUpdate
         {
             InitializeComponent();
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
+            Owner = Application.Current.MainWindow;
         }
         private void ButtonCancel(object sender, RoutedEventArgs e)
         {
