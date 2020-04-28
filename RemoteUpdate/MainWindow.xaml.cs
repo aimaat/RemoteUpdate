@@ -149,19 +149,17 @@ namespace RemoteUpdate
                 CreateComboBox("ComboBox_" + ii, 620, 30 * ((ii + 1) - 1) + 29, new SelectionChangedEventHandler(ComboBox_SelectionChanged));
                 // Enabled Checkbox creation
                 if (ii < ServerNumber) { tmpBool = Convert.ToBoolean(LoadTable.Rows[ii]["Enabled"], Global.cultures); }
-                CreateCheckbox("CheckboxEnabled_" + ii, 715, 30 * (ii + 1), tmpBool);
+                CreateCheckbox("CheckboxEnabled_" + ii, 740, 30 * (ii + 1), tmpBool);
                 // If Servernumber is Even, create Light Grey Rectangle Background
                 if ((ii + 1) % 2 == 0)
                 {
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + ii, 30, double.NaN, 0, 24 + 30 * ii, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
-                    //CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, false);
-                    CreateGifImage("gifImage_" + ii, 692, 30 * ((ii + 1) - 1) + 29);
+                    CreateGifImage("gifImage_" + ii, 710, 30 * ((ii + 1) - 1) + 29);
                 }
                 else
                 {
-                    //CreateMediaElement("MediaElement_" + ii, 692, 30 * ((ii + 1) - 1) + 29, true);
-                    CreateGifImage("gifImage_" + ii, 692, 30 * ((ii + 1) - 1) + 29);
+                    CreateGifImage("gifImage_" + ii, 710, 30 * ((ii + 1) - 1) + 29);
                 }
                 // Create new Row in TableRuntime
                 System.Data.DataRow dtrow = Global.TableRuntime.NewRow();
@@ -460,15 +458,15 @@ namespace RemoteUpdate
                 // ComboBox creation
                 CreateComboBox("ComboBox_" + list.Length, 620, 30 * ((list.Length + 1) - 1) + 29, new SelectionChangedEventHandler(ComboBox_SelectionChanged));
                 // Enabled Checkbox creation
-                CreateCheckbox("CheckboxEnabled_" + list.Length, 715, 30 * (list.Length + 1), false);
+                CreateCheckbox("CheckboxEnabled_" + list.Length, 740, 30 * (list.Length + 1), false);
                 if ((list.Length + 1) % 2 == 0)
                 {
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + list.Length, 30, double.NaN, 0, 24 + 30 * list.Length, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
-                    CreateGifImage("gifImage_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29);
+                    CreateGifImage("gifImage_" + list.Length, 710, 30 * ((list.Length + 1) - 1) + 29);
                 } else
                 {
-                    CreateGifImage("gifImage_" + list.Length, 692, 30 * ((list.Length + 1) - 1) + 29);
+                    CreateGifImage("gifImage_" + list.Length, 710, 30 * ((list.Length + 1) - 1) + 29);
                 }
                 Worker.CreateBackgroundWorker(list.Length);
                 if (list.Length >= 3)
