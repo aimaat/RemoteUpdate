@@ -24,6 +24,9 @@ namespace RemoteUpdate
                 this.ButtonSave.IsEnabled = false;
                 MessageBox.Show("Directory is not writable therefore no settings can be saved or log file can be written");
             }
+            // Global.TableScripts Columns Creation
+            Global.TableScripts.Columns.Add("Name");
+            Global.TableScripts.Columns.Add("Script");
             // Global.TableRuntime Columns Creation
             Global.TableRuntime.Columns.Add("Servername");
             Global.TableRuntime.Columns.Add("IP");

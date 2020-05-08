@@ -34,5 +34,8 @@ namespace RemoteUpdate
         public static System.Net.IPHostEntry localHost = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
         // Variable for threaded Update Search
         public static bool bNewVersionOnline = false;
+        // TableScripts
+        public static System.Data.DataTable TableScripts = new System.Data.DataTable("Scripts");
+        
     }
 }

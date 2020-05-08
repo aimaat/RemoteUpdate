@@ -19,16 +19,14 @@ namespace RemoteUpdate
     /// </summary>
     public partial class PSScript : Window
     {
-        System.Data.DataTable TableScripts = new System.Data.DataTable("Scripts");
+        //static System.Data.DataTable TableScripts = new System.Data.DataTable("Scripts");
         public PSScript()
         {
             InitializeComponent();
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             Owner = Application.Current.MainWindow;
-            //TableScripts.Columns.Add("ID", typeof(int),);
-            TableScripts.Columns.Add("Name");
-            TableScripts.Columns.Add("Script");
-            //ComboBoxScript.ItemsSource = TableScripts.DefaultView;
+
+            UpdateComboBoxList();
         }
         private void ButtonCancel(object sender, RoutedEventArgs e)
         {
@@ -57,16 +55,27 @@ namespace RemoteUpdate
             {
                 if(iID == -1)
                 {
-                    System.Data.DataRow tmpRow = TableScripts.NewRow();
+                    System.Data.DataRow tmpRow = Global.TableScripts.NewRow();
                     tmpRow["Name"] = strName;
                     tmpRow["Script"] = strScript;
-                    TableScripts.Rows.Add(tmpRow);
+                    Global.TableScripts.Rows.Add(tmpRow);
                 } else
                 {
-                    TableScripts.Rows[iID]["Name"] = strName;
-                    TableScripts.Rows[iID]["Script"] = strScript;
+                    Global.TableScripts.Rows[iID]["Name"] = strName;
+                    Global.TableScripts.Rows[iID]["Script"] = strScript;
                 }
             }
+            UpdateComboBoxList();
+        }
+
+        private void UpdateComboBoxList()
+        {
+            List<string> ids = new List<string>(Global.TableScripts.Rows.Count);
+            foreach (System.Data.DataRow row in Global.TableScripts.Rows)
+            {
+                ids.Add(row["Name"].ToString());
+            }
+            ComboBoxScript.ItemsSource = ids;
         }
     }
 }

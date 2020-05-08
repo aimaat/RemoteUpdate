@@ -268,7 +268,7 @@ namespace RemoteUpdate
                 string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
                 string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
                 string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
-                string tmpCommand = "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force";
+                string tmpCommand = "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force";
                 if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
@@ -356,7 +356,7 @@ namespace RemoteUpdate
                 string tmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
                 string tmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
                 string tmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
-                string tmpCommand = "Install-Module PSWindowsUpdate -MinimumVersion 2.1.1.2 -Force";
+                string tmpCommand = "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Install-Module PSWindowsUpdate -MinimumVersion 2.1.1.2 -Force";
                 if (tmpUsername.Length != 0 && tmpPassword.Length != 0)
                 {
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");

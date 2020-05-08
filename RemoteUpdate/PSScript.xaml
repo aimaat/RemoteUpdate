@@ -10,7 +10,8 @@
         <TextBox x:Name="TextBoxScript" Margin="20,20,20,60" TextWrapping="Wrap" Text="" AcceptsReturn="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
         <Button x:Name="ButtonScriptOK" Content="OK" Margin="0,0,20,20" Click="ButtonOk" IsDefault="True" HorizontalAlignment="Right" Width="115" Height="20" VerticalAlignment="Bottom"/>
         <Button x:Name="ButtonScriptCancel" Content="Cancel" Margin="0,0,160,20" Click="ButtonCancel" IsCancel="True" HorizontalAlignment="Right" Width="75" Height="20" VerticalAlignment="Bottom"/>
-        <ComboBox x:Name="ComboBoxScript" HorizontalAlignment="Left" Margin="20,0,0,20" VerticalAlignment="Bottom" Width="120" IsEditable="True"/>
+        <ComboBox x:Name="ComboBoxScript" HorizontalAlignment="Left" Margin="20,0,0,20" VerticalAlignment="Bottom" Width="120" IsEditable="True" />
+
         <Button x:Name="ButtonSave" Content="Save" HorizontalAlignment="Left" Margin="145,0,0,20" VerticalAlignment="Bottom" Width="50" Click="ButtonSave_Click"/>
     </Grid>
 </Window>
