@@ -226,6 +226,9 @@
     <Resource Include="Pictures\checkmark.gif" />
     <Resource Include="Pictures\error.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Pictures\restart.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

@@ -583,6 +583,10 @@ namespace RemoteUpdate
                 UpdateStatusGUI(line, "error", GridMainWindow);
             }
         }
+        public static void AskPendingStatus(int line, Grid GridMainWindow)
+        {
+
+        }
         public static string GetIPfromHostname(string Servername)
         {
             if (Servername.Length == 0) { return ""; }
@@ -1050,6 +1054,12 @@ namespace RemoteUpdate
                 tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
                 tmpGifImage.Visibility = System.Windows.Visibility.Visible;
                 //tmpGifImage.UpdateLayout();
+            } else if (strStatus == "pending")
+            {
+                Uri UriImage = new Uri(@"pack://application:,,,/Pictures/pending.png", UriKind.Absolute);
+                GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
+                tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
+                tmpGifImage.Visibility = System.Windows.Visibility.Visible;
             }
             else
             {

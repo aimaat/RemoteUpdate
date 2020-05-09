@@ -526,10 +526,30 @@ namespace RemoteUpdate
                 }
             }
         }
+        private void StartPending(int line)
+        {
+            if (Tasks.CheckPSConnection(line))
+            {
+                Tasks.AskPendingStatus(line, GridMainWindow);
+            }
+            else
+            {
+                string strFailureMessage;
+                if (Tasks.CreatePSConnectionPrerequisites(line, out strFailureMessage))
+                {
+                    Tasks.AskPendingStatus(line, GridMainWindow);
+                }
+                else
+                {
+                    ThreadPool.QueueUserWorkItem(delegate { MessageBox.Show("Can't connect to server " + Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures) + ".\nPlease check your credentials, firewall ruleset and the WinRM settings."); });
+                    Tasks.UpdateStatusGUI(line, "error", GridMainWindow);
+                }
+            }
+        }
+
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
             int line = Int32.Parse((sender as Button).Name.Split('_')[1], Global.cultures);
-            //StartUpdate(line);
             ButtonClicked(line);
         }
         private void ButtonTime_Click(object sender, RoutedEventArgs e)
@@ -547,7 +567,6 @@ namespace RemoteUpdate
                 if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString(Global.cultures)).FirstOrDefault().IsChecked) {
                     if (Global.TableRuntime.Rows[ii]["Servername"].ToString().Length != 0 && Global.TableRuntime.Rows[ii]["IP"].ToString().Length != 0)
                     {
-                        //StartUpdate(ii);
                         ButtonClicked(ii, btnContent);
                     }
                 }
@@ -590,31 +609,12 @@ namespace RemoteUpdate
         private void ButtonClicked(int line)
         {
             string btnContent = GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content.ToString();
-            ButtonClicked(line, btnContent);
+            ButtonClicked(line, btnContent, "");
         }
         private void ButtonClicked(int line, string btnContent)
         {
-            switch (btnContent)
-            {
-                case "Update":
-                    StartUpdate(line);
-                    return;
-                case "Pending":
-                    MessageBox.Show(btnContent);
-                    return;
-                case "Reboot":
-                    Tasks.StartReboot(line);
-                    return;
-                case "Script":
-                    PSScript GetScript = new PSScript();
-                    GetScript.ShowDialog();
-                    if ((bool)GetScript.DialogResult) { 
-                        Tasks.OpenPowerShellScript(line, GridMainWindow, "Script");
-                    }
-                    return;
-                default:
-                    return;
-            }
+            ButtonClicked(line, btnContent, "");
+
         }
         private void ButtonClicked(int line, string btnContent, string strScript)
         {
@@ -624,7 +624,7 @@ namespace RemoteUpdate
                     StartUpdate(line);
                     return;
                 case "Pending":
-                    MessageBox.Show(btnContent);
+                    Tasks.AskPendingStatus(line, GridMainWindow);
                     return;
                 case "Reboot":
                     Tasks.StartReboot(line);
