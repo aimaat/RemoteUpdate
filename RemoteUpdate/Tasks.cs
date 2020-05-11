@@ -585,6 +585,151 @@ namespace RemoteUpdate
         }
         public static void AskPendingStatus(int line, Grid GridMainWindow)
         {
+            string strScriptBlock = @"
+$scriptBlock = {
+function Test-RegistryKey {
+    [OutputType('bool')]
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Key
+    )
+    
+    $ErrorActionPreference = 'Stop'
+
+    if (Get-Item -Path $Key -ErrorAction Ignore) {
+        $true
+    }
+}
+
+function Test-RegistryValue {
+    [OutputType('bool')]
+[CmdletBinding()]
+param
+    (
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Key,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Value
+    )
+    
+    $ErrorActionPreference = 'Stop'
+
+    if (Get-ItemProperty -Path $Key -Name $Value -ErrorAction Ignore) {
+        $true
+    }
+}
+
+function Test-RegistryValueNotNull {
+    [OutputType('bool')]
+[CmdletBinding()]
+param
+    (
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Key,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Value
+    )
+    
+    $ErrorActionPreference = 'Stop'
+
+    if (($regVal = Get-ItemProperty -Path $Key -Name $Value -ErrorAction Ignore) -and $regVal.($Value)) {
+        $true
+    }
+}
+
+$tests = @(
+    { Test-RegistryKey -Key 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending' }
+    { Test-RegistryKey -Key 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootInProgress' }
+    { Test-RegistryKey -Key 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired' }
+    { Test-RegistryKey -Key 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\PackagesPending' }
+    { Test-RegistryKey -Key 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\PostRebootReporting' }
+    { Test-RegistryValueNotNull -Key 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' -Value 'PendingFileRenameOperations' }
+    { Test-RegistryValueNotNull -Key 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' -Value 'PendingFileRenameOperations2' }
+    { 
+        'HKLM:\SOFTWARE\Microsoft\Updates' | ?{ test-path $_ -PathType Container } | %{            
+            (Get-ItemProperty -Path $_ -Name 'UpdateExeVolatile' | Select-Object -ExpandProperty UpdateExeVolatile) -ne 0 
+        }
+    }
+    { Test-RegistryValue -Key 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce' -Value 'DVDRebootSignal' }
+    { Test-RegistryKey -Key 'HKLM:\SOFTWARE\Microsoft\ServerManager\CurrentRebootAttemps' }
+    { Test-RegistryValue -Key 'HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon' -Value 'JoinDomain' }
+    { Test-RegistryValue -Key 'HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon' -Value 'AvoidSpnSet' }
+    {
+        ( 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName' | ?{ test-path $_ } | %{ (Get-ItemProperty -Path $_ ).ComputerName } ) -ne
+        ( 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName' | ?{ test - path $_ } | %{ (Get-ItemProperty -Path $_ ).ComputerName } )
+    }
+    {
+        'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Pending' | Where-Object { 
+            (Test-Path $_) -and(Get-ChildItem -Path $_) } | ForEach-Object { $true }
+    }
+)
+
+foreach ($test in $tests) {
+    if (& $test) {
+        return 'REBOOT'
+        exit
+    }
+    }
+return 'OK'}";
+                
+            if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0) { return; }
+            string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
+            string strTmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
+            string strTmpPassword = Global.TableRuntime.Rows[line]["Password"].ToString();
+            var sessionState = InitialSessionState.CreateDefault();
+            using (var psRunspace = RunspaceFactory.CreateRunspace(sessionState))
+            {
+                // strScriptBlock = "$scriptBlock = { $env:COMPUTERNAME }";
+                psRunspace.Open();
+                Pipeline pipeline = psRunspace.CreatePipeline();
+                pipeline.Commands.AddScript(strScriptBlock);
+                if (strTmpUsername.Length != 0 && strTmpPassword.Length != 0)
+                {
+                    pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + strTmpPassword + "' -Force;");
+                    pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + strTmpUsername + "',$pass;");
+                    pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName '" + strTmpServername + "' -ScriptBlock $ScriptBlock;");
+                }
+                else
+                {
+                    pipeline.Commands.AddScript("Invoke-Command -ComputerName '" + strTmpServername + "' -ScriptBlock $ScriptBlock;");
+                }
+                try
+                {
+                    var exResults = pipeline.Invoke();
+                    if (exResults.Count == 1)
+                    {
+                        if(exResults[0].ToString().ToUpper(Global.cultures) == "TRUE")
+                        {
+                            UpdateStatusGUI(line, "pending", GridMainWindow);
+                            WriteLogFile(0, "Server " + strTmpServername.ToUpper(Global.cultures) + " has a reboot pending");
+                        } else
+                        {
+                            UpdateStatusGUI(line, "clear", GridMainWindow);
+                            WriteLogFile(0, "Server " + strTmpServername.ToUpper(Global.cultures) + " has no reboot pending", true);
+                        }
+                    }
+                    else
+                    {
+                        UpdateStatusGUI(line, "error", GridMainWindow);
+                        WriteLogFile(2, "Too many results at reboot pending status for server " + strTmpServername.ToUpper(Global.cultures));
+                    }
+                }
+                catch (InvalidPipelineStateException ee)
+                {
+                    UpdateStatusGUI(line, "error", GridMainWindow);
+                    Tasks.WriteLogFile(2, "Reboot Pending check error with " + strTmpServername + ": " + ee.Message, true);
+                    return;
+                }
+            }
 
         }
         public static string GetIPfromHostname(string Servername)
@@ -1040,13 +1185,15 @@ namespace RemoteUpdate
                 tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
                 tmpGifImage.Visibility = System.Windows.Visibility.Visible;
                 tmpGifImage.StartAnimation();
-            } else if (strStatus == "error")
+            }
+            else if (strStatus == "error")
             {
                 Uri UriImage = new Uri(@"pack://application:,,,/Pictures/error.gif", UriKind.Absolute);
                 GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
                 tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
                 tmpGifImage.Visibility = System.Windows.Visibility.Visible;
-            } else if (strStatus == "finished")
+            }
+            else if (strStatus == "finished")
             {
                 Uri UriImage = new Uri(@"pack://application:,,,/Pictures/checkmark.gif", UriKind.Absolute);
                 GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
@@ -1054,12 +1201,18 @@ namespace RemoteUpdate
                 tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
                 tmpGifImage.Visibility = System.Windows.Visibility.Visible;
                 //tmpGifImage.UpdateLayout();
-            } else if (strStatus == "pending")
+            }
+            else if (strStatus == "pending")
             {
-                Uri UriImage = new Uri(@"pack://application:,,,/Pictures/pending.png", UriKind.Absolute);
+                Uri UriImage = new Uri(@"pack://application:,,,/Pictures/restart.gif", UriKind.Absolute);
                 GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
                 tmpGifImage.Source = new System.Windows.Media.Imaging.BitmapImage(UriImage);
                 tmpGifImage.Visibility = System.Windows.Visibility.Visible;
+            }
+            else if (strStatus == "clear")
+            {
+                GifImage tmpGifImage = GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault();
+                tmpGifImage.Visibility = System.Windows.Visibility.Hidden;
             }
             else
             {

@@ -624,7 +624,8 @@ namespace RemoteUpdate
                     StartUpdate(line);
                     return;
                 case "Pending":
-                    Tasks.AskPendingStatus(line, GridMainWindow);
+                    StartPending(line);
+                    //Tasks.AskPendingStatus(line, GridMainWindow);
                     return;
                 case "Reboot":
                     Tasks.StartReboot(line);
