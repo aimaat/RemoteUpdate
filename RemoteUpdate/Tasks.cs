@@ -586,66 +586,39 @@ namespace RemoteUpdate
         public static void AskPendingStatus(int line, Grid GridMainWindow)
         {
             string strScriptBlock = @"
-$scriptBlock = {
+            $scriptBlock = {
 function Test-RegistryKey {
-    [OutputType('bool')]
-    [CmdletBinding()]
     param
     (
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
         [string]$Key
     )
-    
     $ErrorActionPreference = 'Stop'
-
     if (Get-Item -Path $Key -ErrorAction Ignore) {
         $true
     }
 }
-
 function Test-RegistryValue {
-    [OutputType('bool')]
-[CmdletBinding()]
-param
+    param
     (
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
         [string]$Key,
-
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
         [string]$Value
     )
-    
     $ErrorActionPreference = 'Stop'
-
     if (Get-ItemProperty -Path $Key -Name $Value -ErrorAction Ignore) {
         $true
     }
 }
-
 function Test-RegistryValueNotNull {
-    [OutputType('bool')]
-[CmdletBinding()]
-param
+    param
     (
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
         [string]$Key,
-
-        [Parameter(Mandatory)]
-        [ValidateNotNullOrEmpty()]
         [string]$Value
     )
-    
     $ErrorActionPreference = 'Stop'
-
     if (($regVal = Get-ItemProperty -Path $Key -Name $Value -ErrorAction Ignore) -and $regVal.($Value)) {
         $true
     }
 }
-
 $tests = @(
     { Test-RegistryKey -Key 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending' }
     { Test-RegistryKey -Key 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootInProgress' }
@@ -664,22 +637,22 @@ $tests = @(
     { Test-RegistryValue -Key 'HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon' -Value 'JoinDomain' }
     { Test-RegistryValue -Key 'HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon' -Value 'AvoidSpnSet' }
     {
-        ( 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName' | ?{ test-path $_ } | %{ (Get-ItemProperty -Path $_ ).ComputerName } ) -ne
-        ( 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName' | ?{ test - path $_ } | %{ (Get-ItemProperty -Path $_ ).ComputerName } )
+        ( 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName' | ?{ test-path $_ } | %{ (Get-ItemProperty -Path $_ ).ComputerName } ) -ne 
+        ( 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName' | ?{ test-path $_ } | %{ (Get-ItemProperty -Path $_ ).ComputerName } )
     }
     {
         'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Services\Pending' | Where-Object { 
-            (Test-Path $_) -and(Get-ChildItem -Path $_) } | ForEach-Object { $true }
+            (Test-Path $_) -and (Get-ChildItem -Path $_) } | ForEach-Object { $true }
     }
 )
-
 foreach ($test in $tests) {
     if (& $test) {
         return 'REBOOT'
-        exit
     }
-    }
-return 'OK'}";
+}
+return 'OK'
+}
+            ";
                 
             if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0) { return; }
             string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
@@ -707,7 +680,7 @@ return 'OK'}";
                     var exResults = pipeline.Invoke();
                     if (exResults.Count == 1)
                     {
-                        if(exResults[0].ToString().ToUpper(Global.cultures) == "TRUE")
+                        if(exResults[0].ToString().ToUpper(Global.cultures) == "REBOOT")
                         {
                             UpdateStatusGUI(line, "pending", GridMainWindow);
                             WriteLogFile(0, "Server " + strTmpServername.ToUpper(Global.cultures) + " has a reboot pending");
