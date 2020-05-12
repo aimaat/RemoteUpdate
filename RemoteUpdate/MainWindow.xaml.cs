@@ -618,6 +618,11 @@ namespace RemoteUpdate
         }
         private void ButtonClicked(int line, string btnContent, string strScript)
         {
+            string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures);
+            if(strTmpServername.Length == 0)
+            {
+                return;
+            }
             switch (btnContent)
             {
                 case "Update":
@@ -625,7 +630,6 @@ namespace RemoteUpdate
                     return;
                 case "Pending":
                     StartPending(line);
-                    //Tasks.AskPendingStatus(line, GridMainWindow);
                     return;
                 case "Reboot":
                     Tasks.StartReboot(line);
