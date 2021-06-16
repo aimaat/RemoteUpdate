@@ -27,9 +27,9 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 * Set your credentials. If you are in a domain and your user has admin rights you don't need this.
 * Save your settings for the next update (2 xml files will be created in the same directory, one for the servers and one for the general settings)
 * Choose between the options:
-* * Update - Runs the update process. Does not reboot the servers unless Reboot (-AutoReboot) selected (And the updates require reboot as determined by -AutoReboot)
-* * Pending - Runs the update process. Does not reboot the servers.
-* * Reboot - Instantly reboots the server.
+* * Update: Runs the update process. Does not reboot the servers unless Reboot (-AutoReboot) selected (And the updates require reboot as determined by -AutoReboot)
+* * Pending: Only checks if the server is pending a reboot. Displays the reboot icon if a reboot is pending.
+* * Reboot: Only instantly restarts the computer (Restart-Computer -Force)
 * * Script - Opens a window to let you manually run a script.
 
 If you have a high amount of servers and want to start all at the same time, enable them with the last checkbox and press "Start All"<br>
