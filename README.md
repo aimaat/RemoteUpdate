@@ -19,14 +19,18 @@ As default it is not possible to install Updates via Remote Powershell, therefor
 # How To:
 * Add the DNS Name of the server you want to update
 * Choose between the options:
-* * Do you want to accept all available updates or choose by hand which one should be installed
-* * Do You want driver updates installed/shown
-* * Do you want an automatic reboot after the installation
+* * Do you want to accept all available updates or choose by hand which one should be installed (-AcceptAll)
+* * Do You want driver updates installed/shown (-NotCategory Drivers)
+* * Do you want an automatic reboot after the installation (-AutoReboot)
 * * Do you want to see the Powershell GUI or just let it work in the background
-* * Do you want to get an email report
+* * Do you want to get an email report (-SendReport –PSWUSettings)
 * Set your credentials. If you are in a domain and your user has admin rights you don't need this.
 * Save your settings for the next update (2 xml files will be created in the same directory, one for the servers and one for the general settings)
-* Press Start
+* Choose between the options:
+* * Update: Runs the update process. Does not reboot the servers unless Reboot (-AutoReboot) selected (And the updates require reboot as determined by -AutoReboot)
+* * Pending: Only checks if the server is pending a reboot. Displays the reboot icon if a reboot is pending.
+* * Reboot: Only instantly restarts the computer (Restart-Computer -Force)
+* * Script - Opens a window to let you manually run a script.
 
 If you have a high amount of servers and want to start all at the same time, enable them with the last checkbox and press "Start All"<br>
 For each server you selected or clicked start a powershell window will open and ask you which updates should be installed or show you the progress of the installation directly (if you checked AcceptAll)
