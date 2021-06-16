@@ -505,7 +505,7 @@ namespace RemoteUpdate
             Process tmpProcess = Process.Start(startInfo);
             if (tmpProcess.Id.ToString(Global.cultures).Length > 0)
             {
-                WriteLogFile(0, "Powershell startet on Server " + strTmpServername.ToUpper(Global.cultures));
+                WriteLogFile(0, "Powershell started on Server " + strTmpServername.ToUpper(Global.cultures));
             }
             else
             {
@@ -574,7 +574,7 @@ namespace RemoteUpdate
             if(tmpProcess.Id.ToString(Global.cultures).Length > 0)
             {
                 LockAndWriteDataTable(Global.TableRuntime, line, "PID", tmpProcess.Id.ToString(Global.cultures), 100);
-                WriteLogFile(0, "Update startet on Server " + strTmpServername.ToUpper(Global.cultures));
+                WriteLogFile(0, "Update started on Server " + strTmpServername.ToUpper(Global.cultures));
                 UpdateStatusGUI(line, "progress", GridMainWindow);
             } else
             {
