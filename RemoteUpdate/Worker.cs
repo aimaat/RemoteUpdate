@@ -203,6 +203,8 @@ namespace RemoteUpdate
                     if(Global.TableRuntime.Rows[ii]["PID"].ToString() == "finished")
                     {
                         Tasks.UpdateStatusGUI(ii, "finished", GridMainWindow);
+                        Global.TableRuntime.Rows[ii]["PID"] = "";
+                        GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + ii.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = "Fin " + DateTime.Now.ToString("HH:mm:ss", Global.cultures);
                     }
                 }
                 // Show if online is a new update available
