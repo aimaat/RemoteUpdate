@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:RemoteUpdate"
         mc:Ignorable="d"
-        Title="RemoteUpdate by aima" Height="220" Width="790" Background="#FFCDC8C8" ResizeMode="CanMinimize" Icon="Pictures\RemoteUpdate.png">
+        Title="RemoteUpdate by aima" Height="220" Width="790" Background="#FFCDC8C8" ResizeMode="CanMinimize" Icon="Pictures\RemoteUpdate.png" Closing="RemoteUpdate_Closing">
     <Grid>
         <Label x:Name="LabelServername" Content="Servername" HorizontalAlignment="Left" Margin="47,0,0,0" VerticalAlignment="Top" ToolTip="Servername (no IP, otherwise Powershell Remoting won't work"/>
         <Label x:Name="LabelUptime" Content="Uptime" HorizontalAlignment="Left" Margin="168,-1,0,0" VerticalAlignment="Top" ToolTip="Shows the Uptime of the Server or that the connection failed (e.g. wrong credentials)"/>

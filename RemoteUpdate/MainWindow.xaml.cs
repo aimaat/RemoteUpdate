@@ -60,8 +60,6 @@ namespace RemoteUpdate
             System.Data.DataTable LoadTable = new System.Data.DataTable();
             // Initialize Servernumber
             int ServerNumber;
-            // Encryption Password initialization
-            string strDecryptionPassword = "";
             // Load Schema and Data from XML RemoteUpdateServer.xml
             bool bReadXML = Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", LoadTable);
             // Only if Load of XML was successfull and RowCount is at least 1
@@ -79,7 +77,7 @@ namespace RemoteUpdate
                 }
                 if(bPassword)
                 {
-                    GetPassword(false, out strDecryptionPassword);
+                    GetPassword(false, out Global.strDecryptionPassword);
                 }
 
                 // Set Servernumber according to Rows from XML
@@ -97,7 +95,7 @@ namespace RemoteUpdate
                 dtrow["Servername"] = LoadTable.Rows[0]["Server"].ToString();
                 dtrow["IP"] = Tasks.GetIPfromHostname(LoadTable.Rows[0]["Server"].ToString());
                 dtrow["Username"] = LoadTable.Rows[0]["Username"].ToString();
-                dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[0]["Password"].ToString(), LoadTable.Rows[0]["Server"].ToString(), strDecryptionPassword);
+                dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[0]["Password"].ToString(), LoadTable.Rows[0]["Server"].ToString());
                 dtrow["Ping"] = "";
                 dtrow["Uptime"] = "";
                 Global.TableRuntime.Rows.Add(dtrow);
@@ -171,7 +169,7 @@ namespace RemoteUpdate
                     dtrow["Servername"] = LoadTable.Rows[ii]["Server"].ToString();
                     dtrow["IP"] = Tasks.GetIPfromHostname(LoadTable.Rows[ii]["Server"].ToString());
                     dtrow["Username"] = LoadTable.Rows[ii]["Username"].ToString();
-                    dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[ii]["Password"].ToString(), LoadTable.Rows[ii]["Server"].ToString(), strDecryptionPassword);
+                    dtrow["Password"] = Tasks.Decrypt(LoadTable.Rows[ii]["Password"].ToString(), LoadTable.Rows[ii]["Server"].ToString());
                     dtrow["Ping"] = "";
                     dtrow["Uptime"] = "";
                 }
@@ -740,6 +738,102 @@ namespace RemoteUpdate
             } else { 
                 int line = Int32.Parse(strline, Global.cultures);
                 GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = (sender as ComboBox).SelectedItem.ToString();
+            }
+        }
+
+        private void RemoteUpdate_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // Check if actual table is different than original file
+            System.Data.DataTable LoadTable = new System.Data.DataTable();
+            // Load Data from XML RemoteUpdateServer.xml
+            bool bReadXML = Tasks.ReadXMLToTable(AppDomain.CurrentDomain.BaseDirectory + "RemoteUpdateServer.xml", LoadTable);
+            // Check if XML read is true and if the rowscount is greater than 0 otherwise exit RemoteUpdate
+            if (bReadXML == true && LoadTable.Rows.Count > 0)
+            {
+                // temporary bool for status if the values have changed from the xml
+                bool bIsChanged = false;
+                // Check if the row counts are the same. if not something has changed for sure and therefore set the bIsChanged to true
+                if(LoadTable.Rows.Count != Global.TableRuntime.Rows.Count - 1)
+                {
+                    bIsChanged = true;
+                // otherwise check each field
+                } else
+                {
+                    for (int ii = 0; ii < LoadTable.Rows.Count; ii++)
+                    {
+                        // Check Servername
+                        if(LoadTable.Rows[ii]["Server"].ToString() != Global.TableRuntime.Rows[ii]["Servername"].ToString())
+                        {
+                            bIsChanged = true;
+                            break;
+                        }
+                        // Check Username
+                        if (LoadTable.Rows[ii]["Username"].ToString() != Global.TableRuntime.Rows[ii]["Username"].ToString())
+                        {
+                            bIsChanged = true;
+                            break;
+                        }
+                        // Check Password
+                        if (Tasks.Decrypt(LoadTable.Rows[ii]["Password"].ToString(), LoadTable.Rows[ii]["Server"].ToString()) != Global.TableRuntime.Rows[ii]["Password"].ToString())
+                        {
+                            bIsChanged = true;
+                            break;
+                        }
+                        // Check AcceptAll Checkbox
+                        if(LoadTable.Rows[ii]["Accept"].ToString() != GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + ii).FirstOrDefault().IsChecked.ToString())
+                        {
+                            bIsChanged = true;
+                            break;
+                        }
+                        // Check Drivers Checkbox
+                        if (LoadTable.Rows[ii]["Drivers"].ToString() != GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxDrivers_" + ii).FirstOrDefault().IsChecked.ToString())
+                        {
+                            bIsChanged = true;
+                            break;
+                        }
+                        // Check Reboot Checkbox
+                        if (LoadTable.Rows[ii]["Reboot"].ToString() != GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxReboot_" + ii).FirstOrDefault().IsChecked.ToString())
+                        {
+                            bIsChanged = true;
+                            break;
+                        }
+                        // Check GUI Checkbox
+                        if (LoadTable.Rows[ii]["GUI"].ToString() != GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxGUI_" + ii).FirstOrDefault().IsChecked.ToString())
+                        {
+                            bIsChanged = true;
+                            break;
+                        }
+                        // Check Mail Checkbox
+                        if (LoadTable.Rows[ii]["Mail"].ToString() != GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxMail_" + ii).FirstOrDefault().IsChecked.ToString())
+                        {
+                            bIsChanged = true;
+                            break;
+                        }
+                        // Check Enabled Checkbox
+                        if (LoadTable.Rows[ii]["Enabled"].ToString() != GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii).FirstOrDefault().IsChecked.ToString())
+                        {
+                            bIsChanged = true;
+                            break;
+                        }
+                    }
+                }
+                // If Result is different ask if you want to save
+                if (bIsChanged)
+                {
+                    MessageBoxResult dialogResult = MessageBox.Show("There are unsaved changes. Do you want to save them?", "Unsaved changes", System.Windows.MessageBoxButton.YesNoCancel);
+                    if (dialogResult == MessageBoxResult.Yes)
+                    {
+                        SaveSettings(sender, e);
+                    }
+                    else if (dialogResult == MessageBoxResult.Cancel)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+                }
+            } else
+            {   // close RemoteUpdate
+                return;
             }
         }
     }

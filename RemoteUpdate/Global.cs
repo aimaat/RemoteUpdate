@@ -36,6 +36,8 @@ namespace RemoteUpdate
         public static bool bNewVersionOnline = false;
         // TableScripts
         public static System.Data.DataTable TableScripts = new System.Data.DataTable("Scripts");
+        // Password String
+        public static string strDecryptionPassword = "";
         
     }
 }

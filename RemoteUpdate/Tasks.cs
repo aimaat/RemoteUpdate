@@ -53,9 +53,10 @@ namespace RemoteUpdate
                 return "";
             }
 }
-        public static string Decrypt(string cipherText, string strServername, string EncryptionKey)
+        public static string Decrypt(string cipherText, string strServername)
         {
             try {
+                string EncryptionKey = Global.strDecryptionPassword;
                 string strSalt = strServername;
                 //EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
                 cipherText = cipherText.Replace(" ", "+");
