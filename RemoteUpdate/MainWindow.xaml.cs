@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Threading;
 
 namespace RemoteUpdate
 {
@@ -68,14 +68,15 @@ namespace RemoteUpdate
                 // Temporary bool if Encryption Password is needed
                 bool bPassword = false;
                 // Check if in any Row is a saved Password, if yes, ask for the Password to encrypt
-                for(int ii = 0; ii < LoadTable.Rows.Count; ii++) { 
-                    if(LoadTable.Rows[ii]["Password"].ToString().Length > 0)
+                for (int ii = 0; ii < LoadTable.Rows.Count; ii++)
+                {
+                    if (LoadTable.Rows[ii]["Password"].ToString().Length > 0)
                     {
                         bPassword = true;
                         break;
                     }
                 }
-                if(bPassword)
+                if (bPassword)
                 {
                     GetPassword(false, out Global.strDecryptionPassword);
                 }
@@ -336,11 +337,12 @@ namespace RemoteUpdate
                 VerticalAlignment = System.Windows.VerticalAlignment.Top,
                 Margin = new Thickness(cbmarginleft, cbmargintop, 0, 0),
             };
-            if(cbname.StartsWith("CheckboxAccept_", StringComparison.Ordinal) || cbname.StartsWith("CheckboxGUI_", StringComparison.Ordinal))
+            if (cbname.StartsWith("CheckboxAccept_", StringComparison.Ordinal) || cbname.StartsWith("CheckboxGUI_", StringComparison.Ordinal))
             {
                 CheckBox1.Checked += CheckboxChangedGUIAccept;
                 CheckBox1.Unchecked += CheckboxChangedGUIAccept;
-            } else
+            }
+            else
             {
                 CheckBox1.Unchecked += CheckBoxChangedServer;
             }
@@ -435,7 +437,8 @@ namespace RemoteUpdate
             if (tborigin.Text.Length == 0) { return; }
             var list = GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name.Contains((sender as TextBox).Name.Split('_')[0])).ToArray();
             // Compare the sender and the last element if the Textbox Name is the same
-            if (tborigin.Name == list[list.Length - 1].Name) {
+            if (tborigin.Name == list[list.Length - 1].Name)
+            {
                 // Textbox Servername creation
                 CreateTextbox("TextBoxServer_" + list.Length, "", 18, 120, 20, 30 * (list.Length + 1));
                 // Uptime Label creation
@@ -465,7 +468,8 @@ namespace RemoteUpdate
                     // Light Grey Rectangle creation
                     CreateRectangle("BackgroundRectangle_" + list.Length, 30, double.NaN, 0, 24 + 30 * list.Length, new SolidColorBrush(Color.FromRgb(222, 217, 217)), 0);
                     CreateGifImage("gifImage_" + list.Length, 710, 30 * ((list.Length + 1) - 1) + 29);
-                } else
+                }
+                else
                 {
                     CreateGifImage("gifImage_" + list.Length, 710, 30 * ((list.Length + 1) - 1) + 29);
                 }
@@ -493,11 +497,12 @@ namespace RemoteUpdate
         private bool GetPassword(bool bEncrypt, out string strCryptPassword)
         {
             Password AskPassword = new Password(bEncrypt);
-            if((bool)AskPassword.ShowDialog())
+            if ((bool)AskPassword.ShowDialog())
             {
                 strCryptPassword = AskPassword.PasswordBoxPassword.Password.ToString(Global.cultures);
                 return true;
-            } else
+            }
+            else
             {
                 strCryptPassword = "";
                 return false;
@@ -561,8 +566,10 @@ namespace RemoteUpdate
         {
             string btnContent = GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name == "ButtonStart").FirstOrDefault().Content.ToString();
             btnContent = btnContent.Substring(0, btnContent.Length - 4);
-            for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++) {
-                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString(Global.cultures)).FirstOrDefault().IsChecked) {
+            for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
+            {
+                if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxEnabled_" + ii.ToString(Global.cultures)).FirstOrDefault().IsChecked)
+                {
                     if (Global.TableRuntime.Rows[ii]["Servername"].ToString().Length != 0 && Global.TableRuntime.Rows[ii]["IP"].ToString().Length != 0)
                     {
                         ButtonClicked(ii, btnContent);
@@ -582,12 +589,13 @@ namespace RemoteUpdate
                 if ((bool)GetScript.DialogResult)
                 {
                     strScriptBlock = GetScript.TextBoxScript.Text;
-                } else
+                }
+                else
                 {
                     return;
                 }
             }
-            if(strButtonLine == "All")
+            if (strButtonLine == "All")
             {
                 for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
                 {
@@ -599,7 +607,8 @@ namespace RemoteUpdate
                         }
                     }
                 }
-            } else
+            }
+            else
             {
                 ButtonClicked(Int32.Parse(strButtonLine, Global.cultures), strButtonFunction, strScriptBlock);
             }
@@ -617,7 +626,7 @@ namespace RemoteUpdate
         private void ButtonClicked(int line, string btnContent, string strScript)
         {
             string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString().ToUpper(Global.cultures);
-            if(strTmpServername.Length == 0)
+            if (strTmpServername.Length == 0)
             {
                 return;
             }
@@ -672,24 +681,25 @@ namespace RemoteUpdate
         {
             Fixit ShowFixit = new Fixit();
             ShowFixit.ShowDialog();
-            if((bool)ShowFixit.DialogResult)
+            if ((bool)ShowFixit.DialogResult)
             {
                 if (Tasks.IsAdministrator())
                 {
-                    if((bool)ShowFixit.WinRMServiceStartupType.IsChecked)
+                    if ((bool)ShowFixit.WinRMServiceStartupType.IsChecked)
                     {
                         Tasks.SetServiceStartup("winrm", "auto");
                     }
-                    if((bool)ShowFixit.WinRMServiceStart.IsChecked)
+                    if ((bool)ShowFixit.WinRMServiceStart.IsChecked)
                     {
                         Tasks.StartService("winrm");
                     }
-                    if((bool)ShowFixit.WinRMTrustedHosts.IsChecked)
+                    if ((bool)ShowFixit.WinRMTrustedHosts.IsChecked)
                     {
                         Tasks.SetTrustedHosts("*");
                     }
                     SetWinRMStatus();
-                } else
+                }
+                else
                 {
                     string strArguments = "";
                     if ((bool)ShowFixit.WinRMServiceStartupType.IsChecked)
@@ -704,7 +714,8 @@ namespace RemoteUpdate
                     {
                         strArguments += "TrustedHosts";
                     }
-                    if(strArguments.Length > 0) { 
+                    if (strArguments.Length > 0)
+                    {
                         Tasks.Elevate(strArguments);
                         SetWinRMStatus();
                     }
@@ -732,10 +743,12 @@ namespace RemoteUpdate
         private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string strline = (sender as ComboBox).Name.Split('_')[1];
-            if(strline == "All")
+            if (strline == "All")
             {
                 ButtonStart_All.Content = (sender as ComboBox).SelectedItem.ToString();
-            } else { 
+            }
+            else
+            {
                 int line = Int32.Parse(strline, Global.cultures);
                 GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = (sender as ComboBox).SelectedItem.ToString();
             }
@@ -753,16 +766,17 @@ namespace RemoteUpdate
                 // temporary bool for status if the values have changed from the xml
                 bool bIsChanged = false;
                 // Check if the row counts are the same. if not something has changed for sure and therefore set the bIsChanged to true
-                if(LoadTable.Rows.Count != Global.TableRuntime.Rows.Count - 1)
+                if (LoadTable.Rows.Count != Global.TableRuntime.Rows.Count - 1)
                 {
                     bIsChanged = true;
-                // otherwise check each field
-                } else
+                    // otherwise check each field
+                }
+                else
                 {
                     for (int ii = 0; ii < LoadTable.Rows.Count; ii++)
                     {
                         // Check Servername
-                        if(LoadTable.Rows[ii]["Server"].ToString() != Global.TableRuntime.Rows[ii]["Servername"].ToString())
+                        if (LoadTable.Rows[ii]["Server"].ToString() != Global.TableRuntime.Rows[ii]["Servername"].ToString())
                         {
                             bIsChanged = true;
                             break;
@@ -780,7 +794,7 @@ namespace RemoteUpdate
                             break;
                         }
                         // Check AcceptAll Checkbox
-                        if(LoadTable.Rows[ii]["Accept"].ToString() != GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + ii).FirstOrDefault().IsChecked.ToString())
+                        if (LoadTable.Rows[ii]["Accept"].ToString() != GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name == "CheckboxAccept_" + ii).FirstOrDefault().IsChecked.ToString())
                         {
                             bIsChanged = true;
                             break;
@@ -831,7 +845,8 @@ namespace RemoteUpdate
                         return;
                     }
                 }
-            } else
+            }
+            else
             {   // close RemoteUpdate
                 return;
             }

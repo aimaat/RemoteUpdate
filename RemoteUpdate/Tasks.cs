@@ -5,14 +5,14 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation.Runspaces;
 using System.Net;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
+using System.Threading;
 using System.Windows.Controls;
 using System.Xml;
-using System.Net.Mail;
-using System.Threading;
 
 namespace RemoteUpdate
 {
@@ -20,7 +20,8 @@ namespace RemoteUpdate
     {
         public static string Encrypt(string clearText, string strServername, string EncryptionKey)
         {
-            try {
+            try
+            {
                 string strSalt = strServername;
                 if (clearText.Length == 0) { return clearText; }
                 //EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
@@ -52,10 +53,11 @@ namespace RemoteUpdate
                 WriteLogFile(2, "Encrypt error for server " + strServername.ToUpper(Global.cultures) + ": " + ee.Message);
                 return "";
             }
-}
+        }
         public static string Decrypt(string cipherText, string strServername)
         {
-            try {
+            try
+            {
                 string EncryptionKey = Global.strDecryptionPassword;
                 string strSalt = strServername;
                 //EncryptionKey = System.Net.Dns.GetHostEntry("localhost").HostName + "RemoteUpdateByAIMA" + System.Security.Principal.WindowsIdentity.GetCurrent().Owner.ToString();
@@ -88,7 +90,7 @@ namespace RemoteUpdate
                 WriteLogFile(2, "Decrypt error for server " + strServername.ToUpper(Global.cultures) + ": " + ee.Message);
                 return "";
             }
-            
+
         }
         public static bool CheckPSConnection(int line)
         {
@@ -107,22 +109,26 @@ namespace RemoteUpdate
                     pipeline.Commands.AddScript("$pass = ConvertTo-SecureString -AsPlainText '" + tmpPassword + "' -Force;");
                     pipeline.Commands.AddScript("$Cred = New-Object System.Management.Automation.PSCredential -ArgumentList '" + tmpUsername + "',$pass;");
                     pipeline.Commands.AddScript("Invoke-Command -Credential $Cred -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion | Select-Object PSWindowsUpdate };");
-                } else {
+                }
+                else
+                {
                     pipeline.Commands.AddScript("Invoke-Command -ComputerName " + tmpServername + " -ConfigurationName VirtualAccount { Get-WUApiVersion | Select-Object PSWindowsUpdate };");
                 }
                 try
                 {
                     var exResults = pipeline.Invoke();
-                    if(!pipeline.HadErrors)
+                    if (!pipeline.HadErrors)
                     {
                         WriteLogFile(0, "Connection to " + tmpServername.ToUpper(Global.cultures) + " works");
                         returnValue = true;
-                    } else
+                    }
+                    else
                     {
                         WriteLogFile(1, "Connection to " + tmpServername.ToUpper(Global.cultures) + " is not working");
                         returnValue = false;
                     }
-                } catch (PSSnapInException ee)
+                }
+                catch (PSSnapInException ee)
                 {
                     WriteLogFile(2, "Connection to " + tmpServername.ToUpper(Global.cultures) + " failed: " + ee.Message);
                     returnValue = false;
@@ -133,16 +139,16 @@ namespace RemoteUpdate
         public static bool CreatePSConnectionPrerequisites(int line, out string strFailureMessage)
         {
             // Check Credentials with a single Connection first
-            if(!CheckPSConnectionPrerequisiteCredentials(line))
+            if (!CheckPSConnectionPrerequisiteCredentials(line))
             {
                 strFailureMessage = "Credentials";
                 return false;
             }
             // Check if Package Provider NuGet is installed
-            if(!CheckPSConnectionPrerequisiteProvider(line))
+            if (!CheckPSConnectionPrerequisiteProvider(line))
             {
                 // Install Package Provider NuGet if not installed
-                if(!CreatePSConnectionPrerequisiteProvider(line))
+                if (!CreatePSConnectionPrerequisiteProvider(line))
                 {
                     strFailureMessage = "PackageProvider";
                     return false;
@@ -534,7 +540,9 @@ namespace RemoteUpdate
             if ((bool)GridMainWindow.Children.OfType<CheckBox>().Where(cb => cb.Name.Equals("CheckboxGUI_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().IsChecked)
             {
                 //startInfo.Arguments = "-noexit ";
-            } else {
+            }
+            else
+            {
                 startInfo.Arguments = "-WindowStyle Hidden ";
             }
             // https://devblogs.microsoft.com/scripting/how-can-i-expand-the-width-of-the-windows-powershell-console/ entfern: $newsize.width = 120; 
@@ -572,12 +580,13 @@ namespace RemoteUpdate
             }
             startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + " }";
             Process tmpProcess = Process.Start(startInfo);
-            if(tmpProcess.Id.ToString(Global.cultures).Length > 0)
+            if (tmpProcess.Id.ToString(Global.cultures).Length > 0)
             {
                 LockAndWriteDataTable(Global.TableRuntime, line, "PID", tmpProcess.Id.ToString(Global.cultures), 100);
                 WriteLogFile(0, "Update started on Server " + strTmpServername.ToUpper(Global.cultures));
                 UpdateStatusGUI(line, "progress", GridMainWindow);
-            } else
+            }
+            else
             {
                 LockAndWriteDataTable(Global.TableRuntime, line, "PID", "error", 100);
                 WriteLogFile(2, "Process for Server " + strTmpServername.ToUpper(Global.cultures) + " could not be opened");
@@ -654,7 +663,7 @@ foreach ($test in $tests) {
 return 'OK'
 }
             ";
-                
+
             if (Global.TableRuntime.Rows[line]["IP"].ToString().Length == 0) { return; }
             string strTmpServername = Global.TableRuntime.Rows[line]["Servername"].ToString();
             string strTmpUsername = Global.TableRuntime.Rows[line]["Username"].ToString();
@@ -681,11 +690,12 @@ return 'OK'
                     var exResults = pipeline.Invoke();
                     if (exResults.Count == 1)
                     {
-                        if(exResults[0].ToString().ToUpper(Global.cultures) == "REBOOT")
+                        if (exResults[0].ToString().ToUpper(Global.cultures) == "REBOOT")
                         {
                             UpdateStatusGUI(line, "pending", GridMainWindow);
                             WriteLogFile(0, "Server " + strTmpServername.ToUpper(Global.cultures) + " has a reboot pending");
-                        } else
+                        }
+                        else
                         {
                             UpdateStatusGUI(line, "clear", GridMainWindow);
                             WriteLogFile(0, "Server " + strTmpServername.ToUpper(Global.cultures) + " has no reboot pending", true);
@@ -712,12 +722,12 @@ return 'OK'
             try
             {
                 IPHostEntry hostEntry = Dns.GetHostEntry(Servername);
-                if (IsLocalHost(hostEntry)) 
+                if (IsLocalHost(hostEntry))
                 {
                     WriteLogFile(0, "Returned IP 127.0.0.1 for " + Servername.ToUpper(Global.cultures) + " (localhost)", true);
-                    return "127.0.0.1"; 
+                    return "127.0.0.1";
                 }
-                WriteLogFile(0, "Returned IP " + hostEntry.AddressList.FirstOrDefault().ToString() + " for " + Servername.ToUpper(Global.cultures), true); 
+                WriteLogFile(0, "Returned IP " + hostEntry.AddressList.FirstOrDefault().ToString() + " for " + Servername.ToUpper(Global.cultures), true);
                 return hostEntry.AddressList.FirstOrDefault().ToString();
             }
             catch (Exception ee)
@@ -732,7 +742,7 @@ return 'OK'
         }
         public static bool ReadXMLToTable(string xmlFilename, System.Data.DataTable loadTable)
         {
-            if(File.Exists(xmlFilename))
+            if (File.Exists(xmlFilename))
             {
                 try
                 {
@@ -743,7 +753,7 @@ return 'OK'
                 }
                 catch (XmlException ee)
                 {
-                    WriteLogFile(2, xmlFilename + " not imported:" + ee.Message.ToString(Global.cultures)) ;
+                    WriteLogFile(2, xmlFilename + " not imported:" + ee.Message.ToString(Global.cultures));
                     return false;
                 }
             }
@@ -784,18 +794,25 @@ return 'OK'
         public static void WriteLogFile(int iClassification, string strArgument, bool bVerbose)
         {
             // Return if Global Verbose is false and the LogMessage is indicated as Verbose Log
-            if(!Global.bVerboseLog && bVerbose) { return; }
-            if(Global.bDirectoryWritable)
+            if (!Global.bVerboseLog && bVerbose) { return; }
+            if (Global.bDirectoryWritable)
             {
                 // Create Classification string
                 string strClassification;
-                if(iClassification == 0) {
+                if (iClassification == 0)
+                {
                     strClassification = "INFO";
-                } else if(iClassification == 1) {
+                }
+                else if (iClassification == 1)
+                {
                     strClassification = "WARNING";
-                } else if(iClassification == 2) {
+                }
+                else if (iClassification == 2)
+                {
                     strClassification = "ERROR";
-                } else {
+                }
+                else
+                {
                     strClassification = "UNKNOWN";
                 }
                 // Write Log Entry
@@ -805,8 +822,10 @@ return 'OK'
                 }
             }
         }
-        public static string CheckServiceStatus (string strServiceName) {
-            using (ServiceController sc = new ServiceController(strServiceName)) { 
+        public static string CheckServiceStatus(string strServiceName)
+        {
+            using (ServiceController sc = new ServiceController(strServiceName))
+            {
                 switch (sc.Status)
                 {
                     case ServiceControllerStatus.Running:
@@ -827,7 +846,7 @@ return 'OK'
         public static bool CheckWinRMStatus(out string strMessage)
         {
             strMessage = "";
-            if(CheckServiceStatus("WinRM") != "Running")
+            if (CheckServiceStatus("WinRM") != "Running")
             {
                 strMessage = "WinRM Service is not running!";
                 return false;
@@ -918,12 +937,14 @@ return 'OK'
         public static void StartService(string strServicename)
         {
 
-            if(!GetServiceStartup(strServicename))
+            if (!GetServiceStartup(strServicename))
             {
                 SetServiceStartup(strServicename, "demand");
             }
-            using (ServiceController service = new ServiceController(strServicename)) {
-                if(service.Status != ServiceControllerStatus.Running) { 
+            using (ServiceController service = new ServiceController(strServicename))
+            {
+                if (service.Status != ServiceControllerStatus.Running)
+                {
                     service.Start();
                     service.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromMilliseconds(5000));
                 }
@@ -992,7 +1013,7 @@ return 'OK'
             }
             return true;
         }
-        public static void LockAndWriteDataTable (System.Data.DataTable tmpTable, int line, string strColumn, string strValue, int iTimeout)
+        public static void LockAndWriteDataTable(System.Data.DataTable tmpTable, int line, string strColumn, string strValue, int iTimeout)
         {
             if (Monitor.TryEnter(tmpTable.Rows.SyncRoot, iTimeout))
             {
@@ -1101,7 +1122,8 @@ return 'OK'
         }
         public static void UpdateRemoteUpdate()
         {
-            try {
+            try
+            {
                 // Download latest version from github
                 using (var client = new WebClient())
                 {
@@ -1116,7 +1138,7 @@ return 'OK'
                 {
                     swBat.WriteLine("taskkill /PID " + PID + " /F");
                     swBat.WriteLine("timeout /T 1");
-                    swBat.WriteLine("cd \"" + strCurrentDirectory + "\""); 
+                    swBat.WriteLine("cd \"" + strCurrentDirectory + "\"");
                     swBat.WriteLine("del \"" + strApplicationName + "\"");
                     swBat.WriteLine("copy \"RemoteUpdateLatest.exe\" \"" + strApplicationName + "\"");
                     swBat.WriteLine("del \"RemoteUpdateLatest.exe\"");

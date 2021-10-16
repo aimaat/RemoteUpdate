@@ -15,7 +15,8 @@ namespace RemoteUpdate
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             Owner = Application.Current.MainWindow;
             iLabelID = iTmpID;
-            if (Global.TableRuntime.Rows[iLabelID]["Password"].ToString().Length != 0) {
+            if (Global.TableRuntime.Rows[iLabelID]["Password"].ToString().Length != 0)
+            {
                 PasswordBoxPassword.Password = Global.TableRuntime.Rows[iLabelID]["Password"].ToString();
             }
             if (Global.TableRuntime.Rows[iLabelID]["Username"].ToString().Length != 0)
@@ -32,7 +33,8 @@ namespace RemoteUpdate
             if (sender.GetType().Name == "TextBox")
             {
                 (sender as TextBox).SelectAll();
-            } else
+            }
+            else
             {
                 (sender as PasswordBox).SelectAll();
             }

@@ -77,7 +77,8 @@ namespace RemoteUpdate
                 {
                     Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Ping", "false", 100);
                 }
-            } catch (PingException ee)
+            }
+            catch (PingException ee)
             {
                 Tasks.WriteLogFile(2, "Ping error with " + strTmpServername + "/" + strTmpIP + ": " + ee.Message, true);
                 return;
@@ -116,26 +117,28 @@ namespace RemoteUpdate
                     {
                         Tasks.LockAndWriteDataTable(Global.TableRuntime, line, "Uptime", "no connection", 100);
                     }
-                } catch (InvalidPipelineStateException ee)
+                }
+                catch (InvalidPipelineStateException ee)
                 {
                     Tasks.WriteLogFile(2, "Uptime check error with " + strTmpServername + ": " + ee.Message, true);
-                    return; 
+                    return;
                 }
             }
         }
         public static void Process_Tick()
         {
-            for(int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
+            for (int ii = 0; ii < Global.TableRuntime.Rows.Count; ii++)
             {
                 string tmpPID = Global.TableRuntime.Rows[ii]["PID"].ToString();
                 if (tmpPID.Length > 0)
                 {
-                    if(tmpPID != "error" && tmpPID != "finished")
+                    if (tmpPID != "error" && tmpPID != "finished")
                     {
                         try
                         {
                             Process tmpProcess = Process.GetProcessById(int.Parse(tmpPID, Global.cultures));
-                        } catch (ArgumentException)
+                        }
+                        catch (ArgumentException)
                         {
                             Tasks.LockAndWriteDataTable(Global.TableRuntime, ii, "PID", "finished", 100);
                         }
@@ -200,7 +203,7 @@ namespace RemoteUpdate
                         GridMainWindow.Children.OfType<TextBox>().Where(tb => tb.Name == "TextBoxServer_" + ii).FirstOrDefault().Background = new SolidColorBrush(Color.FromRgb(240, 139, 139)); // #FFF08B8B
                         GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUptime_" + ii).FirstOrDefault().Content = Global.TableRuntime.Rows[ii]["Uptime"].ToString();
                     }
-                    if(Global.TableRuntime.Rows[ii]["PID"].ToString() == "finished")
+                    if (Global.TableRuntime.Rows[ii]["PID"].ToString() == "finished")
                     {
                         Tasks.UpdateStatusGUI(ii, "finished", GridMainWindow);
                         Global.TableRuntime.Rows[ii]["PID"] = "";
@@ -208,10 +211,11 @@ namespace RemoteUpdate
                     }
                 }
                 // Show if online is a new update available
-                if(Global.bNewVersionOnline)
+                if (Global.bNewVersionOnline)
                 {
                     GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUpdate").FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
-                } else
+                }
+                else
                 {
                     GridMainWindow.Children.OfType<Label>().Where(lbl => lbl.Name == "LabelUpdate").FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
                 }

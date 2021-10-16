@@ -14,12 +14,12 @@ namespace RemoteUpdate
             {
                 bool bExit = false;
                 Args = e.Args;
-                for(int ii = 0; ii < Args.Length; ii++)
+                for (int ii = 0; ii < Args.Length; ii++)
                 {
                     switch (Args[ii].ToString(System.Globalization.CultureInfo.CurrentCulture))
                     {
                         case "WinRMService":
-                            Tasks.SetServiceStartup("winrm","auto");
+                            Tasks.SetServiceStartup("winrm", "auto");
                             bExit = true;
                             continue;
                         case "WinRMStart":
@@ -32,8 +32,8 @@ namespace RemoteUpdate
                             continue;
                     }
                 }
-                if(bExit)
-                { 
+                if (bExit)
+                {
                     System.Environment.Exit(0);
                 }
             }

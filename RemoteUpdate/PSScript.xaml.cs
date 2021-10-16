@@ -1,16 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace RemoteUpdate
 {
@@ -44,22 +33,24 @@ namespace RemoteUpdate
             string strScript = TextBoxScript.Text.Trim();
             string strName;
             int iID = ComboBoxScript.SelectedIndex;
-            if(iID == -1)
+            if (iID == -1)
             {
                 strName = ComboBoxScript.Text;
-            } else
+            }
+            else
             {
                 strName = ComboBoxScript.SelectedItem.ToString().Trim();
             }
             if (strScript.Length > 1 && strName.Length > 1)
             {
-                if(iID == -1)
+                if (iID == -1)
                 {
                     System.Data.DataRow tmpRow = Global.TableScripts.NewRow();
                     tmpRow["Name"] = strName;
                     tmpRow["Script"] = strScript;
                     Global.TableScripts.Rows.Add(tmpRow);
-                } else
+                }
+                else
                 {
                     Global.TableScripts.Rows[iID]["Name"] = strName;
                     Global.TableScripts.Rows[iID]["Script"] = strScript;
