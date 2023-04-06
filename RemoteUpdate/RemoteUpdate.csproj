@@ -61,10 +61,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>6041BEE3D2DC93CA52092FDDA1216230A0735283</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>F18CC8A95204C48DC6285FAE3816AD5F10719395</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>RemoteUpdate_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>RemoteUpdate_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -187,6 +187,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="RemoteUpdateNet_TemporaryKey.pfx" />
+    <None Include="RemoteUpdate_1_TemporaryKey.pfx" />
     <None Include="RemoteUpdate_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

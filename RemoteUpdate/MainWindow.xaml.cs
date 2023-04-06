@@ -557,11 +557,9 @@ namespace RemoteUpdate
         }
         private void ButtonTime_Click(object sender, RoutedEventArgs e)
         {
-            int line = Int32.Parse((sender as Button).Name.Split('_')[1], Global.cultures);
-            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
-            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
-            GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
+            HideTime(Int32.Parse((sender as Button).Name.Split('_')[1], Global.cultures));
         }
+
         private void ButtonStartAll_Click(object sender, RoutedEventArgs e)
         {
             string btnContent = GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name == "ButtonStart").FirstOrDefault().Content.ToString();
@@ -751,8 +749,15 @@ namespace RemoteUpdate
             {
                 int line = Int32.Parse(strline, Global.cultures);
                 GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = (sender as ComboBox).SelectedItem.ToString();
-                GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = Visibility.Hidden;
+                HideTime(line);
             }
+        }
+
+        private void HideTime(int line)
+        {
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
+            GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Visible;
+            GridMainWindow.Children.OfType<GifImage>().Where(gif => gif.Name.Equals("gifImage_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = System.Windows.Visibility.Hidden;
         }
 
         private void RemoteUpdate_Closing(object sender, System.ComponentModel.CancelEventArgs e)
