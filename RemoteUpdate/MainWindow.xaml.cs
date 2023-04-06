@@ -751,6 +751,7 @@ namespace RemoteUpdate
             {
                 int line = Int32.Parse(strline, Global.cultures);
                 GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonStart_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Content = (sender as ComboBox).SelectedItem.ToString();
+                GridMainWindow.Children.OfType<Button>().Where(btn => btn.Name.Equals("ButtonTime_" + line.ToString(Global.cultures), StringComparison.Ordinal)).FirstOrDefault().Visibility = Visibility.Hidden;
             }
         }
 
