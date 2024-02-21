@@ -578,12 +578,16 @@ namespace RemoteUpdate
                     WUArguments += "-SendReport –PSWUSettings @{ SmtpServer = '" + strTmpSMTPServer + "'; Port = " + strTmpSMTPPort + "; From = '" + strTmpMailFrom + "'; To = '" + strTmpMailTo + "' }";
                 }
             }
-            startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + " }";
+            //startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString() + " }";
+
+            string strWUArgument = "Install-WindowsUpdate -Verbose " + WUArguments + Global.TableSettings.Rows[0]["PSWUCommands"].ToString();
+            startInfo.Arguments += "Invoke-Command " + strTmpCredentials + "-ConfigurationName '" + strTmpVirtualAccount + "' -ComputerName " + strTmpServername + " { " + strWUArgument + " }";
+
             Process tmpProcess = Process.Start(startInfo);
             if (tmpProcess.Id.ToString(Global.cultures).Length > 0)
             {
                 LockAndWriteDataTable(Global.TableRuntime, line, "PID", tmpProcess.Id.ToString(Global.cultures), 100);
-                WriteLogFile(0, "Update started on Server " + strTmpServername.ToUpper(Global.cultures));
+                WriteLogFile(0, "Update started on Server " + strTmpServername.ToUpper(Global.cultures) + " with the command: " + strWUArgument);
                 UpdateStatusGUI(line, "progress", GridMainWindow);
             }
             else
